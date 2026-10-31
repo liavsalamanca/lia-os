@@ -4,7 +4,7 @@ Estado real del desarrollo. La visión completa está en [MASTER_PLAN.md](../MAS
 
 Una casilla se marca solo cuando su verificación se ejecutó y pasó. Un módulo se considera terminado únicamente según la sección 12 del Master Plan.
 
-**Estado actual:** Fase 1 en preparación. Auditoría y plan listos; el código no ha empezado porque faltan Node, Git y GitHub CLI en el equipo de desarrollo.
+**Estado actual:** Fase 1 implementada en la rama `feat/fase-1-arquitectura`, pendiente de revisión y fusión. Ningún módulo está terminado según la sección 12: las 15 áreas conservan la funcionalidad de v1 y su ampliación corresponde a las fases siguientes.
 
 ---
 
@@ -113,19 +113,19 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 
 - [x] Auditoría del repositorio y de los datos. *Verificación: sección 1 de este documento.*
 - [x] `MASTER_PLAN.md` y este roadmap.
-- [ ] Node, Git y GitHub CLI disponibles. *Verificación: `node -v`, `git --version`, `gh auth status`.*
-- [ ] Vite, React y TypeScript estricto en la rama `feat/fase-1-arquitectura`. *Verificación: `npm run typecheck` y `npm run build`.*
-- [ ] `Repository` con adaptador IndexedDB. *Verificación: pruebas de guardado y recuperación.*
-- [ ] Migración v1 a v2 copiando datos. *Verificación: pruebas con fixture; repetirla no duplica y `lia-os-v1` queda idéntica byte a byte.*
-- [ ] Lectura segura de datos corruptos, sin sobrescribir (problema 1). *Verificación: prueba unitaria.*
-- [ ] Importación con esquema y respaldo automático previo (problema 2). *Verificación: prueba con archivo inválido.*
-- [ ] Sistema de diseño con tema claro/oscuro. *Verificación: revisión en navegador en 375 px y 1440 px.*
-- [ ] Shell: sidebar, navegación móvil, búsqueda y command palette. *Verificación: e2e con teclado.*
-- [ ] Las 15 vistas con paridad funcional. *Verificación: e2e de crear, editar y eliminar en cada colección.*
-- [ ] Cálculo de cotización portado, con pruebas y corrección del problema 4. *Verificación: pruebas unitarias con los resultados de v1 como referencia.*
-- [ ] PWA con precaché versionada y sustitución limpia del `sw.js` anterior. *Verificación: build e instalación con actualización desde v1 en navegador.*
-- [ ] GitHub Actions: pruebas, build y despliegue a Pages. *Verificación: CI en verde en el PR.*
-- [ ] README actualizado. Se retira `PROMPT_CLAUDE.md` solo si queda sustituido por este documento.
+- [x] Node, Git y GitHub CLI disponibles. *Verificación: `node -v`, `git --version`, `gh auth status`.*
+- [x] Vite, React y TypeScript estricto en la rama `feat/fase-1-arquitectura`. *Verificación: `npm run typecheck` y `npm run build`.*
+- [x] `Repository` con adaptador IndexedDB. *Verificación: pruebas de guardado y recuperación.*
+- [x] Migración v1 a v2 copiando datos. *Verificación: pruebas con fixture; repetirla no duplica y `lia-os-v1` queda idéntica byte a byte.*
+- [x] Lectura segura de datos corruptos, sin sobrescribir (problema 1). *Verificación: prueba unitaria.*
+- [x] Importación con esquema y respaldo automático previo (problema 2). *Verificación: prueba con archivo inválido.*
+- [x] Sistema de diseño con tema claro/oscuro. *Verificación: revisión en navegador en 375 px y 1440 px.*
+- [x] Shell: sidebar, navegación móvil, búsqueda y command palette. *Verificación: e2e con teclado.*
+- [x] Las 15 vistas con paridad funcional. *Verificación: e2e de crear, editar y eliminar en cada colección.*
+- [x] Cálculo de cotización portado, con pruebas y corrección del problema 4. *Verificación: pruebas unitarias con los resultados de v1 como referencia.*
+- [x] PWA con precaché versionada y sustitución limpia del `sw.js` anterior. *Verificación: build e instalación con actualización desde v1 en navegador.*
+- [ ] GitHub Actions: pruebas, build y despliegue a Pages. *Verificación: CI en verde en el PR y primer despliegue tras fusionar.*
+- [x] README actualizado. `PROMPT_CLAUDE.md` se conserva como referencia histórica; este documento lo sustituye.
 
 **Antes de fusionar este PR:** hay que cambiar Settings → Pages → Source a **GitHub Actions**. Pages publica hoy `main` desde la raíz; si no se cambia, publicaría el `index.html` de desarrollo y la app quedaría en blanco.
 
@@ -185,11 +185,22 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 
 ---
 
-## 5. Lo que te corresponde a ti
+## 5. Resultado de la Fase 1
+
+Problemas de la auditoría corregidos: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 y 11.
+
+- **Cambio de comportamiento:** un casillero de 0 en un pedido ahora se respeta. En v1 se reemplazaba por la tarifa predeterminada, así que un pedido antiguo guardado con 0 mostrará un precio menor.
+- **Decisión sobre actualizaciones:** el service worker se activa solo y no recarga la página, para no perder un formulario abierto.
+- **Recharts** no se instaló: se añade en la Fase 4, cuando exista el primer gráfico.
+- **Sin verificar aún:** el despliegue real en GitHub Pages y la instalación en un iPhone físico. WebKit de Playwright se acerca a Safari, pero no lo sustituye.
+- La prueba de actualización desde v1 se ejecutó localmente y necesita `V1_DIR`, por lo que CI la omite.
+
+---
+
+## 6. Lo que te corresponde a ti
 
 | Cuándo | Qué |
 |---|---|
-| Ahora | Instalar Node LTS, Git y GitHub CLI, e iniciar sesión con `gh auth login`. |
 | Antes de fusionar la Fase 1 | Cambiar Pages a GitHub Actions. |
 | Fase 3 | Crear el proyecto Supabase. |
 | Fase 7 | Crear las credenciales OAuth de Google. |
