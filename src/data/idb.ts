@@ -140,6 +140,12 @@ export class IndexedDbRepository implements Repository {
     await done(tx);
   }
 
+  async clearBackups() {
+    const tx = this.db.transaction('backups', 'readwrite');
+    tx.objectStore('backups').clear();
+    await done(tx);
+  }
+
   async listBackups() {
     const entries = await request(this.db.transaction('backups').objectStore('backups').getAll() as IDBRequest<BackupEntry[]>);
     return entries.sort((a, b) => b.createdAt.localeCompare(a.createdAt));

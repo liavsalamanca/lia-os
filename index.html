@@ -1,38 +1,17 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#651f37" />
-  <meta name="description" content="LIA OS — tu vida, tus proyectos y tus ideas en un solo lugar." />
-  <title>LIA OS — Your life, your system</title>
-  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./assets/styles.css" />
-</head>
-<body>
-  <div id="app" class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#overview" aria-label="Ir al inicio"><span class="brand-mark">L</span><span><strong>LIA<span class="brand-light"> OS</span></strong><small>your life, your system</small></span></a>
-      <div class="sidebar-content" id="nav"></div>
-      <div class="sidebar-bottom"><div class="tiny-badge"><span class="online-dot"></span> Personal edition <span>01</span></div><button class="sidebar-backup" data-action="export">↧ Exportar respaldo</button></div>
-    </aside>
-    <div class="mobile-overlay" id="mobileOverlay"></div>
-    <div class="main-shell">
-      <header class="topbar">
-        <div class="topbar-left"><button id="menuButton" class="icon-button mobile-only" title="Menú" aria-label="Abrir menú">☰</button><span class="breadcrumb">PERSONAL WORKSPACE <span>/</span> <strong id="breadcrumbCurrent">Overview</strong></span></div>
-        <div class="topbar-actions"><span class="clock" id="clockLabel"></span><button class="icon-button" data-action="search" title="Buscar en todo LIA OS" aria-label="Buscar">⌕</button><button class="icon-button" data-action="theme" title="Cambiar tema" aria-label="Cambiar tema">◐</button><button class="user-avatar" data-nav="settings" aria-label="Ajustes">L</button></div>
-      </header>
-      <main class="content" id="main" aria-live="polite"></main>
-      <footer class="footer">LIA OS <span>•</span> made for an intentional life <span>•</span> Tu información se guarda en este dispositivo</footer>
-    </div>
-    <button class="mobile-fab" id="fab" data-action="quickadd" aria-label="Añadir tarea">+</button>
-  </div>
-  <div id="modalRoot"></div>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <script type="module" src="./assets/app.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#5c1a2e" />
+    <meta name="description" content="LIA OS — tu vida, tus proyectos y tus ideas en un solo lugar." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>LIA OS — Your life, your system</title>
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

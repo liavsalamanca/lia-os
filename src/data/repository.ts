@@ -19,4 +19,5 @@ export interface Repository {
   setMeta(key: string, value: unknown): Promise<void>;
   addBackup(reason: string, snapshot: Snapshot): Promise<void>;
   listBackups(): Promise<BackupEntry[]>;
+  clearBackups(): Promise<void>;
 }

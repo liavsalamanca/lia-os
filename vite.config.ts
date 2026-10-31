@@ -33,6 +33,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
+        // Sin esto el worker nuevo queda en espera detrás del de la versión 1.
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ],
