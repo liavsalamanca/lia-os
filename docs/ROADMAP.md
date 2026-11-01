@@ -4,7 +4,7 @@ Estado real del desarrollo. La visión completa está en [MASTER_PLAN.md](../MAS
 
 Una casilla se marca solo cuando su verificación se ejecutó y pasó. Un módulo se considera terminado únicamente según la sección 12 del Master Plan.
 
-**Estado actual:** Fase 1 implementada en la rama `feat/fase-1-arquitectura`, pendiente de revisión y fusión. Ningún módulo está terminado según la sección 12: las 15 áreas conservan la funcionalidad de v1 y su ampliación corresponde a las fases siguientes.
+**Estado actual:** Fase 1 publicada en GitHub Pages. La sincronización de la Fase 3 se adelantó y está implementada, pendiente de conectarla a un proyecto Supabase real. Ningún módulo está terminado según la sección 12: las 15 áreas conservan la funcionalidad de v1 y su ampliación corresponde a las fases siguientes.
 
 ---
 
@@ -124,7 +124,7 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 - [x] Las 15 vistas con paridad funcional. *Verificación: e2e de crear, editar y eliminar en cada colección.*
 - [x] Cálculo de cotización portado, con pruebas y corrección del problema 4. *Verificación: pruebas unitarias con los resultados de v1 como referencia.*
 - [x] PWA con precaché versionada y sustitución limpia del `sw.js` anterior. *Verificación: build e instalación con actualización desde v1 en navegador.*
-- [ ] GitHub Actions: pruebas, build y despliegue a Pages. *Verificación: CI en verde en el PR y primer despliegue tras fusionar.*
+- [x] GitHub Actions: pruebas, build y despliegue a Pages. *Verificación: CI en verde en el PR y primer despliegue tras fusionar.*
 - [x] README actualizado. `PROMPT_CLAUDE.md` se conserva como referencia histórica; este documento lo sustituye.
 
 **Antes de fusionar este PR:** hay que cambiar Settings → Pages → Source a **GitHub Actions**. Pages publica hoy `main` desde la raíz; si no se cambia, publicaría el `index.html` de desarrollo y la app quedaría en blanco.
@@ -137,16 +137,17 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 - [ ] Proyectos con hitos y avance.
 - [ ] Calendario semanal, diario y time blocking.
 - [ ] Configuración: perfil, moneda, zona horaria y notificaciones.
-- [ ] Autenticación tras el indicador de nube; el modo local sigue siendo el predeterminado.
+- [x] Autenticación con correo y contraseña, recuperación por código y cierre de sesión; el modo local sigue siendo el predeterminado.
 
 ### Fase 3 — Datos y sincronización
 
-- [ ] Migraciones SQL versionadas y RLS por usuario. *Verificación: prueba de aislamiento entre dos usuarios.*
-- [ ] Adaptador Supabase para `Repository`.
+- [x] Migraciones SQL versionadas y RLS por usuario. *Verificación: `rls.test.ts` ejecuta el SQL real en PostgreSQL embebido. Falta repetirla en el proyecto real.*
+- [x] Motor de sincronización local-first con adaptador de Supabase. *Verificación: `sync.test.ts` y `cloud.spec.ts` con Supabase simulado. Falta probarlo en el proyecto real.*
 - [ ] Supabase Storage privado para adjuntos.
-- [ ] Migración voluntaria e idempotente a la nube.
-- [ ] Sincronización, resolución de conflictos y respaldos.
-- [ ] Guía de configuración. *Requiere de ti: crear el proyecto Supabase y entregar URL y clave publishable.*
+- [x] Migración voluntaria e idempotente a la nube, con copia automática previa.
+- [x] Sincronización, resolución de conflictos (gana el cambio más reciente) y respaldos.
+- [x] Guía de configuración en [docs/SUPABASE.md](SUPABASE.md).
+- [ ] Conectar el proyecto real. *Requiere de ti: crear el proyecto Supabase y entregar URL y clave publishable.*
 
 ### Fase 4 — Business Suite
 
@@ -192,7 +193,7 @@ Problemas de la auditoría corregidos: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 y 11.
 - **Cambio de comportamiento:** un casillero de 0 en un pedido ahora se respeta. En v1 se reemplazaba por la tarifa predeterminada, así que un pedido antiguo guardado con 0 mostrará un precio menor.
 - **Decisión sobre actualizaciones:** el service worker se activa solo y no recarga la página, para no perder un formulario abierto.
 - **Recharts** no se instaló: se añade en la Fase 4, cuando exista el primer gráfico.
-- **Sin verificar aún:** el despliegue real en GitHub Pages y la instalación en un iPhone físico. WebKit de Playwright se acerca a Safari, pero no lo sustituye.
+- **Verificado tras publicar:** despliegue en GitHub Pages y uso en dos dispositivos reales, según confirmación de la usuaria.
 - La prueba de actualización desde v1 se ejecutó localmente y necesita `V1_DIR`, por lo que CI la omite.
 
 ---

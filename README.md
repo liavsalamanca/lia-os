@@ -15,12 +15,13 @@ Las 15 áreas de la versión anterior, ahora sobre una base mantenible:
 - Búsqueda global y comandos con Ctrl/Cmd+K, navegación adaptada a móvil y modo claro/oscuro.
 - Exportar e importar respaldos JSON (también de la versión 1), con copia automática antes de reemplazar.
 - PWA instalable que funciona sin conexión.
+- Sincronización opcional entre dispositivos con Supabase: ver [docs/SUPABASE.md](docs/SUPABASE.md).
 
-**Todavía no existen:** cuentas, sincronización entre dispositivos, recordatorios, conexión con bancos, Instagram o Google Calendar. La lista completa de pendientes está en el roadmap.
+**Todavía no existen:** recordatorios, conexión con bancos, Instagram o Google Calendar. La lista completa de pendientes está en el roadmap.
 
 ## Privacidad y datos
 
-- Tus registros se guardan en IndexedDB **en este navegador y dispositivo**. No se envían a ningún servidor y no están en GitHub.
+- Tus registros se guardan en IndexedDB **en este navegador y dispositivo**. Si activas la sincronización también se guardan en tu proyecto de Supabase, protegidos por usuario. Nunca están en GitHub.
 - Si borras los datos del sitio o cambias de dispositivo, puedes perderlos. **Exporta respaldos con frecuencia** y guárdalos en privado.
 - Nunca subas un respaldo al repositorio: es público.
 - La aplicación no tiene cifrado propio. No guardes contraseñas en ella.
@@ -49,6 +50,7 @@ npm run dev
 | `npm run typecheck` | Comprueba TypeScript |
 | `npm test` | Pruebas unitarias y de integración (Vitest) |
 | `npm run test:e2e` | Pruebas en navegador (Playwright: escritorio, móvil e iPhone) |
+| `VITE_SUPABASE_URL=http://supabase.test VITE_SUPABASE_PUBLISHABLE_KEY=x npm run test:e2e -- cloud --project=escritorio` | Dos dispositivos contra Supabase simulado |
 
 La primera vez, instala los navegadores de prueba con `npx playwright install chromium webkit`.
 
