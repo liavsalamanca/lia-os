@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+@import '@fontsource/dm-sans/700.css';
+@import '@fontsource/playfair-display/400.css';
+@import '@fontsource/playfair-display/500.css';
+
+:root {
+  color-scheme: light;
+  --canvas: #faf6ef;
+  --surface: #fffdf9;
+  --sunken: #f3ece1;
+  --ink: #2a2023;
+  --muted: #6d6159;
+  --line: #e6dccf;
+  --line-strong: #cdbfae;
+  --wine: #5c1a2e;
+  --wine-ink: #fffdf9;
+  --wine-soft: #f1e4e2;
+  --rose: #8a6248;
+  --ok: #3f6b52;
+  --warn: #8a5a1c;
+  --danger: #a12c3f;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #1a1416;
+  --surface: #221a1d;
+  --sunken: #2b2124;
+  --ink: #f4ecdf;
+  --muted: #b3a597;
+  --line: #3a2e31;
+  --line-strong: #54444a;
+  --wine: #e2aab7;
+  --wine-ink: #2a1219;
+  --wine-soft: #3d2229;
+  --rose: #d1a98c;
+  --ok: #93c5a6;
+  --warn: #dfb574;
+  --danger: #ef9aa8;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-wine: var(--wine);
+  --color-wine-ink: var(--wine-ink);
+  --color-wine-soft: var(--wine-soft);
+  --color-rose: var(--rose);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+@layer base {
+  body {
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  [role='option'] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--wine);
+    outline-offset: 2px;
+  }
+
+  dialog {
+    margin: auto;
+    color: inherit;
+  }
+
+  dialog::backdrop {
+    background: rgb(26 14 18 / 0.5);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rose);
+}
+
+@utility control {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.28s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
