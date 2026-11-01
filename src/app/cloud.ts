@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { useSyncExternalStore } from 'react';
 import type { IndexedDbRepository } from '../data/idb';
 import { SYNC_STATE_KEY, SyncEngine } from '../data/sync/engine';
+import type { RecoveryLink } from './recovery';
 import type { Store } from './store';
 
 const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -18,13 +19,15 @@ export type CloudState = {
   needsLink: boolean;
   /** Este dispositivo tiene datos de otra cuenta. */
   otherOwner: boolean;
+  /** Se abrió un enlace de recuperación de contraseña. */
+  recovery: 'ready' | 'expired' | null;
   status: 'off' | 'syncing' | 'synced' | 'offline' | 'error';
   lastSyncAt: string | null;
   error: string | null;
 };
 
 class Cloud {
-  private state: CloudState = { configured: Boolean(URL && KEY), email: null, needsLink: false, otherOwner: false, status: 'off', lastSyncAt: null, error: null };
+  private state: CloudState = { configured: Boolean(URL && KEY), email: null, needsLink: false, otherOwner: false, recovery: null, status: 'off', lastSyncAt: null, error: null };
   private listeners = new Set<() => void>();
   private client: SupabaseClient | null = null;
   private engine: SyncEngine | null = null;
@@ -49,13 +52,14 @@ class Cloud {
     this.listeners.forEach((l) => l());
   }
 
-  async start(store: Store, repo: IndexedDbRepository) {
+  async start(store: Store, repo: IndexedDbRepository, recovery: RecoveryLink | null) {
     this.store = store;
     this.repo = repo;
     if (!URL || !KEY) return;
     // Carga diferida: quien no usa la nube no descarga el cliente.
     const { createClient } = await import('@supabase/supabase-js');
     this.client = createClient(URL, KEY, { auth: { detectSessionInUrl: false } });
+    if (recovery) await this.openRecovery(recovery);
     const { data } = await this.client.auth.getSession();
     await this.onSession(data.session?.user ?? null);
     // Las llamadas a Supabase dentro de este aviso se bloquean: se difiere el trabajo.
@@ -134,15 +138,24 @@ class Cloud {
   }
 
   async sendRecovery(email: string) {
-    const { error } = await this.client!.auth.resetPasswordForEmail(email);
-    if (error) throw new Error('No se pudo enviar el código. Inténtalo más tarde.');
+    const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}`;
+    const { error } = await this.client!.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw new Error('No se pudo enviar el correo. Inténtalo más tarde.');
   }
 
-  async resetPassword(email: string, token: string, password: string) {
-    const verified = await this.client!.auth.verifyOtp({ email, token, type: 'recovery' });
-    if (verified.error) throw new Error('El código no es válido o ya venció.');
-    const updated = await this.client!.auth.updateUser({ password });
-    if (updated.error) throw new Error('No se pudo cambiar la contraseña. Usa una más larga.');
+  private async openRecovery(link: RecoveryLink) {
+    if (link.status === 'expired') {
+      this.set({ recovery: 'expired' });
+      return;
+    }
+    const { error } = await this.client!.auth.setSession({ access_token: link.accessToken, refresh_token: link.refreshToken });
+    this.set({ recovery: error ? 'expired' : 'ready' });
+  }
+
+  async setNewPassword(password: string) {
+    const { error } = await this.client!.auth.updateUser({ password });
+    if (error) throw new Error('No se pudo cambiar la contraseña. Usa una más larga o pide otro enlace.');
+    this.set({ recovery: null });
   }
 
   /** Desvincula un dispositivo con datos de otra cuenta, sin tocar sus datos. */
