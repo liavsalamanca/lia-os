@@ -3,6 +3,7 @@ import { parseBackup, serializeBackup } from '../data/backup';
 import { LEGACY_KEY, reimportLegacy } from '../data/legacy';
 import type { BackupEntry, Repository } from '../data/repository';
 import { emptySnapshot, type Collection, type RecordOf, type Settings, type Snapshot } from '../data/schema';
+import { timeOf } from '../data/sync/plan';
 import { todayISO } from '../domain/dates';
 import { toggleHabitDate } from '../domain/habits';
 import { projectTemplates, habitTemplates } from '../domain/templates';
@@ -12,6 +13,8 @@ const CHANNEL = 'lia-os-data';
 export class Store {
   private listeners = new Set<() => void>();
   private channel = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChannel(CHANNEL);
+  /** Avisa a la sincronización de que hay algo que subir. */
+  onLocalChange: (() => void) | null = null;
 
   constructor(
     private repo: Repository,
@@ -35,6 +38,7 @@ export class Store {
   private changed(next: Snapshot) {
     this.set(next);
     this.channel?.postMessage('changed');
+    this.onLocalChange?.();
   }
 
   /** Actualiza la interfaz al instante y la revierte si no se pudo guardar. */
@@ -48,6 +52,7 @@ export class Store {
       throw error;
     }
     this.channel?.postMessage('changed');
+    this.onLocalChange?.();
   }
 
   async reload() {
@@ -60,8 +65,9 @@ export class Store {
 
   async saveRecord<C extends Collection>(collection: C, values: Record<string, unknown>, id?: string, { instant = false } = {}) {
     const list = this.snapshot[collection] as RecordOf<C>[];
-    const now = new Date().toISOString();
     const existing = id ? list.find((r) => r.id === id) : undefined;
+    // Con un reloj atrasado, la edición debe seguir siendo posterior a lo que edita.
+    const now = new Date(Math.max(Date.now(), existing ? timeOf(existing.updatedAt) + 1 : 0)).toISOString();
     const record = (existing
       ? { ...existing, ...values, updatedAt: now }
       : { ...values, id: crypto.randomUUID(), createdAt: now, updatedAt: now }) as RecordOf<C>;
@@ -111,7 +117,7 @@ export class Store {
     const { snapshot, skipped } = parseBackup(text);
     await this.repo.addBackup('Antes de importar', this.snapshot);
     await this.repo.replaceAll(snapshot);
-    this.changed(snapshot);
+    await this.reloadChanged();
     return { skipped };
   }
 
@@ -122,14 +128,32 @@ export class Store {
   async restoreBackup(entry: BackupEntry) {
     await this.repo.addBackup('Antes de restaurar', this.snapshot);
     await this.repo.replaceAll(entry.snapshot);
-    this.changed(entry.snapshot);
+    await this.reloadChanged();
   }
 
-  async deleteAll() {
-    const empty = emptySnapshot();
-    await this.repo.replaceAll(empty);
-    await this.repo.clearBackups();
-    this.changed(empty);
+  private async reloadChanged() {
+    this.changed(await this.repo.load());
+  }
+
+  /** Con la sincronización activa el borrado se propaga; sin ella afecta solo a este dispositivo. */
+  async deleteAll({ everywhere }: { everywhere: boolean }) {
+    if (everywhere) {
+      await this.repo.replaceAll(emptySnapshot());
+      await this.repo.clearBackups();
+    } else {
+      await this.repo.wipeDevice();
+    }
+    await this.reloadChanged();
+  }
+
+  async wipeDevice() {
+    await this.repo.wipeDevice();
+    await this.reload();
+    this.channel?.postMessage('changed');
+  }
+
+  backupBeforeLinking() {
+    return this.repo.addBackup('Antes de conectar la nube', this.snapshot);
   }
 
   async addTemplates() {
