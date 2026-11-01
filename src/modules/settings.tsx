@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { cloud, useCloud } from '../app/cloud';
 import { getStore, useData } from '../app/store';
 import { useUI } from '../app/ui';
 import { readLegacy } from '../data/legacy';
@@ -6,6 +7,7 @@ import type { BackupEntry } from '../data/repository';
 import { Button, Note, PageHeader, Section } from '../design';
 import { todayISO } from '../domain/dates';
 import { safeUrl } from '../domain/url';
+import { CloudSection } from './cloudSection';
 import { download } from './download';
 
 function Setting({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
@@ -77,15 +79,17 @@ function LegacyCopy() {
 export default function SettingsPage() {
   const { settings } = useData();
   const { confirm, attempt, toast } = useUI();
+  const cloudState = useCloud();
   const store = getStore();
   const file = useRef<HTMLInputElement>(null);
   const [backups, setBackups] = useState<BackupEntry[]>([]);
   const refreshBackups = () => void store.listBackups().then(setBackups);
-  useEffect(refreshBackups, [store]);
+  useEffect(refreshBackups, [store, cloudState.needsLink]);
 
   const importFile = async (selected?: File) => {
     if (!selected) return;
-    if (!(await confirm('Este archivo reemplazará los registros actuales. Antes se guardará una copia automática.', 'Importar'))) return;
+    const scope = cloud.active ? 'en todos tus dispositivos' : 'de este dispositivo';
+    if (!(await confirm(`Este archivo reemplazará los registros ${scope}. Antes se guardará una copia automática aquí.`, 'Importar'))) return;
     await attempt(async () => {
       const { skipped } = await store.importBackup(await selected.text());
       toast(skipped ? `Respaldo restaurado. Se omitieron ${skipped} registros no válidos.` : 'Respaldo restaurado');
@@ -101,8 +105,10 @@ export default function SettingsPage() {
 
   const deleteAll = async () => {
     if (!(await confirm('¿Seguro que deseas borrar TODOS tus datos? Primero exporta un respaldo.', 'Continuar'))) return;
-    if (!(await confirm('Confirmación final: se eliminarán tus registros y las copias automáticas. La copia de la versión anterior, si existe, se borra aparte.', 'Eliminar todo'))) return;
-    await attempt(() => store.deleteAll(), 'Datos eliminados');
+    const everywhere = cloud.active;
+    const scope = everywhere ? 'de todos tus dispositivos y de la nube' : 'de este dispositivo';
+    if (!(await confirm(`Confirmación final: se eliminarán tus registros ${scope} y las copias automáticas de aquí. La copia de la versión anterior, si existe, se borra aparte.`, 'Eliminar todo'))) return;
+    await attempt(() => store.deleteAll({ everywhere }), 'Datos eliminados');
     refreshBackups();
   };
 
@@ -203,10 +209,14 @@ export default function SettingsPage() {
             </Section>
           )}
 
+          <CloudSection />
+
           <LegacyCopy />
 
           <Note>
-            Tus datos se guardan únicamente en este navegador. No hay cuenta, sincronización ni cifrado de extremo a extremo. Borrar los datos del sitio o cambiar de dispositivo puede hacer que no estén disponibles: exporta respaldos con frecuencia.
+            {cloudState.email && !cloudState.needsLink
+              ? 'Tus datos se guardan en este navegador y en tu cuenta de la nube, protegidos por usuario. No tienen cifrado de extremo a extremo. Un borrado también se sincroniza: exporta respaldos con frecuencia.'
+              : 'Tus datos se guardan únicamente en este navegador. Borrar los datos del sitio o cambiar de dispositivo puede hacer que no estén disponibles: exporta respaldos con frecuencia.'}
           </Note>
           <Button variant="danger" onClick={deleteAll}>
             Eliminar todos los datos
