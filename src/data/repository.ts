@@ -20,4 +20,6 @@ export interface Repository {
   addBackup(reason: string, snapshot: Snapshot): Promise<void>;
   listBackups(): Promise<BackupEntry[]>;
   clearBackups(): Promise<void>;
+  /** Vacía este dispositivo sin dejar borrados que se propaguen a la nube. */
+  wipeDevice(): Promise<void>;
 }
