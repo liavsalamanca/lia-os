@@ -7,6 +7,7 @@ import type { BackupEntry } from '../data/repository';
 import { Button, Note, PageHeader, Section } from '../design';
 import { todayISO } from '../domain/dates';
 import { safeUrl } from '../domain/url';
+import { AppleSection } from './appleSection';
 import { CloudSection } from './cloudSection';
 import { download } from './download';
 
@@ -210,6 +211,8 @@ export default function SettingsPage() {
           )}
 
           <CloudSection />
+
+          <AppleSection />
 
           <LegacyCopy />
 

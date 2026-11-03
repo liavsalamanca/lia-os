@@ -24,6 +24,7 @@ function normalizeSettings(raw: unknown): Settings {
     shippingRate: positive(s.shippingRate, defaultSettings.shippingRate),
     fx: positive(s.fx, defaultSettings.fx) || defaultSettings.fx,
     timezone: typeof s.timezone === 'string' && s.timezone ? s.timezone : defaultSettings.timezone,
+    appleCalendarUrl: typeof s.appleCalendarUrl === 'string' ? s.appleCalendarUrl : '',
   };
 }
 

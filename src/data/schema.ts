@@ -98,6 +98,8 @@ export const defaultSettings = {
   shippingRate: 5,
   fx: 4000,
   timezone: 'America/Bogota',
+  /** Calendario público de iCloud que se muestra en LIA OS. */
+  appleCalendarUrl: '',
 };
 export type Settings = typeof defaultSettings;
 

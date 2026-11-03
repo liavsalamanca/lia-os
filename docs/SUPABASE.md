@@ -66,6 +66,36 @@ Vuelve a publicar desde **Actions → Deploy → Run workflow**.
 
 Los datos se combinan por registro. Si un mismo registro cambió en dos lugares, gana el cambio más reciente.
 
+## 7. Apple Calendar
+
+Usa dos funciones de Supabase (`supabase/functions/`) y una tabla nueva.
+
+### Una sola vez
+
+1. **Tabla:** en **SQL Editor → New query**, pega `supabase/migrations/20261104000000_calendar_feeds.sql` y pulsa **Run**.
+2. **Token de despliegue:** en Supabase abre tu avatar → **Account preferences → Access Tokens → Generate new token**, con el nombre `github-lia-os`. Cópialo, porque solo se muestra una vez.
+3. **GitHub:** en **Settings → Secrets and variables → Actions**:
+   - En **Secrets**, crea `SUPABASE_ACCESS_TOKEN` con el token del paso 2.
+   - En **Variables**, crea `SUPABASE_PROJECT_REF` con el identificador del proyecto: la parte antes de `.supabase.co` en la URL.
+4. **Publicar:** abre **Actions → Funciones de Supabase → Run workflow**. Después se publican solas cada vez que cambien.
+
+El token de despliegue da acceso a tu cuenta de Supabase: guárdalo solo como secreto de GitHub y revócalo desde Supabase si se filtra.
+
+### LIA OS en el iPhone
+
+En **Configuración → Apple Calendar**, pulsa **Crear enlace privado** y después **Abrir en Calendario**. En el iPhone, elige que se actualice cada 15 minutos. Apple decide cuándo lo vuelve a leer, así que no es instantáneo.
+
+- En la nube solo se guarda el hash del enlace. Si se filtra, crea uno nuevo y el anterior deja de funcionar.
+- Incluye los eventos, las tareas pendientes con fecha, los castings y las publicaciones. Un evento con hora dura una hora.
+
+### Apple Calendar en LIA OS
+
+En el iPhone abre **Calendario → Calendarios → ⓘ** junto al calendario, activa **Calendario público** y copia el enlace. Pégalo en **Configuración → Apple Calendar**.
+
+- Ese enlace es público: cualquiera que lo tenga ve ese calendario.
+- La función solo acepta direcciones de `icloud.com` y exige tu sesión.
+- Los eventos de Apple se ven en LIA OS, pero se editan en Apple. Se leen al abrir la app y cada 10 minutos, y cada dispositivo guarda su copia sin subirla a la nube.
+
 ## Cómo funciona
 
 - La app guarda primero en el dispositivo. Sin internet sigue funcionando y envía los cambios al volver.

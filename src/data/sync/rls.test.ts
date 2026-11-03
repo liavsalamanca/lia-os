@@ -25,6 +25,7 @@ const SUPABASE_STUB = `
 `;
 
 const REALTIME = 'supabase/migrations/20261103000000_records_realtime.sql';
+const FEEDS = 'supabase/migrations/20261104000000_calendar_feeds.sql';
 
 async function as<T>(role: 'anon' | 'authenticated', user: string, run: () => Promise<T>) {
   await db.exec(`set request.jwt.claim.sub = '${user}'; set role ${role};`);
@@ -44,6 +45,7 @@ beforeAll(async () => {
   await db.exec(SUPABASE_STUB);
   await db.exec(await readFile('supabase/migrations/20261101000000_records.sql', 'utf8'));
   await db.exec(await readFile(REALTIME, 'utf8'));
+  await db.exec(await readFile(FEEDS, 'utf8'));
   await insert(A, 'a1');
   await insert(B, 'b1');
 });
@@ -121,5 +123,43 @@ describe('tiempo real', () => {
     expect(await published()).toBe(0);
     expect((await rows()).length).toBe(before);
     await db.exec(await readFile(REALTIME, 'utf8'));
+  });
+});
+
+describe('enlaces de calendario', () => {
+  const hashA = 'a'.repeat(64);
+  const hashB = 'b'.repeat(64);
+  const feeds = () => db.query<{ user_id: string; token_hash: string }>('select user_id, token_hash from public.calendar_feeds order by user_id');
+
+  beforeAll(async () => {
+    await as('authenticated', A, () => db.query('insert into public.calendar_feeds (token_hash) values ($1)', [hashA]));
+    await as('authenticated', B, () => db.query('insert into public.calendar_feeds (token_hash) values ($1)', [hashB]));
+  });
+
+  it('cada persona ve y cambia solo su enlace', async () => {
+    expect((await as('authenticated', A, feeds)).rows).toEqual([{ user_id: A, token_hash: hashA }]);
+    await as('authenticated', A, () => db.query('update public.calendar_feeds set token_hash = $1', ['c'.repeat(64)]));
+    expect((await feeds()).rows.map((r) => r.token_hash)).toEqual(['c'.repeat(64), hashB]);
+    await as('authenticated', A, () => db.query('delete from public.calendar_feeds'));
+    expect((await feeds()).rows.map((r) => r.user_id)).toEqual([B]);
+    await as('authenticated', A, () => db.query('insert into public.calendar_feeds (token_hash) values ($1)', [hashA]));
+  });
+
+  it('nadie crea un enlace a nombre de otra persona', async () => {
+    await expect(as('authenticated', A, () => db.query('insert into public.calendar_feeds (user_id, token_hash) values ($1, $2)', [B, 'd'.repeat(64)]))).rejects.toThrow();
+  });
+
+  it('sin sesión no se puede leer ni escribir', async () => {
+    await expect(as('anon', '', feeds)).rejects.toThrow();
+    await expect(as('anon', '', () => db.query('insert into public.calendar_feeds (token_hash) values ($1)', ['e'.repeat(64)]))).rejects.toThrow();
+  });
+
+  it('solo acepta un hash, nunca el enlace en claro', async () => {
+    await expect(as('authenticated', A, () => db.query('update public.calendar_feeds set token_hash = $1', ['enlace-en-claro']))).rejects.toThrow();
+  });
+
+  it('repetir la migración no falla ni borra enlaces', async () => {
+    await db.exec(await readFile(FEEDS, 'utf8'));
+    expect((await feeds()).rows).toHaveLength(2);
   });
 });

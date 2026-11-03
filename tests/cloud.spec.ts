@@ -1,4 +1,5 @@
 import type { BrowserContext, Page, Route, WebSocketRoute } from '@playwright/test';
+import { createHash } from 'node:crypto';
 import { expect, test } from './fixtures';
 
 /**
@@ -43,8 +44,13 @@ function fakeRealtime() {
   return { connect, notify };
 }
 
+const bogotaToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+const appleIcs = () =>
+  ['BEGIN:VCALENDAR', 'VERSION:2.0', 'BEGIN:VEVENT', 'UID:clase@icloud', 'SUMMARY:Clase desde Apple', `DTSTART;TZID=America/Bogota:${bogotaToday().replace(/-/g, '')}T100000`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+
 function fakeSupabase() {
   const rows = new Map<string, Row>();
+  const feeds: { user_id: string; token_hash: string; created_at: string }[] = [];
   const realtime = fakeRealtime();
   let tick = 0;
   const http = async (route: Route) => {
@@ -75,9 +81,20 @@ function fakeSupabase() {
       realtime.notify();
       return;
     }
+    if (url.pathname === '/rest/v1/calendar_feeds') {
+      if (request.method() === 'GET') return json(200, feeds);
+      if (request.method() === 'DELETE') feeds.length = 0;
+      if (request.method() === 'POST') feeds.splice(0, feeds.length, ...[request.postDataJSON()].flat());
+      return route.fulfill({ status: 204, headers: CORS });
+    }
+    if (url.pathname === '/functions/v1/calendar-import') {
+      const { url: calendar } = request.postDataJSON() as { url: string };
+      if (!calendar.includes('icloud.com')) return route.fulfill({ status: 400, headers: CORS, body: 'La dirección no es un calendario público de iCloud.' });
+      return route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/calendar; charset=utf-8' }, body: appleIcs() });
+    }
     return json(404, {});
   };
-  return Object.assign(http, { realtime });
+  return Object.assign(http, { realtime, feeds });
 }
 
 async function device(context: BrowserContext, cloud: ReturnType<typeof fakeSupabase>) {
@@ -241,4 +258,51 @@ test.describe('recuperar la contraseña', () => {
     await page.goto('#error=access_denied&error_code=otp_expired&error_description=expired');
     await expect(page.getByText('venció o ya se usó')).toBeVisible();
   });
+});
+test('Apple Calendar en ambos sentidos', async ({ browser }) => {
+  const cloud = fakeSupabase();
+  const page = await device(await browser.newContext(), cloud);
+  await signIn(page);
+  await page.getByRole('button', { name: 'Conectar este dispositivo' }).click();
+  await expect(page.getByText(/^Sincronizado/)).toBeVisible();
+
+  // LIA OS → Apple: el enlace se muestra una vez y en la nube queda solo su hash.
+  await page.getByRole('button', { name: 'Crear enlace privado' }).click();
+  const link = await page.getByLabel('Enlace privado del calendario').inputValue();
+  expect(link).toMatch(/^http:\/\/supabase\.test\/functions\/v1\/calendar-feed\?token=[A-Za-z0-9_-]{43}$/);
+  const token = new URL(link).searchParams.get('token')!;
+  expect(cloud.feeds[0]?.token_hash).toBe(createHash('sha256').update(token).digest('hex'));
+  expect(JSON.stringify(cloud.feeds)).not.toContain(token);
+  await expect(page.getByRole('link', { name: 'Abrir en Calendario' })).toHaveAttribute('href', link.replace(/^http:/, 'webcal:'));
+  await page.reload();
+  await expect(page.getByText(/^Enlace activo desde/)).toBeVisible();
+  await expect(page.getByLabel('Enlace privado del calendario')).toHaveCount(0);
+
+  // Apple → LIA OS: solo se aceptan enlaces de iCloud.
+  const input = page.getByLabel('Enlace público de Apple Calendar');
+  await input.fill('https://evil.example/cal.ics');
+  await page.getByRole('button', { name: 'Conectar', exact: true }).click();
+  await expect(page.getByText(/Pega el enlace que da el iPhone/)).toBeVisible();
+  await input.fill('webcal://p42-caldav.icloud.com/published/2/prueba');
+  await page.getByRole('button', { name: 'Conectar', exact: true }).click();
+  await expect(page.getByText('Conectado · 1 eventos en los próximos meses')).toBeVisible();
+
+  await page.goto('#/calendar');
+  await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
+  await expect(page.getByText('Apple Calendar (se edita en Apple)')).toBeVisible();
+
+  // Si iCloud falla, se avisa y se sigue mostrando la última copia, también tras recargar.
+  await page.context().route('http://supabase.test/functions/v1/calendar-import', (route) => route.fulfill({ status: 502, headers: CORS, body: 'iCloud no respondió. Inténtalo más tarde.' }));
+  await page.getByRole('button', { name: 'Actualizar Apple Calendar' }).click();
+  await expect(page.getByText('iCloud no respondió. Inténtalo más tarde.')).toBeVisible();
+  await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
+
+  // Quitarlo borra los eventos de Apple de LIA OS.
+  await page.goto('#/settings');
+  await page.getByRole('button', { name: 'Quitar' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Quitar' }).click();
+  await page.goto('#/calendar');
+  await expect(page.getByText('10:00 Clase desde Apple')).toHaveCount(0);
 });

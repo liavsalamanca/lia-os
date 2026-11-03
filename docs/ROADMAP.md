@@ -176,6 +176,7 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 - [ ] Reglas deterministas: vencidas, proyectos detenidos, resumen semanal y prioridades sugeridas.
 - [ ] Focus completo: estadísticas, sonidos con licencia, planificación y revisión semanal.
 - [ ] Google Calendar con OAuth y consentimiento explícito.
+- [x] Apple Calendar en ambos sentidos, adelantado a pedido de Liav: suscripción `.ics` con enlace privado (solo su hash en la nube) y lectura de un calendario público de iCloud, de solo lectura. *Verificación: `calendar.test.ts`, `appleCalendar.test.ts`, RLS en `rls.test.ts` y `cloud.spec.ts` con Supabase simulado. Falta probarlo con iCloud y el proyecto real.*
 - [ ] Funciones de IA a través de backend, nunca con claves en el navegador.
 
 ### Fase 8 — QA y publicación
