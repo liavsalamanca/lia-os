@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { cloud } from './app/cloud';
+import { consumeRecoveryLink } from './app/recovery';
 import { Shell } from './app/Shell';
 import { setStore, Store } from './app/store';
 import { UIProvider } from './app/ui';
@@ -37,6 +38,7 @@ function noticeFor(result: MigrationResult) {
 
 async function start() {
   const root = createRoot(document.getElementById('root')!);
+  const recovery = consumeRecoveryLink();
   try {
     const repo = await IndexedDbRepository.open();
     const migration = await migrateLegacy(repo);
@@ -45,7 +47,7 @@ async function start() {
     const store = new Store(repo, snapshot);
     setStore(store);
     // La nube nunca retrasa ni impide abrir la app.
-    void cloud.start(store, repo).catch(() => undefined);
+    void cloud.start(store, repo, recovery).catch(() => undefined);
     root.render(
       <StrictMode>
         <App notice={noticeFor(migration)} />

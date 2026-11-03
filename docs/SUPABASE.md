@@ -26,15 +26,15 @@ La app no tiene pantalla de registro. Solo entra quien exista en el proyecto.
 
 ## 4. Preparar la recuperación de contraseña
 
-La app pide un código porque un enlace del correo abriría Safari y no la app instalada.
+El correo de Supabase trae un enlace que debe volver a tu web. No hace falta editar la plantilla ni configurar SMTP.
 
-1. Abre **Authentication → Emails → Reset password**.
-2. Sustituye el contenido por:
+1. Abre **Authentication → URL Configuration**.
+2. En **Site URL** escribe `https://liavsalamanca.github.io/lia-os/` y guarda.
+3. En **Redirect URLs** añade `https://liavsalamanca.github.io/lia-os/`.
 
-```html
-<h2>LIA OS</h2>
-<p>Tu código para cambiar la contraseña es: <strong>{{ .Token }}</strong></p>
-```
+El enlace se abre en el navegador, no en la app instalada. Allí cambias la contraseña y después entras con ella en cualquier dispositivo.
+
+El servicio de correo incluido en Supabase tiene un límite bajo de envíos por hora. Si no llega, espera un rato antes de pedir otro.
 
 ## 5. Conectar la app
 

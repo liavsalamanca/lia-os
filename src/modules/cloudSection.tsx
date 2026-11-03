@@ -22,37 +22,50 @@ function Input({ label, ...props }: { label: string } & React.InputHTMLAttribute
 
 function SignInForm() {
   const { attempt } = useUI();
-  const [mode, setMode] = useState<'login' | 'request' | 'reset'>('login');
+  const [mode, setMode] = useState<'login' | 'request'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [code, setCode] = useState('');
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (mode === 'login') {
       await attempt(() => cloud.signIn(email.trim(), password));
-    } else if (mode === 'request') {
-      if (await attempt(() => cloud.sendRecovery(email.trim()), 'Te enviamos un código al correo')) setMode('reset');
-    } else if (await attempt(() => cloud.resetPassword(email.trim(), code.trim(), password), 'Contraseña actualizada')) {
+      setPassword('');
+    } else if (await attempt(() => cloud.sendRecovery(email.trim()), 'Te enviamos un enlace al correo')) {
       setMode('login');
     }
-    setPassword('');
   };
 
   return (
     <form onSubmit={submit} className="grid gap-3 py-3">
       <Input label="Correo" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
-      {mode === 'reset' && <Input label="Código del correo" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />}
-      {mode !== 'request' && (
-        <Input label={mode === 'reset' ? 'Contraseña nueva' : 'Contraseña'} type="password" minLength={mode === 'reset' ? 8 : undefined} autoComplete={mode === 'reset' ? 'new-password' : 'current-password'} value={password} onChange={(e) => setPassword(e.target.value)} />
-      )}
+      {mode === 'login' && <Input label="Contraseña" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />}
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" variant="primary">
-          {{ login: 'Iniciar sesión', request: 'Enviar código', reset: 'Cambiar contraseña' }[mode]}
+          {mode === 'login' ? 'Iniciar sesión' : 'Enviar enlace'}
         </Button>
         <button type="button" className="text-[13px] text-wine hover:underline" onClick={() => setMode(mode === 'login' ? 'request' : 'login')}>
           {mode === 'login' ? 'Olvidé mi contraseña' : 'Volver'}
         </button>
+      </div>
+    </form>
+  );
+}
+
+function NewPasswordForm() {
+  const { attempt } = useUI();
+  const [password, setPassword] = useState('');
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    await attempt(() => cloud.setNewPassword(password), 'Contraseña actualizada');
+  };
+  return (
+    <form onSubmit={submit} className="grid gap-3 py-3">
+      <Input label="Contraseña nueva" type="password" minLength={8} autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      <div>
+        <Button type="submit" variant="primary">
+          Cambiar contraseña
+        </Button>
       </div>
     </form>
   );
@@ -75,8 +88,17 @@ export function CloudSection() {
     if (wipe) await attempt(() => cloud.signOut({ wipe: true }), 'Sesión cerrada y dispositivo vacío');
   };
 
+  if (state.recovery === 'ready') {
+    return (
+      <Section title="Cambiar contraseña" className="mt-8">
+        <NewPasswordForm />
+      </Section>
+    );
+  }
+
   return (
     <Section title="Sincronización" className="mt-8">
+      {state.recovery === 'expired' && <Note>El enlace para cambiar la contraseña venció o ya se usó. Pide otro con «Olvidé mi contraseña».</Note>}
       {!state.email && (
         <>
           <p className="mt-2 text-[13px] text-muted">Inicia sesión para usar tus datos en todos tus dispositivos.</p>

@@ -13,7 +13,7 @@ type Row = { collection: string; id: string; data: unknown; deleted: boolean; mo
 
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*', 'access-control-expose-headers': '*' };
 const USER = { id: '00000000-0000-0000-0000-00000000000a', email: 'prueba@example.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
-const jwt = `e30.${Buffer.from(JSON.stringify({ sub: USER.id, exp: 4102444800 })).toString('base64url')}.firma`;
+const jwt = `e30.${Buffer.from(JSON.stringify({ sub: USER.id, exp: 4102444800 })).toString('base64url')}.firma0`;
 
 function fakeSupabase() {
   const rows = new Map<string, Row>();
@@ -29,6 +29,8 @@ function fakeSupabase() {
       return json(200, { access_token: jwt, refresh_token: 'r', token_type: 'bearer', expires_in: 3600, expires_at: 4102444800, user: USER });
     }
     if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, headers: CORS });
+    if (url.pathname === '/auth/v1/recover') return json(200, {});
+    if (url.pathname === '/auth/v1/user') return json(200, USER);
     if (url.pathname === '/rest/v1/records' && request.method() === 'GET') {
       const since = url.searchParams.get('updated_at')?.replace('gte.', '');
       return json(200, [...rows.values()].filter((r) => !since || r.updated_at >= since));
@@ -153,4 +155,37 @@ test('cerrar sesión borrando este dispositivo no borra la nube', async ({ brows
   await expect(a.getByText(/^Sincronizado/)).toBeVisible();
   await a.goto('#/tasks');
   await expect(a.getByRole('main').getByText('Debe seguir en la nube')).toBeVisible();
+});
+
+test.describe('recuperar la contraseña', () => {
+  test('pide el enlace al correo', async ({ browser }) => {
+    const page = await device(await browser.newContext(), fakeSupabase());
+    await page.getByRole('button', { name: 'Olvidé mi contraseña' }).click();
+    await page.getByLabel('Correo').fill(USER.email);
+    const sent = page.waitForRequest((r) => r.url().includes('/auth/v1/recover'));
+    await page.getByRole('button', { name: 'Enviar enlace' }).click();
+    expect((await sent).url()).toContain(encodeURIComponent('/lia-os/'));
+    await expect(page.getByText('Te enviamos un enlace al correo')).toBeVisible();
+  });
+
+  test('el enlace del correo permite cambiarla y no deja tokens en la dirección', async ({ browser }) => {
+    const context = await browser.newContext();
+    await context.route('http://supabase.test/**', fakeSupabase());
+    const page = await context.newPage();
+    await page.goto(`#access_token=${jwt}&refresh_token=r&expires_in=3600&expires_at=4102444800&token_type=bearer&type=recovery`);
+    await expect(page.getByLabel('Contraseña nueva')).toBeVisible();
+    expect(page.url()).not.toContain('access_token');
+    await page.getByLabel('Contraseña nueva').fill('nueva-clave-123');
+    await page.getByRole('button', { name: 'Cambiar contraseña' }).click();
+    await expect(page.getByText('Contraseña actualizada')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Conectar este dispositivo' })).toBeVisible();
+  });
+
+  test('un enlace vencido lo explica', async ({ browser }) => {
+    const context = await browser.newContext();
+    await context.route('http://supabase.test/**', fakeSupabase());
+    const page = await context.newPage();
+    await page.goto('#error=access_denied&error_code=otp_expired&error_description=expired');
+    await expect(page.getByText('venció o ya se usó')).toBeVisible();
+  });
 });
