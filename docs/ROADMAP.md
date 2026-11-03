@@ -146,6 +146,7 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 - [ ] Supabase Storage privado para adjuntos.
 - [x] Migración voluntaria e idempotente a la nube, con copia automática previa.
 - [x] Sincronización, resolución de conflictos (gana el cambio más reciente) y respaldos.
+- [x] Sincronización automática en tiempo real con Supabase Realtime, respetando RLS, y revisión de respaldo cada 15 s. *Verificación: `cloud.spec.ts` con un Realtime simulado; la prueba falla si se quita el aviso. Requiere ejecutar `20261103000000_records_realtime.sql` en el proyecto real.*
 - [x] Guía de configuración en [docs/SUPABASE.md](SUPABASE.md).
 - [ ] Conectar el proyecto real. *Requiere de ti: crear el proyecto Supabase y entregar URL y clave publishable.*
 

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { useSyncExternalStore } from 'react';
 import type { IndexedDbRepository } from '../data/idb';
 import { SYNC_STATE_KEY, SyncEngine } from '../data/sync/engine';
@@ -8,8 +8,11 @@ import type { Store } from './store';
 const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 const OWNER_KEY = 'syncOwner';
-const PUSH_DELAY_MS = 1500;
-const POLL_MS = 60_000;
+const PUSH_DELAY_MS = 800;
+/** Agrupa los avisos de la nube que llegan juntos, como el eco de una subida propia. */
+const PULL_DELAY_MS = 300;
+/** Respaldo por si el aviso en tiempo real no llega; solo con la app a la vista. */
+const POLL_MS = 15_000;
 
 export type CloudState = {
   configured: boolean;
@@ -35,6 +38,8 @@ class Cloud {
   private store!: Store;
   private repo!: IndexedDbRepository;
   private pushTimer: ReturnType<typeof setTimeout> | undefined;
+  private pullTimer: ReturnType<typeof setTimeout> | undefined;
+  private channel: RealtimeChannel | null = null;
 
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
@@ -68,19 +73,50 @@ class Cloud {
     });
     store.onLocalChange = () => {
       clearTimeout(this.pushTimer);
-      this.pushTimer = setTimeout(() => this.syncNow(), PUSH_DELAY_MS);
+      this.pushTimer = setTimeout(() => {
+        this.pushTimer = undefined;
+        void this.syncNow();
+      }, PUSH_DELAY_MS);
     };
     window.addEventListener('online', () => this.syncNow());
+    // Al salir de la app se envía lo pendiente sin esperar; al volver se trae lo nuevo.
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') this.syncNow();
+      if (document.visibilityState === 'visible' || this.pushTimer) {
+        clearTimeout(this.pushTimer);
+        this.pushTimer = undefined;
+        void this.syncNow();
+      }
     });
-    setInterval(() => this.syncNow(), POLL_MS);
+    setInterval(() => {
+      if (document.visibilityState === 'visible') void this.syncNow();
+    }, POLL_MS);
+  }
+
+  /** La nube avisa de cada cambio en las filas propias (las políticas RLS filtran el resto). */
+  private listen(client: SupabaseClient, userId: string) {
+    this.unlisten();
+    this.channel = client
+      .channel(`records:${userId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'records', filter: `user_id=eq.${userId}` }, () => {
+        clearTimeout(this.pullTimer);
+        this.pullTimer = setTimeout(() => void this.syncNow(), PULL_DELAY_MS);
+      })
+      .subscribe((status) => {
+        // Tras conectarse o reconectarse se trae lo que pudo llegar mientras tanto.
+        if (status === 'SUBSCRIBED') void this.syncNow();
+      });
+  }
+
+  private unlisten() {
+    if (this.channel) void this.client?.removeChannel(this.channel);
+    this.channel = null;
   }
 
   private async onSession(user: { id: string; email?: string } | null) {
     if (user?.id === this.userId) return;
     this.userId = user?.id ?? null;
     this.engine = null;
+    this.unlisten();
     if (!user) {
       this.set({ email: null, needsLink: false, otherOwner: false, status: 'off', error: null });
       return;
@@ -94,8 +130,11 @@ class Cloud {
     const client = this.client!;
     const userId = this.userId!;
     void import('../data/sync/supabaseRemote').then(({ SupabaseRemote }) => {
+      // La sesión pudo cambiar mientras cargaba el módulo.
+      if (this.userId !== userId) return;
       this.engine = new SyncEngine(this.repo, new SupabaseRemote(client, userId));
       void this.syncNow();
+      this.listen(client, userId);
     });
   }
 

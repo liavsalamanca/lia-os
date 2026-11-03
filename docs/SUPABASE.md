@@ -14,7 +14,9 @@ Sin estos pasos la app sigue funcionando en modo local.
 2. Pega todo el contenido de `supabase/migrations/20261101000000_records.sql`.
 3. Pulsa **Run**. Debe indicar que no hubo errores.
 
-Para revertirlo existe `supabase/rollback/20261101000000_records.down.sql`, pero borra todos los datos de la nube.
+4. Abre otra **New query**, pega `supabase/migrations/20261103000000_records_realtime.sql` y pulsa **Run**. Así los demás dispositivos se enteran de cada cambio al instante. Puedes ejecutarlo más de una vez.
+
+Para revertirlo existe `supabase/rollback/20261101000000_records.down.sql`, pero borra todos los datos de la nube. `supabase/rollback/20261103000000_records_realtime.down.sql` solo apaga el aviso instantáneo.
 
 ## 3. Crear tu usuario y cerrar el registro
 
@@ -67,7 +69,8 @@ Los datos se combinan por registro. Si un mismo registro cambió en dos lugares,
 ## Cómo funciona
 
 - La app guarda primero en el dispositivo. Sin internet sigue funcionando y envía los cambios al volver.
-- Sincroniza tras cada cambio, al volver a la app y cada minuto. No es instantáneo.
+- Cada cambio se envía menos de un segundo después, y enseguida si sales de la app. Los demás dispositivos abiertos lo reciben en un par de segundos por el aviso en tiempo real. Si ese aviso falla, la app revisa la nube cada 15 segundos mientras está a la vista, y siempre al volver a ella.
+- Un formulario abierto no se cambia mientras lo editas: al guardarlo, gana el cambio más reciente.
 - Un borrado también se sincroniza. La nube guarda solo la marca del borrado, sin el contenido.
 - Importar un respaldo con la sincronización activa lo reemplaza en todos los dispositivos.
 - Los datos no tienen cifrado de extremo a extremo: quien administre el proyecto Supabase puede verlos en su panel.
