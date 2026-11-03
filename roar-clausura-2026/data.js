@@ -1,5 +1,5 @@
 /*
- * Roar Studio · Clausura 2026
+ * Roar Studio Choice Awards 2026 (clausura del año)
  * Datos editables del evento, las marcas y las invitaciones de demostración.
  *
  * Todo lo que diga `null` está pendiente y la interfaz lo muestra como
@@ -14,8 +14,9 @@ window.ROAR_DATA = {
   event: {
     organization: 'Roar Studio',
     organizationDescription: 'Agencia y academia de modelos',
-    title: 'Clausura 2026',
-    calendarTitle: 'Clausura 2026 · Roar Studio',
+    title: 'Roar Studio Choice Awards 2026',
+    subtitle: 'Clausura del año 2026',
+    calendarTitle: 'Roar Studio Choice Awards 2026',
 
     // Fecha y hora confirmadas. Bogotá no tiene horario de verano (UTC−5).
     startISO: '2026-12-12T18:30:00-05:00',

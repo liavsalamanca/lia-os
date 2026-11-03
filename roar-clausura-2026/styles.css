@@ -1,4 +1,4 @@
-/* Roar Studio · Clausura 2026
+/* Roar Studio Choice Awards 2026
  * Concepto: invitación impresa sobre cartulina negra + credencial de backstage.
  * Fondo negro deliberado (una sola apariencia), marfil para lectura,
  * grises cálidos para lo secundario y el amarillo de Roar como único acento.
@@ -16,9 +16,10 @@
   --roar-ink: #1a1300;
   --declined: #c9a38f;
 
-  --display: 'Bodoni Moda', 'Didot', 'Bodoni 72', Georgia, 'Times New Roman', serif;
-  --sans: 'Jost', 'Futura', 'Century Gothic', 'Avenir Next', system-ui, sans-serif;
-  --mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  /* Tipografía alineada con los logos: geométrica tipo Century Gothic */
+  --display: 'Questrial', 'Century Gothic', 'Futura', 'Avenir Next', system-ui, sans-serif;
+  --sans: 'Questrial', 'Century Gothic', 'Futura', 'Avenir Next', system-ui, sans-serif;
+  --mono: 'Questrial', 'Century Gothic', 'Futura', system-ui, sans-serif;
 
   --gutter: clamp(16px, 5vw, 56px);
   --maxw: 1120px;
@@ -537,3 +538,36 @@ em { font-style: italic; }
 .modal__facts dd { margin: 0; color: var(--ivory-dim); overflow-wrap: anywhere; }
 .tbd { color: var(--stone); font-style: italic; }
 [tabindex="-1"]:focus { outline: none; }
+
+/* ---------- Identidad Choice Awards: tipografía de los logos ---------- */
+em, .card__greeting, .seal, .invite__lead, .seat__name--missing, .response__stamp, .brand__letter, .tbd { font-style: normal; }
+.nowrap { white-space: nowrap; }
+.mono, .label, .eyebrow { letter-spacing: .16em; }
+.section__title, .hero__title, .place__venue, .place__daynum, .modal__title, .pass__name, .invite__name, .dress__rules dd, .lede, .runway-empty__text, .brand__name, .details__item--feature .details__text { letter-spacing: -.01em; font-weight: 400; }
+.section__title { font-size: clamp(2rem, 6.4vw, 3.6rem); }
+.btn { font-weight: 400; letter-spacing: .06em; }
+.seat__name { font-weight: 400; }
+
+.card { padding: 10% 9% 27%; gap: 18px; justify-content: center; }
+.card__title { margin: 0; width: 100%; font-size: inherit; line-height: 0; }
+.card__logo { width: 100%; margin: 0 auto; }
+.card__eyebrow { font-size: .62rem; line-height: 1.6; }
+.card__greeting { font-size: 1.15rem; color: var(--ivory); margin: 0; }
+.seal { font-family: var(--display); font-size: 1.5rem; }
+
+.hero__title { line-height: 0; }
+.hero__logo { width: 100%; max-width: 760px; }
+.hero__tagline { max-width: 34ch; font-size: clamp(1.25rem, 3.4vw, 1.75rem); line-height: 1.35; color: var(--ivory-dim); }
+
+.invite__lead { color: var(--roar); }
+.response__stamp { font-size: 1.4rem; }
+.brand__letter { color: #2c2823; }
+.footer__awards { width: 220px; }
+.pass__top img { width: 150px; }
+@media (min-width: 960px) {
+  .hero { grid-template-columns: 7fr 5fr; column-gap: 64px; align-items: end; }
+  .hero__meta, .hero > .eyebrow { grid-column: 1 / -1; }
+  .hero__title { grid-column: 1; grid-row: 3 / span 2; }
+  .hero__tagline { grid-column: 2; grid-row: 3; }
+  .hero__facts { grid-column: 2; grid-row: 4; grid-template-columns: 1fr; }
+}

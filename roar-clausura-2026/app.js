@@ -1,5 +1,5 @@
 /*
- * Roar Studio · Clausura 2026 — lógica del prototipo.
+ * Roar Studio Choice Awards 2026 — lógica del prototipo.
  *
  * Organización:
  *   Store              almacenamiento local seguro (solo para la demostración)
@@ -270,7 +270,7 @@
     }
     var principal = inv.principal ? '<br>Representante principal: <strong>' + esc(inv.principal) + '</strong>.' : '';
     return {
-      lead: 'Nos alegra contar con ' + esc(inv.brandName) + ' en la clausura 2026 de Roar Studio.',
+      lead: 'Nos alegra contar con ' + esc(inv.brandName) + ' en Roar Studio Choice Awards 2026, la clausura de nuestro año.',
       sub: 'Esta invitación incluye ' + plural(inv.seats, 'acceso autorizado', 'accesos autorizados') +
         ' para representantes de la marca.' + principal,
       html: true,
@@ -650,7 +650,7 @@
     return v.name + ', ' + v.address + ', ' + v.neighborhood + ', ' + v.city;
   }
   function calendarDetails() {
-    return 'Clausura 2026 de Roar Studio, agencia y academia de modelos. ' +
+    return 'Roar Studio Choice Awards 2026, clausura del año de Roar Studio, agencia y academia de modelos. ' +
       'Dress code elegante: traje para hombres; vestido y tacones para mujeres. ' +
       'Te recomendamos comer antes de llegar: no habrá servicio de comida durante el evento.';
   }
@@ -707,9 +707,9 @@
   function downloadICS() {
     // Sin DTEND: el evento queda con hora de inicio y sin cierre inventado (RFC 5545).
     var lines = [
-      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Roar Studio//Clausura 2026//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Roar Studio//Choice Awards 2026//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
       'BEGIN:VEVENT',
-      'UID:clausura-2026-roar-studio',
+      'UID:choice-awards-2026-roar-studio',
       'DTSTAMP:' + utcStamp(new Date()),
       'DTSTART:' + utcStamp(new Date(EVENT.startISO)),
       'SUMMARY:' + icsEscape(EVENT.calendarTitle),
@@ -720,7 +720,7 @@
     var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
-    a.href = url; a.download = 'roar-studio-clausura-2026.ics';
+    a.href = url; a.download = 'roar-studio-choice-awards-2026.ics';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   }
@@ -730,7 +730,7 @@
     var diff = new Date(EVENT.startISO).getTime() - Date.now();
     if (diff <= 0) {
       el.textContent = 'La celebración comenzó el 12 de diciembre a las ' + EVENT.timeLabel + '.';
-      $('#countdown .label').textContent = 'Clausura 2026';
+      $('#countdown .label').textContent = 'Choice Awards 2026';
       return;
     }
     var mins = Math.floor(diff / 60000);
@@ -755,7 +755,7 @@
     var c = counts(inv);
     $('#summary-root').innerHTML =
       '<article class="pass" aria-label="Resumen de la invitación">' +
-      '<div class="pass__top"><img src="assets/roar-studio-logo.png" alt="Roar Studio" width="760" height="206"><span class="mono">Clausura 2026<br>' + esc(KIND_LABEL[inv.kind]) + '</span></div>' +
+      '<div class="pass__top"><img src="assets/roar-choice-awards-2026.png" alt="Roar Studio Choice Awards 2026" width="914" height="566"><span class="mono">Choice Awards 2026<br>' + esc(KIND_LABEL[inv.kind]) + '</span></div>' +
       '<div class="pass__body">' +
       '<p class="pass__name">' + esc(inv.displayName) + '</p>' +
       '<dl class="pass__grid">' +
