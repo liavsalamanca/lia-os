@@ -743,6 +743,15 @@
 
   function setupPlace() {
     $('#maps-link').href = EVENT.venue.mapsUrl;
+    var heroMaps = $('#hero-maps');
+    if (heroMaps) {
+      heroMaps.href = EVENT.venue.mapsUrl;
+      // Abre Google Maps en otra pestaña y deja la dirección completa visible aquí
+      heroMaps.addEventListener('click', function () {
+        $('#hero-address').hidden = false;
+        heroMaps.setAttribute('aria-expanded', 'true');
+      });
+    }
 
     // Google Calendar exige inicio y fin: se usa la misma hora para no inventar un cierre.
     var start = new Date(EVENT.startISO);

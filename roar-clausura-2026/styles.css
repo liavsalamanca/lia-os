@@ -12,8 +12,8 @@
   --stone: #9a9186;        /* texto secundario (contraste > 6:1 sobre --ink) */
   --ivory: #f2ece2;        /* texto principal */
   --ivory-dim: #d3cbbf;
-  --roar: #ffb800;         /* amarillo de la marca */
-  --roar-ink: #1a1300;
+  --roar: #d6b06a;         /* dorado de acento (el amarillo queda solo en los logos) */
+  --roar-ink: #1a1206;
   --declined: #c9a38f;
 
   /* Tipografía alineada con los logos: geométrica tipo Century Gothic */
@@ -577,7 +577,7 @@ em, .card__greeting, .seal, .invite__lead, .seat__name--missing, .response__stam
  * mayúsculas espaciadas y caligrafía dorada.
  * ===================================================================== */
 :root {
-  --script: 'Pinyon Script', 'Snell Roundhand', 'Segoe Script', cursive;
+  --script: 'Corinthia', 'Snell Roundhand', 'Segoe Script', cursive;
   --gold-1: #6b4714;
   --gold-2: #b98a3e;
   --gold-3: #e8c983;
@@ -1231,3 +1231,142 @@ body.is-locked .fab-whatsapp { display: none; }
 }
 @media (min-width: 1200px) { .mood__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } .mood__item:nth-child(3n+2) { transform: none; } .mood__item:nth-child(even) { transform: translateY(36px); } }
 .values { overflow-x: clip; }
+
+/* =====================================================================
+ * Caligrafía Corinthia: más fina, necesita más tamaño
+ * ===================================================================== */
+.section__title .script, .script { font-size: 1.95em; line-height: .78; font-weight: 400; }
+.mention__text .script { font-size: 1.6em; }
+.dress__code-word { font-size: clamp(2.4rem, 6.4vw, 3.2rem); }
+.contact__role { font-size: clamp(2rem, 6vw, 2.6rem); }
+.mood__cat { font-size: 1.5rem; }
+.card__greeting { font-size: 1.15rem; }
+
+/* =====================================================================
+ * Botón de ubicación en el hero
+ * ===================================================================== */
+.btn--gold {
+  background: linear-gradient(135deg, var(--gold-3), var(--gold-2)); color: #1a1206; border-color: transparent; gap: 10px;
+}
+.btn--gold:hover { background: linear-gradient(135deg, var(--gold-4), var(--gold-3)); color: #1a1206; }
+.hero__place { display: grid; gap: 12px; justify-items: start; grid-column: 1 / -1; }
+@media (min-width: 960px) { .hero__place { grid-column: 2; grid-row: 5; } }
+.hero__address {
+  font-style: normal; display: grid; gap: 2px; padding: 12px 16px; border-left: 2px solid var(--gold-2);
+  background: rgba(232,201,131,.06); color: var(--ivory-dim);
+}
+.hero__address strong { font-weight: 400; color: var(--ivory); }
+@media (prefers-reduced-motion: no-preference) { .hero__address:not([hidden]) { animation: riseIn .5s var(--ease) both; } }
+
+/* =====================================================================
+ * Manifiesto: composición tipográfica escalonada con tarjeta superpuesta
+ * ===================================================================== */
+.values { display: none; }
+.manifesto { padding-block: clamp(28px, 5vw, 64px); }
+.manifesto__panel {
+  --panel: #d8d2c8; --panel-ink: #141210; --panel-muted: #6c655c;
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--panel); color: var(--panel-ink);
+  padding: clamp(18px, 3vw, 32px);
+  display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto 1fr auto; gap: 12px;
+  min-height: clamp(560px, 58vw, 720px);
+  box-shadow: 0 30px 60px -30px rgba(0,0,0,.9);
+}
+.manifesto__panel::after { content: ""; position: absolute; inset: 0; z-index: -1; background-image: var(--grain); opacity: .14; mix-blend-mode: multiply; pointer-events: none; }
+.manifesto__mark {
+  position: absolute; z-index: -1; left: 50%; top: 52%; transform: translate(-50%, -50%);
+  font-size: clamp(9rem, 42vw, 34rem); line-height: .8; letter-spacing: -.06em; color: rgba(20,18,16,.06); white-space: nowrap; pointer-events: none;
+}
+.manifesto__tl { display: grid; gap: 6px; font-size: .74rem; letter-spacing: .08em; align-self: start; color: var(--panel-ink); }
+.manifesto__tr { max-width: 17ch; text-align: right; font-size: .78rem; line-height: 1.5; color: var(--panel-muted); justify-self: end; }
+
+.manifesto__words {
+  grid-column: 1 / -1; grid-row: 2; align-self: center;
+  display: grid; margin: 0; padding-block: 12px;
+  font-size: clamp(2.5rem, 8.2vw, 7rem); line-height: .98; letter-spacing: -.045em; font-weight: 400;
+  text-transform: none; text-wrap: nowrap;
+}
+.mw { display: block; position: relative; white-space: nowrap; }
+.mw1 { margin-left: 26%; }
+.mw2 { margin-left: 34%; z-index: 3; }
+.mw3 { margin-left: 16%; z-index: 1; }
+.mw4 { margin-left: 30%; z-index: 1; }
+.mw5 { margin-left: 46%; z-index: 3; }
+.mw6 { margin-left: 38%; z-index: 3; }
+.mw2::after, .mw5::after { content: ""; }
+
+.manifesto__card {
+  position: absolute; z-index: 2; left: 39%; top: 37%; width: clamp(220px, 21vw, 290px);
+  aspect-ratio: 1 / 1; padding: clamp(16px, 1.8vw, 22px);
+  display: flex; flex-direction: column; gap: 10px;
+  background: linear-gradient(140deg, #e6c886 0%, #c99c4c 55%, #a97a33 100%); color: #17110a;
+  box-shadow: 0 24px 40px -18px rgba(60,40,10,.6);
+}
+.manifesto__brand { font-size: 1.05rem; letter-spacing: -.01em; }
+.manifesto__brand b { font-weight: 400; opacity: .7; }
+.manifesto__lead { font-size: .98rem; line-height: 1.3; }
+.manifesto__small { font-size: .78rem; line-height: 1.45; opacity: .82; }
+.manifesto__link { margin-top: auto; width: fit-content; color: #17110a; text-decoration: underline; text-underline-offset: 4px; font-size: .9rem; min-height: 32px; display: inline-flex; align-items: center; gap: 6px; }
+.manifesto__link:hover { color: #000; }
+
+.manifesto__orb {
+  position: absolute; z-index: 4; left: calc(39% + clamp(220px, 21vw, 290px) - 22px); top: calc(37% + 70px);
+  display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--panel-ink);
+}
+.manifesto__orb-icon {
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: #141210; color: var(--gold-3); box-shadow: 0 0 0 6px rgba(216,210,200,.9), 0 10px 20px rgba(0,0,0,.35);
+  transition: transform .4s var(--ease);
+}
+.manifesto__orb:hover .manifesto__orb-icon { transform: rotate(-12deg) scale(1.06); }
+.manifesto__orb-text { display: grid; font-size: .85rem; text-decoration: underline; text-underline-offset: 4px; }
+.manifesto__orb-text small { font-size: .55rem; letter-spacing: .3em; color: var(--panel-muted); text-decoration: none; }
+.manifesto__orb:hover { color: #000; }
+
+.manifesto__bl { grid-column: 1 / -1; grid-row: 3; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 40px; }
+.manifesto__bl p { display: flex; align-items: baseline; gap: 8px; }
+.manifesto__bl small { display: block; font-size: .64rem; letter-spacing: .1em; color: var(--panel-muted); margin-right: 4px; }
+.manifesto__bl strong { font-weight: 400; font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: -.02em; }
+.manifesto__bl i { font-style: normal; font-size: 1.2rem; }
+.manifesto__bl span { font-size: .9rem; }
+.manifesto__venue { font-size: .82rem; line-height: 1.3; display: block !important; }
+
+/* Celular y tableta: la tarjeta entra en el flujo, montada sobre las palabras */
+@media (max-width: 899px) {
+  .manifesto__panel { display: flex; flex-direction: column; min-height: 0; gap: 14px; }
+  .manifesto__tl, .manifesto__tr { position: static; }
+  .manifesto__tr { align-self: flex-end; margin-top: -34px; }
+  .manifesto__words { font-size: clamp(2.3rem, 12vw, 4.6rem); padding-block: 4px 0; }
+  .mw1 { margin-left: 4%; } .mw2 { margin-left: 14%; } .mw3 { margin-left: 0; } .mw4 { margin-left: 30%; } .mw5 { margin-left: 8%; } .mw6 { margin-left: 18%; }
+  .manifesto__words { position: relative; }
+  .manifesto__card { position: relative; left: auto; top: auto; width: min(78%, 300px); aspect-ratio: auto; min-height: 220px; margin: -150px 0 0 auto; }
+  .manifesto__orb { position: relative; left: auto; top: auto; margin: -24px 0 0 6%; }
+  .manifesto__mark { top: 40%; }
+}
+@media (max-width: 380px) { .manifesto__card { width: 86%; margin-top: -120px; } .manifesto__words { font-size: 2.2rem; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .manifesto__words .mw { animation: mwIn linear both; animation-timeline: view(); animation-range: entry 10% cover 40%; }
+  .manifesto__card { animation: cardRise linear both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+  @supports not (animation-timeline: view()) { .manifesto__words .mw, .manifesto__card { animation: none; } }
+  @keyframes mwIn { from { transform: translateX(var(--mw-from, -24px)); opacity: .2; } to { transform: none; opacity: 1; } }
+  .mw2, .mw4, .mw6 { --mw-from: 24px; }
+  @keyframes cardRise { from { transform: translateY(40px) rotate(-3deg); } to { transform: none; } }
+}
+/* Ajustes de superposición */
+@media (min-width: 900px) {
+  .manifesto__card { top: 33%; }
+  .manifesto__orb { top: calc(33% + 70px); }
+  .mw5 { margin-left: 51%; }
+}
+@media (max-width: 899px) {
+  .manifesto__words { z-index: 3; }
+  .manifesto__card { margin: -30px 0 0 auto; padding-top: 40px; min-height: 0; }
+  .manifesto__mark { top: 30%; }
+}
+@media (max-width: 380px) { .manifesto__card { margin-top: -24px; } }
+@media (min-width: 900px) {
+  .manifesto__card { top: 35.5%; padding-top: 46px; }
+  .manifesto__orb { top: calc(35.5% + 76px); }
+}
+.hero .tagline-values { display: none; }
