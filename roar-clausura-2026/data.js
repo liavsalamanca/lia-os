@@ -155,10 +155,10 @@ window.ROAR_DATA = {
       id: 'demo-individual',
       demoLabel: 'Modelo · invitación individual',
       kind: 'model',
-      greetingName: 'Valentina',
-      displayName: 'Valentina Ríos',
+      greetingName: 'Lia',
+      displayName: 'Lia Prueba Salamanca',
       seats: 1,
-      people: [{ id: 'p1', name: 'Valentina Ríos', role: 'Modelo', nameEditable: false }],
+      people: [{ id: 'p1', name: 'Lia Prueba Salamanca', role: 'Modelo', nameEditable: false }],
     },
     {
       id: 'demo-acompanante',

@@ -13,7 +13,7 @@
 <meta property="og:image" content="assets/roar-choice-awards-2026.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Allura&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Pinyon+Script&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -41,6 +41,15 @@
   </div>
 </div>
 
+<!-- ============ TELÓN (animación de apertura) ============ -->
+<div class="curtains" id="curtains" aria-hidden="true" hidden>
+  <div class="curtains__stage"></div>
+  <div class="curtain curtain--left"><span class="curtain__sheen"></span><span class="curtain__hem"></span></div>
+  <div class="curtain curtain--right"><span class="curtain__sheen"></span><span class="curtain__hem"></span></div>
+  <span class="curtain-tie curtain-tie--left"></span><span class="curtain-tie curtain-tie--right"></span>
+  <div class="valance"><span class="valance__swags"></span><span class="valance__fringe"></span></div>
+</div>
+
 <!-- ============ CABECERA Y NAVEGACIÓN ============ -->
 <header class="topbar" id="topbar">
   <div class="progress" aria-hidden="true"></div>
@@ -63,7 +72,7 @@
 <main id="inicio">
 
   <!-- ============ APERTURA PERSONALIZADA ============ -->
-  <section class="hero wrap" aria-labelledby="hero-title">
+  <section class="hero wrap spot" aria-labelledby="hero-title">
     <div class="hero__meta mono">
       <span>Roar Studio</span><span>Clausura del año</span><span>2 0 2 6</span>
     </div>
@@ -92,7 +101,7 @@
   </div>
 
   <!-- ============ TU INVITACIÓN (incluye el resumen) ============ -->
-  <section class="section wrap" id="invitacion" aria-labelledby="inv-title">
+  <section class="section wrap spot" id="invitacion" aria-labelledby="inv-title">
     <header class="section__head">
       <span class="section__num mono">01</span>
       <h2 class="section__title" id="inv-title"><span class="title-caps">Tu</span> <span class="script">invitación</span></h2>

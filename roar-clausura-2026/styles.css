@@ -577,7 +577,7 @@ em, .card__greeting, .seal, .invite__lead, .seat__name--missing, .response__stam
  * mayúsculas espaciadas y caligrafía dorada.
  * ===================================================================== */
 :root {
-  --script: 'Allura', 'Snell Roundhand', 'Segoe Script', cursive;
+  --script: 'Pinyon Script', 'Snell Roundhand', 'Segoe Script', cursive;
   --gold-1: #6b4714;
   --gold-2: #b98a3e;
   --gold-3: #e8c983;
@@ -969,3 +969,136 @@ body.is-locked .fab-whatsapp { display: none; }
 .hero__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 4px; padding-top: 14px; }
 .hero__facts p { font-size: clamp(.85rem, 2.6vw, 1.05rem); line-height: 1.35; }
 @media (min-width: 960px) { .hero__facts { grid-template-columns: 1fr; gap: 14px; } }
+/* Figurines: ocupan el alto del marco */
+.mood__frame svg { width: auto; height: 90%; max-width: 92%; }
+.modal__visual svg { width: auto; height: 92%; max-width: 92%; }
+.mood__frame { background: radial-gradient(70% 60% at 50% 40%, #2a251f 0%, var(--ink-card) 70%); }
+.modal__visual { width: min(100%, 420px); }
+.modal__visual--brand { width: 100%; }
+
+/* =====================================================================
+ * Luz de seguimiento (efecto "follow spot" de evento)
+ * Solo en el hero y en Tu invitación. La capa no recibe clics.
+ * ===================================================================== */
+.spot { position: relative; isolation: isolate; --spot-x: 50%; --spot-y: 40%; --spot-r: clamp(190px, 36vw, 480px); }
+.spot::before, .spot::after {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: calc(50% - 50vw); right: calc(50% - 50vw);
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 70px, #000 calc(100% - 70px), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 70px, #000 calc(100% - 70px), transparent 100%);
+}
+/* Penumbra: oscurece lo que queda fuera del haz */
+.spot::after {
+  z-index: 3;
+  background: radial-gradient(circle var(--spot-r) at var(--spot-x) var(--spot-y),
+    rgba(5,4,3,0) 0%, rgba(5,4,3,0) 42%, rgba(5,4,3,.2) 64%, rgba(5,4,3,.42) 100%);
+  transition: opacity .6s var(--ease);
+}
+/* Haz cálido con bruma, sumado con "screen" para iluminar sin tapar */
+.spot::before {
+  z-index: 2;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(circle calc(var(--spot-r) * .55) at var(--spot-x) var(--spot-y), rgba(255,226,170,.16), rgba(255,226,170,.05) 55%, transparent 72%),
+    radial-gradient(circle calc(var(--spot-r) * 1.1) at var(--spot-x) var(--spot-y), rgba(255,200,120,.06), transparent 70%);
+}
+.spot > * { position: relative; }
+.spot.spot--static::after { background: radial-gradient(120% 90% at 50% 35%, rgba(5,4,3,0) 40%, rgba(5,4,3,.35) 100%); }
+.spot.spot--static::before { display: none; }
+@media (hover: none) { .spot { --spot-r: clamp(200px, 70vw, 380px); } }
+
+/* =====================================================================
+ * Telón rojo de terciopelo
+ * Pliegues con gradientes superpuestos, brillo, textura y caída con
+ * recogido (forma de reloj de arena) al abrirse.
+ * ===================================================================== */
+.curtains { position: fixed; inset: 0; z-index: 59; pointer-events: none; overflow: hidden; }
+.curtains__stage { position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 30%, rgba(255,214,150,.18), transparent 70%); opacity: 0; transition: opacity 1s ease .4s; }
+.curtains.is-open .curtains__stage { opacity: 1; }
+
+.curtain {
+  position: absolute; top: 0; bottom: 0; width: 51%;
+  --fold: clamp(38px, 6vw, 72px);
+  background:
+    /* luz superior y sombra al pie */
+    linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 16%, rgba(0,0,0,0) 72%, rgba(0,0,0,.6) 100%),
+    /* pliegues principales */
+    repeating-linear-gradient(90deg,
+      #2b0307 0, #5c0a12 calc(var(--fold) * .18), #9c1424 calc(var(--fold) * .36), #c42a3a calc(var(--fold) * .46),
+      #9c1424 calc(var(--fold) * .56), #4a070e calc(var(--fold) * .8), #2b0307 var(--fold)),
+    /* pliegues secundarios, período distinto para que no se vean repetidos */
+    repeating-linear-gradient(90deg, rgba(0,0,0,.28) 0, rgba(0,0,0,0) calc(var(--fold) * .9), rgba(255,90,100,.06) calc(var(--fold) * 1.3), rgba(0,0,0,.22) calc(var(--fold) * 1.73));
+  background-blend-mode: normal, normal, multiply;
+  box-shadow: inset 0 0 120px rgba(0,0,0,.55);
+  will-change: transform, clip-path;
+}
+.curtain::after { /* textura de terciopelo */
+  content: ""; position: absolute; inset: 0; background-image: var(--grain); opacity: .22; mix-blend-mode: overlay;
+}
+.curtain__sheen {
+  position: absolute; inset: 0;
+  background: radial-gradient(70% 45% at 50% 28%, rgba(255,150,150,.16), transparent 70%);
+  mix-blend-mode: screen;
+}
+.curtain__hem { /* bastilla y borde inferior */
+  position: absolute; left: 0; right: 0; bottom: 0; height: 26px;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.5)), repeating-linear-gradient(90deg, #3a050a 0, #7d101c calc(var(--fold) * .4), #3a050a var(--fold));
+  border-top: 1px solid rgba(232,201,131,.35);
+}
+.curtain--left { left: 0; transform-origin: 0 0; box-shadow: inset -30px 0 60px rgba(0,0,0,.6), inset 0 0 120px rgba(0,0,0,.5); }
+.curtain--right { right: 0; transform-origin: 100% 0; box-shadow: inset 30px 0 60px rgba(0,0,0,.6), inset 0 0 120px rgba(0,0,0,.5); }
+.curtain--left  { clip-path: polygon(0 0, 100% 0, 100% 35%, 100% 62%, 100% 100%, 0 100%); }
+.curtain--right { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 62%, 0 35%); }
+
+/* Cenefa superior con ondas y fleco dorado */
+.valance { position: absolute; top: 0; left: 0; right: 0; height: clamp(70px, 13vh, 130px); z-index: 2; filter: drop-shadow(0 12px 16px rgba(0,0,0,.6)); }
+.valance__swags {
+  position: absolute; inset: 0 0 18px 0;
+  background:
+    radial-gradient(ellipse 50% 100% at 50% 0, transparent 0, transparent 0) ,
+    repeating-linear-gradient(90deg, #3a050a 0, #8c1220 18px, #b81f30 26px, #6e0d17 40px, #3a050a 52px);
+  -webkit-mask: radial-gradient(ellipse 50% 70% at 50% 0, #000 98%, transparent 100%) 0 0 / clamp(160px, 22vw, 300px) 100% repeat-x;
+  mask: radial-gradient(ellipse 50% 70% at 50% 0, #000 98%, transparent 100%) 0 0 / clamp(160px, 22vw, 300px) 100% repeat-x;
+}
+.valance::before { /* barra superior */
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 38%;
+  background: repeating-linear-gradient(90deg, #4a070e 0, #a51a2b 22px, #4a070e 44px), #5c0a12;
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,.5);
+}
+.valance__fringe {
+  position: absolute; left: 0; right: 0; top: 38%; height: 14px;
+  background: repeating-linear-gradient(90deg, var(--gold-3) 0 2px, var(--gold-1) 2px 3px, transparent 3px 5px);
+  -webkit-mask: linear-gradient(180deg, #000 60%, transparent); mask: linear-gradient(180deg, #000 60%, transparent);
+  opacity: .9;
+}
+
+/* Apertura: la parte alta corre por el riel y la baja se recoge después */
+.curtains.is-open .curtain--left  { animation: curtainLeft 2.1s cubic-bezier(.55,.05,.25,1) forwards; }
+.curtains.is-open .curtain--right { animation: curtainRight 2.1s cubic-bezier(.55,.05,.25,1) forwards; }
+@keyframes curtainLeft {
+  0%   { transform: scaleX(1);    clip-path: polygon(0 0, 100% 0, 100% 35%, 100% 62%, 100% 100%, 0 100%); }
+  15%  { transform: scaleX(1.01); }
+  55%  { transform: scaleX(.42);  clip-path: polygon(0 0, 100% 0, 80% 40%, 68% 62%, 96% 100%, 0 100%); }
+  80%  { transform: scaleX(.2);   clip-path: polygon(0 0, 100% 0, 66% 42%, 46% 60%, 82% 100%, 0 100%); }
+  100% { transform: scaleX(.17);  clip-path: polygon(0 0, 100% 0, 64% 42%, 44% 60%, 86% 100%, 0 100%); }
+}
+@keyframes curtainRight {
+  0%   { transform: scaleX(1);    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 62%, 0 35%); }
+  15%  { transform: scaleX(1.01); }
+  55%  { transform: scaleX(.42);  clip-path: polygon(0 0, 100% 0, 100% 100%, 4% 100%, 32% 62%, 20% 40%); }
+  80%  { transform: scaleX(.2);   clip-path: polygon(0 0, 100% 0, 100% 100%, 18% 100%, 54% 60%, 34% 42%); }
+  100% { transform: scaleX(.17);  clip-path: polygon(0 0, 100% 0, 100% 100%, 14% 100%, 56% 60%, 36% 42%); }
+}
+.curtains.is-done { transition: opacity .8s ease; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .curtains { display: none !important; } }
+
+/* Alzapaños dorados: aparecen cuando el telón queda recogido */
+.curtain-tie { position: absolute; top: 59%; width: 5.5vw; min-width: 22px; height: 7px; border-radius: 4px; z-index: 3; opacity: 0;
+  background: linear-gradient(180deg, var(--gold-4), var(--gold-2) 55%, var(--gold-1));
+  box-shadow: 0 3px 6px rgba(0,0,0,.6); transition: opacity .5s ease 1.5s; }
+.curtain-tie::after { content: ""; position: absolute; top: 4px; width: 9px; height: 26px; border-radius: 3px 3px 6px 6px;
+  background: repeating-linear-gradient(90deg, var(--gold-3) 0 1px, var(--gold-1) 1px 2px); }
+.curtain-tie--left { left: 0; } .curtain-tie--left::after { right: -2px; }
+.curtain-tie--right { right: 0; } .curtain-tie--right::after { left: -2px; }
+.curtains.is-open .curtain-tie { opacity: 1; }

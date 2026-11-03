@@ -244,8 +244,75 @@
       if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
     };
     if (reducedMotion()) { cover.classList.add('is-opening'); setTimeout(done, 220); return; }
+    // 1) La faja y la tarjeta se retiran  2) aparece el telón cerrado  3) el telón se abre
+    var curtains = $('#curtains');
+    curtains.hidden = false;
+    curtains.classList.remove('is-open', 'is-done');
     cover.classList.add('is-opening');
-    setTimeout(done, 1250);
+    setTimeout(function () {
+      done();
+      setTimeout(function () { curtains.classList.add('is-open'); }, 250);
+      setTimeout(function () { curtains.classList.add('is-done'); }, 2500);
+      setTimeout(function () { curtains.hidden = true; curtains.classList.remove('is-open', 'is-done'); }, 3300);
+    }, 1250);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Luz de seguimiento (hero y Tu invitación)                           */
+  /* Sigue el mouse o el dedo; sin puntero, recorre la zona sola.        */
+  /* ------------------------------------------------------------------ */
+  function setupSpotlights() {
+    var zones = $all('.spot');
+    if (!zones.length) return;
+    if (reducedMotion()) { zones.forEach(function (z) { z.classList.add('spot--static'); }); return; }
+    var pointer = null;   // {x, y} en coordenadas de la ventana
+    var lastMove = 0;
+    var visible = new Set();
+    var state = zones.map(function () { return { x: 0.5, y: 0.4, tx: 0.5, ty: 0.4, r: 1 }; });
+
+    function onMove(e) {
+      var p = e.touches ? e.touches[0] : e;
+      if (!p) return;
+      pointer = { x: p.clientX, y: p.clientY };
+      lastMove = performance.now();
+    }
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('pointerdown', onMove, { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) visible.add(en.target); else visible.delete(en.target); });
+      });
+      zones.forEach(function (z) { io.observe(z); });
+    } else zones.forEach(function (z) { visible.add(z); });
+
+    function frame(t) {
+      zones.forEach(function (z, i) {
+        if (!visible.has(z)) return;
+        var rect = z.getBoundingClientRect();
+        var st = state[i];
+        var active = pointer && t - lastMove < 4000 &&
+          pointer.y >= rect.top && pointer.y <= rect.bottom;
+        if (active) {
+          st.tx = pointer.x / window.innerWidth; // la capa de luz ocupa todo el ancho
+          st.ty = (pointer.y - rect.top) / rect.height;
+          z.classList.add('spot--live');
+        } else {
+          // Recorrido automático, como un cañón de seguimiento en un evento
+          var k = t / 1000 + i * 2.3;
+          st.tx = 0.5 + Math.sin(k * 0.45) * 0.32;
+          st.ty = 0.45 + Math.sin(k * 0.71) * 0.22;
+          z.classList.remove('spot--live');
+        }
+        st.x += (st.tx - st.x) * (active ? 0.18 : 0.04);
+        st.y += (st.ty - st.y) * (active ? 0.18 : 0.04);
+        z.style.setProperty('--spot-x', (st.x * 100).toFixed(2) + '%');
+        z.style.setProperty('--spot-y', (st.y * 100).toFixed(2) + '%');
+      });
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
   }
 
   function renderCover(inv) {
@@ -455,16 +522,95 @@
   /* ------------------------------------------------------------------ */
   /* Dress code y moodboard                                              */
   /* ------------------------------------------------------------------ */
+  /*
+   * Ilustraciones de figurín (estilo boceto de moda). Línea marfil, tela
+   * en tonos translúcidos y detalles dorados. Se reemplazan por fotos con
+   * `image` en data.js.
+   */
+  var F = ' fill="currentColor" fill-opacity=".09"';     // tela
+  var FD = ' fill="currentColor" fill-opacity=".16"';    // tela oscura / sombra
+  var G = ' fill="#e3c27c" fill-opacity=".85" stroke="#e3c27c"'; // dorado
+  var SK = ' fill="currentColor" fill-opacity=".05"';    // piel
+  var THIN = ' stroke-width=".6" stroke-opacity=".55"';
   var ART = {
-    suit: '<path d="M38 30l14-8 8 12 8-12 14 8 6 92-24 4-4-54-4 54-24-4z"/><path d="M52 22l3 34 5 14M68 22l-3 34-5 14"/><path d="M54 26l6 12 6-12"/><circle cx="60" cy="88" r="1.6"/><circle cx="60" cy="100" r="1.6"/><path d="M38 30l-10 82 9 2M82 30l10 82-9 2"/><path d="M42 96h10M70 70h8"/>',
-    suitTie: '<path d="M38 30l14-8 8 12 8-12 14 8 6 92-24 4-4-54-4 54-24-4z"/><path d="M52 22l3 34 5 14M68 22l-3 34-5 14"/><path d="M54 26l6 12 6-12"/><path d="M58 38h4l2 26-4 8-4-8z"/><circle cx="60" cy="92" r="1.6"/><path d="M38 30l-10 82 9 2M82 30l10 82-9 2"/>',
-    dressFlow: '<path d="M50 18l-2 22M70 18l2 22"/><path d="M48 40q12 7 24 0l-2 24q-10 4-20 0z"/><path d="M50 64q-14 40-26 84 36 10 72 0-12-44-26-84"/><path d="M56 70q-6 40-10 80M64 70q6 40 12 80M60 68v82"/>',
-    dressColumn: '<path d="M47 22q13 9 26 0l-2 38 5 88H44l5-88z"/><path d="M48 60h24"/><path d="M66 104v44"/><path d="M52 22v-6M68 22v-6"/>',
-    heel: '<path d="M18 112q22-2 42-14t32-28l8 2q4 8 0 20l-4 46h-6l-2-36q-18 12-48 24H18z"/><path d="M60 98q8 6 6 16"/><path d="M18 112v12"/>',
-    accessories: '<circle cx="36" cy="34" r="4"/><path d="M36 38v14"/><path d="M36 52l-6 10h12z"/><circle cx="84" cy="34" r="4"/><path d="M84 38v14"/><path d="M84 52l-6 10h12z"/><path d="M28 94h64v40H28z"/><path d="M28 94l32 22 32-22"/><circle cx="60" cy="112" r="2.4"/>',
+    suit:
+      '<ellipse cx="60" cy="14" rx="5.6" ry="7"' + SK + '/>' +
+      '<path d="M54.6 12.5q.6-8.6 5.6-8.6t5.6 8q-2.2-3.4-5.6-3.6-3.4.2-5.6 4.2z"' + FD + '/>' +
+      '<path d="M57.6 20.5v4.2M62.4 20.5v4.2"/>' +
+      '<path d="M43.5 29.5Q60 23.5 76.5 29.5L79 76q-8 3.4-15.6.6L60 60l-3.4 16.6Q49 79.4 41 76z"' + F + '/>' +
+      '<path d="M55.2 24.6L60 36.5l4.8-11.9z" fill="currentColor" fill-opacity=".22"/>' +
+      '<path d="M59 30.5h2l1.4 19.5-2.4 4-2.4-4z"' + G + ' stroke-width=".5"/>' +
+      '<path d="M55.2 24.6l-4 13.4 6.4 7.6 2.4 10.4M64.8 24.6l4 13.4-6.4 7.6-2.4 10.4"/>' +
+      '<path d="M69.5 40.5l5.5-1.2-.4 2.6z"' + G + ' stroke-width=".4"/>' +
+      '<circle cx="60" cy="62" r="1.1" fill="currentColor"/><circle cx="60" cy="68.5" r="1.1" fill="currentColor"/>' +
+      '<path d="M45 64.5h9M66 64.5h9"' + THIN + '/>' +
+      '<path d="M43.5 29.5Q38.6 50 39.6 77.5l5.2-.4q.4-22 3.6-36.6M76.5 29.5Q81.4 50 80.4 77.5l-5.2-.4q-.4-22-3.6-36.6"' + F + '/>' +
+      '<ellipse cx="42.2" cy="80.4" rx="2.3" ry="3"' + SK + '/><ellipse cx="77.8" cy="80.4" rx="2.3" ry="3"' + SK + '/>' +
+      '<path d="M45.4 76.6L48.2 149h8.2l3-58h1.2l3 58h8.2l2.8-72.4"' + FD + '/>' +
+      '<path d="M52.4 92v54M67.6 92v54"' + THIN + '/>' +
+      '<path d="M48 149l-2.4 4.6h11.2l-.4-4.6M63.6 149l-.4 4.6h11.2L72 149"' + FD + '/>',
+    suitTie:
+      '<ellipse cx="60" cy="14" rx="5.6" ry="7"' + SK + '/>' +
+      '<path d="M54.4 13q0-9 5.8-9 5.6 0 5.6 8.6-1.4-4-5.6-4.4-4.4.6-5.8 4.8z"' + FD + '/>' +
+      '<path d="M57.6 20.5v4.2M62.4 20.5v4.2"/>' +
+      '<path d="M44 29.5Q60 24 76 29.5l2.6 46q-7.6 3.4-15 .8L60 58l-3.6 18.3q-7.4 2.6-15-.8z"' + F + '/>' +
+      '<path d="M55.4 24.8L60 40l4.6-15.2z" fill="currentColor" fill-opacity=".22"/>' +
+      '<path d="M55.4 24.8l1.2 6.2 3.4-2M64.6 24.8l-1.2 6.2-3.4-2"' + THIN + '/>' +
+      '<path d="M55.4 24.8l-4.6 14.8 7 8.2L60 58M64.6 24.8l4.6 14.8-7 8.2L60 58"/>' +
+      '<circle cx="60" cy="64" r="1.1" fill="currentColor"/>' +
+      '<path d="M44 29.5q-5.2 22-3.8 47l5.2-.2q.8-21 3.8-35.6M76 29.5q5.2 22 3.8 47l-5.2-.2q-.8-21-3.8-35.6"' + F + '/>' +
+      '<path d="M41 72.4h5M74 72.4h5"' + G + ' stroke-width=".6"/>' +
+      '<ellipse cx="42.8" cy="79.6" rx="2.3" ry="3"' + SK + '/><ellipse cx="77.2" cy="79.6" rx="2.3" ry="3"' + SK + '/>' +
+      '<path d="M45.6 75.8l3.6 73.2h8l2.6-56h.4l2.6 56h8l3.6-73.2"' + FD + '/>' +
+      '<path d="M53.2 94v52M66.8 94v52"' + THIN + '/>' +
+      '<path d="M49 149l-2.6 4.6h11L57.2 149M62.8 149l-.2 4.6h11L71 149"' + FD + '/>',
+    dressFlow:
+      '<ellipse cx="60" cy="13" rx="5.2" ry="6.6"' + SK + '/>' +
+      '<path d="M54.6 13.4q-1.4-9.6 5.6-9.8 7.4.2 5.4 10.6 2 7.6 4.8 11.4-5.4-.8-6.6-8.8M54.6 13.4q-.6 6.4-3 10.6 3.6-1 4.6-5.4"' + FD + '/>' +
+      '<path d="M58.2 19.4v6M61.8 19.4v6"/>' +
+      '<path d="M50.4 28q9.6-3.4 19.2 0"' + THIN + '/>' +
+      '<path d="M52.6 30.4q7.4 4.4 14.8 0l-1.6 21.4q-5.8 2.6-11.6 0z"' + F + '/>' +
+      '<path d="M52.6 30.4l-1.2-3M67.4 30.4l1.2-3"/>' +
+      '<path d="M54.2 51.8Q44 92 28 151q32 9 64 0-16-59-26.2-99.2"' + F + '/>' +
+      '<path d="M54.2 51.8q6 3 11.6 0"' + G + ' fill="none" stroke-width="1.2"/>' +
+      '<path d="M57.4 56Q51 100 41 153M62.6 56q4.6 44 14.4 97M60 55.4v99M55 58q-9 46-20 93M65 58q9 46 22 93"' + THIN + '/>' +
+      '<path d="M28 151q8 3.8 16 1.4 8 3 16 .4 8 2.6 16 0 8 3 16-1.8"' + THIN + '/>' +
+      '<path d="M50.4 28q-4.4 12-3.6 26 .4 8 4.8 10.6M69.6 28q4.4 12 3.6 26-.4 8-4.8 10.6"' + SK + '/>',
+    dressColumn:
+      '<ellipse cx="60" cy="13" rx="5.2" ry="6.6"' + SK + '/>' +
+      '<path d="M54.8 11.8q.4-8.4 5.4-8.4 5.2 0 5.4 8.4-2.6-3-5.4-3t-5.4 3z"' + FD + '/><circle cx="60" cy="4" r="2.6"' + FD + '/>' +
+      '<path d="M58.2 19.4v6M61.8 19.4v6"/>' +
+      '<path d="M51 28.4q9-3 18 0"' + THIN + '/>' +
+      '<path d="M53 30.6L67.8 27q-1.6 15-.6 30.4 3.2 46 1.4 93.6H52.6q-2-47.6 1.2-93.6 1-14-.8-26.8z"' + F + '/>' +
+      '<path d="M53 30.6L67.8 27"' + G + ' fill="none" stroke-width="1"/>' +
+      '<path d="M54.2 57.4q5.8 2 11.6 0"' + THIN + '/>' +
+      '<path d="M63.6 108l1.6 43"/>' +
+      '<path d="M56 62q-1.6 44 0 88M61 60q1 40 0 50"' + THIN + '/>' +
+      '<path d="M51 28.4q-3.6 13-2.8 27.6.4 6 3.4 8.8M69 28.4q3.6 13 2.8 27.6-.4 6-3.4 8.8"' + SK + '/>' +
+      '<path d="M48.4 52.4l3.4.4M71.6 52.4l-3.4.4"' + G + ' stroke-width=".8"/>' +
+      '<path d="M57.8 151l-1.4 4h6.4l-.8-4"' + FD + '/>',
+    heel:
+      '<ellipse cx="58" cy="138.6" rx="44" ry="3" fill="currentColor" fill-opacity=".07" stroke="none"/>' +
+      '<path d="M14 124q0-10 12-13 12-3 20-3 24-10 46-34 6-8 11-6 3 12-2 24l-2 0q-19 10-41 26-14 10-34 10-10 0-10-4z"' + F + '/>' +
+      '<path d="M46 108q26-6 51-28 3-3 4-6.4"' + THIN + '/>' +
+      '<path d="M46 108q24-5 50-27 4-3 6-7l-1 18q-20 10-42 24z" fill="currentColor" fill-opacity=".14" stroke="none"/>' +
+      '<path d="M97.6 93l-2.2 44h-4.2l-1.2-38.4"' + F + '/>' +
+      '<path d="M95.4 137h-4.2"' + G + ' stroke-width="1.4"/>' +
+      '<path d="M18 121q9-3 20-2.4"' + THIN + '/>',
+    accessories:
+      '<path d="M22 96h76a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H22a6 6 0 0 1-6-6v-28a6 6 0 0 1 6-6z"' + F + '/>' +
+      '<path d="M16 104q44 20 88 0"' + THIN + '/>' +
+      '<rect x="55" y="110" width="10" height="6" rx="1.5"' + G + ' stroke-width=".6"/>' +
+      '<path d="M22 96q4-14 38-14t38 14"' + THIN + ' fill="none"/>' +
+      '<circle cx="30" cy="22" r="2.6"' + G + ' stroke-width=".5"/><path d="M30 24.6v10"/><path d="M30 34.6l-5 10.4a5 5 0 0 0 10 0z"' + F + '/><circle cx="30" cy="45" r="1.6"' + G + ' stroke-width=".4"/>' +
+      '<circle cx="48" cy="22" r="2.6"' + G + ' stroke-width=".5"/><path d="M48 24.6v10"/><path d="M48 34.6l-5 10.4a5 5 0 0 0 10 0z"' + F + '/><circle cx="48" cy="45" r="1.6"' + G + ' stroke-width=".4"/>' +
+      '<path d="M76 20v10M76 54v10"' + ' stroke-width="5" stroke-opacity=".25"/>' +
+      '<circle cx="76" cy="42" r="11"' + F + '/><circle cx="76" cy="42" r="8.4"' + THIN + '/>' +
+      '<path d="M76 42v-5.4M76 42l3.8 2.4"' + ' stroke="#e3c27c"/>' +
+      '<rect x="92" y="34" width="8" height="8" rx="1.4"' + G + ' stroke-width=".5"/><rect x="92" y="48" width="8" height="8" rx="1.4"' + G + ' stroke-width=".5"/>',
   };
   function artSVG(key, label) {
-    return '<svg viewBox="0 0 120 160" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="' + esc(label) + '">' + (ART[key] || '') + '</svg>';
+    return '<svg viewBox="0 0 120 160" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="' + esc(label) + '">' + (ART[key] || '') + '</svg>';
   }
   function moodVisual(item) {
     return item.image
@@ -946,6 +1092,7 @@
     updateCountdown();
     setInterval(updateCountdown, 30000);
     setupNav();
+    setupSpotlights();
     setupDemo();
     renderAll();
 
