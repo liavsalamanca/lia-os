@@ -1,4 +1,4 @@
-import type { BrowserContext, Page, Route } from '@playwright/test';
+import type { BrowserContext, Page, Route, WebSocketRoute } from '@playwright/test';
 import { expect, test } from './fixtures';
 
 /**
@@ -15,10 +15,39 @@ const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers
 const USER = { id: '00000000-0000-0000-0000-00000000000a', email: 'prueba@example.com', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
 const jwt = `e30.${Buffer.from(JSON.stringify({ sub: USER.id, exp: 4102444800 })).toString('base64url')}.firma0`;
 
+/** Mensaje de Phoenix (protocolo 2.0.0 de Realtime): [join_ref, ref, topic, event, payload]. */
+type Frame = [string | null, string | null, string, string, Record<string, unknown>];
+
+/** Imita Supabase Realtime: acepta la suscripción y avisa de cada fila escrita. */
+function fakeRealtime() {
+  const channels = new Set<{ ws: WebSocketRoute; joinRef: string | null; topic: string; ids: number[] }>();
+  const connect = (ws: WebSocketRoute) => {
+    ws.onMessage((raw) => {
+      const [joinRef, ref, topic, event, payload] = JSON.parse(String(raw)) as Frame;
+      let response: Record<string, unknown> = {};
+      if (event === 'phx_join') {
+        const config = payload.config as { postgres_changes: Record<string, unknown>[] };
+        const bindings = config.postgres_changes.map((filter, i) => ({ ...filter, id: i + 1 }));
+        channels.add({ ws, joinRef, topic, ids: bindings.map((b) => b.id) });
+        response = { postgres_changes: bindings };
+      }
+      ws.send(JSON.stringify([joinRef, ref, topic, 'phx_reply', { status: 'ok', response }] satisfies Frame));
+    });
+  };
+  const notify = () => {
+    for (const c of channels) {
+      const data = { type: 'UPDATE', schema: 'public', table: 'records', commit_timestamp: new Date().toISOString(), columns: [], record: {}, old_record: {}, errors: null };
+      c.ws.send(JSON.stringify([c.joinRef, null, c.topic, 'postgres_changes', { ids: c.ids, data }] satisfies Frame));
+    }
+  };
+  return { connect, notify };
+}
+
 function fakeSupabase() {
   const rows = new Map<string, Row>();
+  const realtime = fakeRealtime();
   let tick = 0;
-  return async (route: Route) => {
+  const http = async (route: Route) => {
     const request = route.request();
     const url = new URL(request.url());
     const json = (status: number, body: unknown) => route.fulfill({ status, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -42,14 +71,18 @@ function fakeSupabase() {
         if (current && row.modified_at < current.modified_at) continue;
         rows.set(key, { ...row, updated_at: new Date(Date.now() + ++tick).toISOString() });
       }
-      return route.fulfill({ status: 201, headers: CORS });
+      await route.fulfill({ status: 201, headers: CORS });
+      realtime.notify();
+      return;
     }
     return json(404, {});
   };
+  return Object.assign(http, { realtime });
 }
 
-async function device(context: BrowserContext, handler: (route: Route) => Promise<void>) {
-  await context.route('http://supabase.test/**', handler);
+async function device(context: BrowserContext, cloud: ReturnType<typeof fakeSupabase>) {
+  await context.route('http://supabase.test/**', cloud);
+  await context.routeWebSocket(/^ws:\/\/supabase\.test\//, cloud.realtime.connect);
   const page = await context.newPage();
   await page.goto('#/settings');
   return page;
@@ -133,6 +166,26 @@ test('los cambios se envían solos, sin pulsar nada', async ({ browser }) => {
   const sent = a.waitForRequest((r) => r.method() === 'POST' && r.url().includes('/rest/v1/records') && (r.postData() ?? '').includes('Envío automático'));
   await addTask(a, 'Envío automático');
   await sent;
+});
+
+test('un cambio aparece solo en el otro dispositivo, sin pulsar nada', async ({ browser }) => {
+  const cloud = fakeSupabase();
+  const a = await device(await browser.newContext(), cloud);
+  const b = await device(await browser.newContext(), cloud);
+  for (const page of [a, b]) {
+    await signIn(page);
+    await page.getByRole('button', { name: 'Conectar este dispositivo' }).click();
+    await expect(page.getByText(/^Sincronizado/)).toBeVisible();
+  }
+  await b.goto('#/tasks');
+
+  await addTask(a, 'Llega sola');
+  // Menos que la revisión de respaldo (15 s): solo el aviso en tiempo real lo explica.
+  await expect(b.getByRole('main').getByText('Llega sola')).toBeVisible({ timeout: 6000 });
+
+  await a.getByRole('button', { name: 'Eliminar tarea' }).click();
+  await a.getByRole('dialog').getByRole('button', { name: 'Eliminar' }).click();
+  await expect(b.getByRole('main').getByText('Llega sola')).toHaveCount(0, { timeout: 6000 });
 });
 
 test('cerrar sesión borrando este dispositivo no borra la nube', async ({ browser }) => {

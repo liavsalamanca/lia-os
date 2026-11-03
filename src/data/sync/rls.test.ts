@@ -21,7 +21,10 @@ const SUPABASE_STUB = `
   grant usage on schema public, auth to anon, authenticated;
   grant execute on function auth.uid() to anon, authenticated;
   insert into auth.users values ('${A}'), ('${B}');
+  create publication supabase_realtime;
 `;
+
+const REALTIME = 'supabase/migrations/20261103000000_records_realtime.sql';
 
 async function as<T>(role: 'anon' | 'authenticated', user: string, run: () => Promise<T>) {
   await db.exec(`set request.jwt.claim.sub = '${user}'; set role ${role};`);
@@ -40,6 +43,7 @@ beforeAll(async () => {
   db = new PGlite();
   await db.exec(SUPABASE_STUB);
   await db.exec(await readFile('supabase/migrations/20261101000000_records.sql', 'utf8'));
+  await db.exec(await readFile(REALTIME, 'utf8'));
   await insert(A, 'a1');
   await insert(B, 'b1');
 });
@@ -98,5 +102,24 @@ describe('resolución de versiones en el servidor', () => {
   it('el usuario se asigna solo desde la sesión', async () => {
     await upsert('v3', T1, 'x');
     expect((await as('authenticated', A, rows)).find((r) => r.id === 'v3')?.user_id).toBe(A);
+  });
+});
+
+describe('tiempo real', () => {
+  const published = async () =>
+    (await db.query(`select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'records'`)).rows.length;
+
+  it('la tabla queda publicada y repetir la migración no falla', async () => {
+    expect(await published()).toBe(1);
+    await db.exec(await readFile(REALTIME, 'utf8'));
+    expect(await published()).toBe(1);
+  });
+
+  it('la reversión la quita sin borrar datos', async () => {
+    const before = (await rows()).length;
+    await db.exec(await readFile('supabase/rollback/20261103000000_records_realtime.down.sql', 'utf8'));
+    expect(await published()).toBe(0);
+    expect((await rows()).length).toBe(before);
+    await db.exec(await readFile(REALTIME, 'utf8'));
   });
 });
