@@ -201,7 +201,7 @@
   /* ------------------------------------------------------------------ */
   /* Portada                                                             */
   /* ------------------------------------------------------------------ */
-  var PAGE_REGIONS = ['#topbar', 'main', '.footer'];
+  var PAGE_REGIONS = ['#topbar', 'main', '.footer', '#fab-whatsapp'];
   function setInert(selectors, on) {
     selectors.forEach(function (sel) {
       var el = $(sel);
@@ -549,30 +549,6 @@
     show(index);
   }
 
-  /* ------------------------------------------------------------------ */
-  /* Disciplinas                                                         */
-  /* ------------------------------------------------------------------ */
-  var DISCIPLINE_ART = {
-    camera: '<rect x="18" y="40" width="84" height="56" rx="6"/><path d="M42 40l6-10h24l6 10"/><circle cx="60" cy="68" r="17"/><circle cx="60" cy="68" r="9"/><path d="M88 50h6"/>',
-    phone: '<rect x="40" y="16" width="40" height="80" rx="7"/><path d="M54 22h12"/><circle cx="60" cy="56" r="11"/><path d="M57 51l8 5-8 5z"/><path d="M14 30a46 46 0 0 0 0 52M24 38a34 34 0 0 0 0 36M106 30a46 46 0 0 1 0 52M96 38a34 34 0 0 1 0 36"/>',
-    model: '<circle cx="60" cy="22" r="9"/><path d="M60 31v8M44 44q16-8 32 0l-4 30H48z"/><path d="M44 44l-8 28M76 44l6 14-12 8"/><path d="M50 74l-4 34M70 74l2 34"/>',
-    runway: '<path d="M46 108L56 20h8l10 88"/><path d="M60 26v8M60 44v10M60 64v12M60 86v14"/><path d="M14 108h92"/><circle cx="24" cy="26" r="2"/><circle cx="96" cy="26" r="2"/><path d="M24 28l12 22M96 28L84 50"/>',
-  };
-  function renderDisciplines() {
-    var list = DATA.disciplines || [];
-    $('#disciplines').innerHTML = list.map(function (d) {
-      var visual = d.image
-        ? '<img src="' + esc(d.image) + '" alt="' + esc(d.name) + '" loading="lazy" decoding="async">'
-        : '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (DISCIPLINE_ART[d.art] || '') + '</svg>';
-      return '<li class="discipline">' +
-        '<div class="discipline__visual">' + visual + '</div>' +
-        '<div class="discipline__body">' +
-        '<h3 class="discipline__name">' + esc(d.name) + '</h3>' +
-        '<p class="discipline__text">' + esc(d.text) + '</p>' +
-        '</div></li>';
-    }).join('');
-  }
-
   function renderDressContext(inv) {
     var el = $('#dress-context');
     var text = inv.kind === 'modelPlusOne'
@@ -749,21 +725,35 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   }
 
+  function setUnit(unit, value, one, many) {
+    var num = document.querySelector('.cd-num[data-unit="' + unit + '"]');
+    var label = document.querySelector('[data-unit-label="' + unit + '"]');
+    var text = String(value).padStart(2, '0');
+    if (num && num.textContent !== text) {
+      num.textContent = text;
+      num.classList.remove('tick'); void num.offsetWidth; num.classList.add('tick');
+    }
+    if (label) label.textContent = value === 1 ? one : many;
+  }
+
   function updateCountdown() {
     var el = $('#countdown-value');
+    var chip = $('#chip-countdown');
     var diff = new Date(EVENT.startISO).getTime() - Date.now();
     if (diff <= 0) {
       el.textContent = 'La celebración comenzó el 12 de diciembre a las ' + EVENT.timeLabel + '.';
-      $('#countdown .label').textContent = 'Choice Awards 2026';
+      $('#countdown .label').textContent = EVENT.title;
+      $('.countdown__grid').hidden = true;
+      chip.textContent = '12 de diciembre · ' + EVENT.timeLabel;
       return;
     }
     var mins = Math.floor(diff / 60000);
     var d = Math.floor(mins / 1440), h = Math.floor((mins % 1440) / 60), m = mins % 60;
-    var parts = [];
-    if (d) parts.push(plural(d, 'día', 'días'));
-    if (h || d) parts.push(plural(h, 'hora', 'horas'));
-    parts.push(plural(m, 'minuto', 'minutos'));
-    el.textContent = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' y ' + parts[parts.length - 1] : parts[0];
+    setUnit('d', d, 'día', 'días');
+    setUnit('h', h, 'hora', 'horas');
+    setUnit('m', m, 'minuto', 'minutos');
+    el.textContent = 'Faltan ' + plural(d, 'día', 'días') + ', ' + plural(h, 'hora', 'horas') + ' y ' + plural(m, 'minuto', 'minutos') + '.';
+    chip.textContent = d > 0 ? 'Faltan ' + plural(d, 'día', 'días') : 'Es hoy · ' + EVENT.timeLabel;
   }
 
   /* ------------------------------------------------------------------ */
@@ -804,10 +794,43 @@
     $('#details-access').textContent = accessSentence(inv) + ' Los accesos corresponden únicamente a las personas incluidas en ella.';
   }
 
-  function renderContact() {
+  function whatsappUrl(inv) {
     var c = EVENT.contact;
-    if (!c) return;
-    $('#faq-contact').innerHTML = 'Escríbenos: ' + esc(c.label || '') + (c.phone ? ' <span>' + esc(c.phone) + '</span>' : '');
+    var who = inv ? (inv.kind === 'brand' ? inv.principal || inv.brandName : inv.displayName) : '';
+    var msg = 'Hola Héctor' + (who ? ', soy ' + who : '') + '. Tengo una duda sobre mi invitación a ' + EVENT.title + '.';
+    return 'https://wa.me/' + c.whatsappNumber + '?text=' + encodeURIComponent(msg);
+  }
+
+  function renderContact(inv) {
+    var c = EVENT.contact;
+    if (!c) { $('#contact').hidden = true; $('#fab-whatsapp').hidden = true; return; }
+    $('#contact-name').textContent = c.name;
+    $('#contact-role').textContent = c.role;
+    $('#contact-phone').textContent = c.phoneLabel;
+    var wa = whatsappUrl(inv);
+    $('#contact-whatsapp').href = wa;
+    $('#fab-whatsapp').href = wa;
+    $('#contact-instagram').href = c.instagramUrl;
+    $('#faq-contact').textContent = 'Escríbele por WhatsApp a ' + c.name + ', ' + c.role.charAt(0).toLowerCase() + c.role.slice(1) + ', al ' + c.phoneLabel + '.';
+  }
+
+  function setupCopyPhone() {
+    var btn = $('#copy-phone');
+    var status = $('#copy-status');
+    btn.addEventListener('click', function () {
+      var text = EVENT.contact.phoneLabel;
+      var done = function () { status.textContent = 'Número copiado.'; setTimeout(function () { status.textContent = ''; }, 2500); };
+      var fallback = function () {
+        var range = document.createRange();
+        range.selectNodeContents($('#contact-phone'));
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+        status.textContent = 'Número seleccionado: cópialo desde el menú de tu teléfono.';
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+      } catch (e) { fallback(); }
+    });
   }
 
   /* ------------------------------------------------------------------ */
@@ -815,7 +838,7 @@
   /* ------------------------------------------------------------------ */
   var Modal = (function () {
     var root, dialog, body, lastFocus, handlers = {};
-    var REGIONS = ['#topbar', 'main', '.footer', '#demo'];
+    var REGIONS = ['#topbar', 'main', '.footer', '#demo', '#fab-whatsapp'];
     function focusables() {
       return $all('a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])', dialog)
         .filter(function (el) { return el.offsetParent !== null; });
@@ -946,6 +969,7 @@
     renderInvite(inv);
     renderDressContext(inv);
     renderSummary(inv);
+    renderContact(inv);
     $('#demo-current').textContent = inv.demoLabel;
     var radio = document.getElementById('demo-' + inv.id);
     if (radio) radio.checked = true;
@@ -954,7 +978,7 @@
   function init() {
     bindFields();
     renderMoodTabs(); renderMood();
-    renderDisciplines(); renderBrands(); renderSponsors(); renderRunway(); renderContact();
+    renderBrands(); renderSponsors(); renderRunway(); setupCopyPhone();
     setupPlace();
     updateCountdown();
     setInterval(updateCountdown, 30000);

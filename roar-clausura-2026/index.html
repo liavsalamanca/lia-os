@@ -43,6 +43,7 @@
 
 <!-- ============ CABECERA Y NAVEGACIÓN ============ -->
 <header class="topbar" id="topbar">
+  <div class="progress" aria-hidden="true"></div>
   <div class="topbar__inner">
     <a class="topbar__brand" href="#inicio" aria-label="Roar Studio, ir al inicio">
       <img src="assets/roar-studio-logo.png" alt="" width="760" height="206">
@@ -51,14 +52,13 @@
       <ul>
         <li><a href="#invitacion">Tu invitación</a></li>
         <li><a href="#celebracion">La noche</a></li>
-        <li><a href="#roar-studio">Roar Studio</a></li>
         <li><a href="#dress-code">Dress code</a></li>
         <li><a href="#marcas">Marcas</a></li>
         <li><a href="#programa">Programa</a></li>
         <li><a href="#fecha-lugar">Fecha y lugar</a></li>
         <li><a href="#detalles">Detalles</a></li>
         <li><a href="#resumen">Resumen</a></li>
-        <li><a href="#dudas">Dudas</a></li>
+        <li><a href="#dudas">Contacto</a></li>
       </ul>
     </nav>
   </div>
@@ -71,7 +71,10 @@
     <div class="hero__meta mono">
       <span>Roar Studio</span><span>Clausura del año</span><span>2 0 2 6</span>
     </div>
-    <p class="eyebrow" id="hero-greeting">Una invitación para ti</p>
+    <div class="hero__top">
+      <p class="eyebrow" id="hero-greeting">Una invitación para ti</p>
+      <a class="chip-countdown" href="#fecha-lugar"><span class="chip-countdown__dot" aria-hidden="true"></span><span id="chip-countdown">Faltan pocos días</span></a>
+    </div>
     <h2 class="hero__title" id="hero-title">
       <img class="hero__logo" src="assets/roar-choice-awards-2026.png" alt="Roar Studio Choice Awards 2026" width="914" height="566">
     </h2>
@@ -83,6 +86,14 @@
       <p><span class="mono label">Lugar</span><span><span data-field="event.venue.name">Las Palmas Park</span>, Bucaramanga</span></p>
     </div>
   </section>
+
+  <div class="brush brush--line" aria-hidden="true"></div>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Roar Studio Choice Awards 2026</span><i>•</i><span>Elegancia</span><i>•</i><span>Talento</span><i>•</i><span>Diversidad</span><i>•</i><span>12 · 12 · 2026</span><i>•</i><span>Bucaramanga</span><i>•</i>
+      <span>Roar Studio Choice Awards 2026</span><i>•</i><span>Elegancia</span><i>•</i><span>Talento</span><i>•</i><span>Diversidad</span><i>•</i><span>12 · 12 · 2026</span><i>•</i><span>Bucaramanga</span><i>•</i>
+    </div>
+  </div>
 
   <!-- ============ TU INVITACIÓN ============ -->
   <section class="section wrap" id="invitacion" aria-labelledby="inv-title">
@@ -119,33 +130,11 @@
     </div>
   </section>
 
-  <!-- ============ ROAR STUDIO: DISCIPLINAS ============ -->
-  <section class="section section--light" id="roar-studio" aria-labelledby="world-title">
-    <div class="smoke" aria-hidden="true"></div>
-    <div class="wrap world">
-      <div class="world__intro">
-        <header class="section__head section__head--stack">
-          <span class="section__num mono">03</span>
-          <h2 class="section__title" id="world-title"><span class="title-caps">Roar Studio</span> <span class="script">nuestro mundo</span></h2>
-        </header>
-        <p class="world__text">
-          Fotografía, creación de contenido, modelaje y pasarela: las disciplinas que dan forma a Roar Studio. Esta noche las celebramos juntas.
-        </p>
-        <p class="tagline-values tagline-values--dark" aria-label="Elegancia, talento y diversidad">Elegancia <span aria-hidden="true">•</span> Talento <span aria-hidden="true">•</span> Diversidad</p>
-      </div>
-      <figure class="world__photo">
-        <img src="assets/portafolio-modelos.jpg" alt="Modelos del portafolio de Roar Studio" width="517" height="452" loading="lazy" decoding="async">
-        <figcaption class="mono">Portafolio de modelos · @roarstudiohc</figcaption>
-      </figure>
-      <ul class="disciplines" id="disciplines"></ul>
-    </div>
-    <div class="brush" aria-hidden="true"></div>
-  </section>
 
   <!-- ============ DRESS CODE ============ -->
   <section class="section wrap" id="dress-code" aria-labelledby="dc-title">
     <header class="section__head">
-      <span class="section__num mono">04</span>
+      <span class="section__num mono">03</span>
       <h2 class="section__title" id="dc-title"><span class="title-caps">Elegancia</span> <span class="script">en cada detalle</span></h2>
     </header>
 
@@ -177,7 +166,7 @@
   <section class="section section--runway" id="marcas" aria-labelledby="brands-title">
     <div class="wrap">
       <header class="section__head">
-        <span class="section__num mono">05</span>
+        <span class="section__num mono">04</span>
         <h2 class="section__title" id="brands-title"><span class="title-caps">Marcas en</span> <span class="script">pasarela</span></h2>
       </header>
       <p class="section__intro">
@@ -199,7 +188,7 @@
   <!-- ============ PROGRAMA DE PASARELAS ============ -->
   <section class="section wrap" id="programa" aria-labelledby="prog-title">
     <header class="section__head">
-      <span class="section__num mono">06</span>
+      <span class="section__num mono">05</span>
       <h2 class="section__title" id="prog-title">Programa de pasarelas</h2>
     </header>
     <div id="runway-root"></div>
@@ -208,7 +197,7 @@
   <!-- ============ FECHA Y UBICACIÓN ============ -->
   <section class="section wrap" id="fecha-lugar" aria-labelledby="place-title">
     <header class="section__head">
-      <span class="section__num mono">07</span>
+      <span class="section__num mono">06</span>
       <h2 class="section__title" id="place-title">Fecha y lugar</h2>
     </header>
 
@@ -221,7 +210,12 @@
         </dl>
         <div class="countdown" id="countdown" aria-live="off">
           <p class="mono label">Faltan</p>
-          <p class="countdown__value" id="countdown-value">—</p>
+          <p class="sr-only" id="countdown-value">—</p>
+          <div class="countdown__grid" aria-hidden="true">
+            <div><span class="cd-num" data-unit="d">00</span><span class="cd-unit" data-unit-label="d">días</span></div>
+            <div><span class="cd-num" data-unit="h">00</span><span class="cd-unit" data-unit-label="h">horas</span></div>
+            <div><span class="cd-num" data-unit="m">00</span><span class="cd-unit" data-unit-label="m">minutos</span></div>
+          </div>
           <p class="countdown__tz mono">Hora de Colombia</p>
         </div>
       </div>
@@ -256,7 +250,7 @@
   <!-- ============ DETALLES PARA DISFRUTAR LA NOCHE ============ -->
   <section class="section wrap" id="detalles" aria-labelledby="det-title">
     <header class="section__head">
-      <span class="section__num mono">08</span>
+      <span class="section__num mono">07</span>
       <h2 class="section__title" id="det-title">Detalles para disfrutar la noche</h2>
     </header>
     <ul class="details">
@@ -282,7 +276,7 @@
   <!-- ============ RESUMEN ============ -->
   <section class="section wrap" id="resumen" aria-labelledby="sum-title">
     <header class="section__head">
-      <span class="section__num mono">09</span>
+      <span class="section__num mono">08</span>
       <h2 class="section__title" id="sum-title">Resumen de tu invitación</h2>
     </header>
     <div id="summary-root"></div>
@@ -291,9 +285,30 @@
   <!-- ============ DUDAS ============ -->
   <section class="section wrap" id="dudas" aria-labelledby="faq-title">
     <header class="section__head">
-      <span class="section__num mono">10</span>
-      <h2 class="section__title" id="faq-title">Dudas</h2>
+      <span class="section__num mono">09</span>
+      <h2 class="section__title" id="faq-title"><span class="title-caps">Dudas y</span> <span class="script">contacto</span></h2>
     </header>
+    <div class="contact" id="contact">
+      <div class="contact__who">
+        <p class="label">Organización</p>
+        <p class="contact__name" id="contact-name">Héctor Carrillo</p>
+        <p class="contact__role" id="contact-role">Director de Roar Studio</p>
+        <p class="contact__phone"><span class="label">WhatsApp</span> <span id="contact-phone" class="contact__number">+57 316 536 8405</span>
+          <button class="btn btn--text btn--copy" type="button" id="copy-phone">Copiar número</button></p>
+        <p class="contact__copied" id="copy-status" role="status"></p>
+      </div>
+      <div class="contact__actions">
+        <a class="btn btn--primary btn--icon" id="contact-whatsapp" href="https://wa.me/573165368405" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4a.5.5 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1 2.7 11.5 11.5 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3Z"/></svg>
+          Escribir por WhatsApp
+        </a>
+        <a class="btn btn--ghost btn--icon" id="contact-instagram" href="https://www.instagram.com/roarstudiohc/" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none"/></svg>
+          @roarstudiohc
+        </a>
+        <p class="contact__note">Escribe solo para dudas sobre tu invitación. No envíes el enlace privado de tu invitación a otras personas.</p>
+      </div>
+    </div>
     <div class="faq">
       <details>
         <summary>¿Dónde consulto los accesos incluidos?</summary>
@@ -317,7 +332,7 @@
       </details>
       <details>
         <summary>¿Cómo consulto una duda sobre mi invitación?</summary>
-        <p id="faq-contact">Pronto compartiremos el contacto de la organización.</p>
+        <p id="faq-contact">Escríbele por WhatsApp a Héctor Carrillo, director de Roar Studio, al +57 316 536 8405.</p>
       </details>
     </div>
   </section>
@@ -328,10 +343,15 @@
     <img src="assets/roar-studio-logo.png" alt="Roar Studio by Héctor Carrillo" width="760" height="206" class="footer__logo" loading="lazy">
     <img src="assets/roar-choice-awards-2026.png" alt="" width="914" height="566" class="footer__awards" loading="lazy">
     <p class="mono">Agencia y academia de modelos · Clausura del año 2026</p>
-    <a class="footer__ig" href="https://www.instagram.com/roarstudiohc/" target="_blank" rel="noopener noreferrer">@roarstudiohc</a>
+    <p class="footer__links"><a class="footer__ig" href="https://www.instagram.com/roarstudiohc/" target="_blank" rel="noopener noreferrer">Instagram · @roarstudiohc</a><a class="footer__ig" href="https://wa.me/573165368405" target="_blank" rel="noopener noreferrer">WhatsApp · +57 316 536 8405</a></p>
     <button class="btn btn--text" type="button" id="replay-cover">Ver la portada de nuevo</button>
   </div>
 </footer>
+
+<a class="fab-whatsapp" id="fab-whatsapp" href="https://wa.me/573165368405" target="_blank" rel="noopener noreferrer" aria-label="Escribir por WhatsApp a Héctor Carrillo">
+  <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4a.5.5 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1 2.7 11.5 11.5 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3Z"/></svg>
+  <span class="fab-whatsapp__text">Dudas</span>
+</a>
 
 <!-- ============ PANEL DE DEMOSTRACIÓN (no existe en la versión final) ============ -->
 <aside class="demo" id="demo" aria-label="Controles de demostración">

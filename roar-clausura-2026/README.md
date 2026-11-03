@@ -32,7 +32,9 @@ Las respuestas se guardan solo en `localStorage` de ese navegador. "Restablecer 
 - `runway[]`: orden (y hora, si se confirma) de cada pasarela.
 - `sponsors[]`: la sección "Patrocinadores y aliados" aparece sola al tener contenido.
 - `moodboard[].image`: fotografías de referencia propias.
-- `event.contact`, `event.rsvpDeadlineLabel`, `event.dressCode.publicGuideUrl`, `event.accessControl`.
+- `event.rsvpDeadlineLabel`, `event.dressCode.publicGuideUrl`, `event.accessControl`.
+
+El contacto (Héctor Carrillo, WhatsApp e Instagram) está en `event.contact`.
 
 ## Para pasar a producción
 

@@ -51,7 +51,15 @@ window.ROAR_DATA = {
     },
 
     // Pendientes
-    contact: null, // { label: 'Coordinación', phone: '…', whatsappUrl: '…' }
+    // Contacto confirmado de la organización
+    contact: {
+      name: 'Héctor Carrillo',
+      role: 'Director de Roar Studio',
+      phoneLabel: '+57 316 536 8405',
+      whatsappNumber: '573165368405', // formato internacional, sin + ni espacios
+      instagramUrl: 'https://www.instagram.com/roarstudiohc/',
+      instagramHandle: '@roarstudiohc',
+    },
     rsvpDeadlineLabel: null, // '30 de noviembre de 2026'
     accessControl: null, // cómo será el ingreso (se definirá más adelante)
   },
@@ -108,18 +116,6 @@ window.ROAR_DATA = {
    * (`time` es opcional; si no está confirmado, se omite).
    */
   runway: [],
-
-  /*
-   * Disciplinas de Roar Studio (sección "Roar Studio · nuestro mundo").
-   * `image: null` muestra una ilustración; para usar una foto propia:
-   * image: 'assets/disciplinas/fotografia.jpg'.
-   */
-  disciplines: [
-    { id: 'fotografia', name: 'Fotografía', text: 'Luz, pose y expresión frente a la cámara.', art: 'camera', image: null },
-    { id: 'contenido', name: 'Creación de contenido', text: 'Historias para redes con naturalidad y estilo propio.', art: 'phone', image: null },
-    { id: 'modelaje', name: 'Modelaje', text: 'Presencia, actitud y disciplina en cada proyecto.', art: 'model', image: null },
-    { id: 'pasarela', name: 'Pasarela', text: 'Caminar con seguridad y llevar cada prenda con intención.', art: 'runway', image: null },
-  ],
 
   /* Patrocinadores y aliados. Vacío = la sección no se muestra. */
   sponsors: [],
