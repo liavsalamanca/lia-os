@@ -375,7 +375,7 @@
     if (inv.seats === 1) {
       var slot = inv.slots[0];
       var block = slot.status === 'pending' || state.editing[slot.id] ? actionsHTML(inv, slot, true) : responseHTML(inv, slot, true);
-      right = '<div class="invite__panel" style="display:grid;gap:20px">' + tallyHTML(inv) +
+      right = '<div class="invite__panel" style="display:grid;gap:20px">' +
         '<div style="display:grid;gap:12px"><p class="seat__role">Estado · ' + STATUS_LABEL[slot.status] + '</p>' + block + '</div></div>';
     } else {
       right = '<div class="invite__panel" style="display:grid;gap:20px">' + tallyHTML(inv) +
@@ -622,16 +622,11 @@
   function renderRunway() {
     var root = $('#runway-root');
     if (!DATA.runway.length) {
-      root.innerHTML = '<div class="runway-empty">' +
-        '<div><p class="runway-empty__text">Pronto compartiremos el orden de las pasarelas.</p>' +
-        '<p class="runway-empty__sub">Aquí verás qué marca desfila primero en cuanto el programa esté confirmado.</p></div>' +
-        '<ol class="runway-ghost" aria-hidden="true">' +
-        DATA.brands.map(function () { return '<li><span class="mono">—</span><span class="bar"></span></li>'; }).join('') +
-        '</ol></div>';
+      root.innerHTML = '<p class="runway-empty"><span class="label">Programa</span> Pronto compartiremos el orden de las pasarelas.</p>';
       return;
     }
     var rows = DATA.runway.slice().sort(function (a, b) { return a.order - b.order; });
-    root.innerHTML = '<ol class="runway-list">' + rows.map(function (r) {
+    root.innerHTML = '<p class="label">Programa de pasarelas</p><ol class="runway-list">' + rows.map(function (r) {
       var b = DATA.brands.filter(function (x) { return x.id === r.brandId; })[0] || {};
       return '<li><span class="mono">' + String(r.order).padStart(2, '0') + '</span>' +
         '<span class="runway-list__name">' + esc(brandName(b)) + '</span>' +
@@ -759,39 +754,8 @@
   /* ------------------------------------------------------------------ */
   /* Resumen y textos dependientes de la invitación                      */
   /* ------------------------------------------------------------------ */
-  function accessSentence(inv) {
-    if (inv.kind === 'model') return 'Tu invitación incluye 1 acceso personal.';
-    if (inv.kind === 'modelPlusOne') return 'Tu invitación incluye 2 accesos: el tuyo y el de tu acompañante registrado.';
-    return 'La invitación de ' + inv.brandName + ' incluye ' + plural(inv.seats, 'acceso', 'accesos') + ' para sus representantes.';
-  }
-
-  function renderSummary(inv) {
-    var c = counts(inv);
-    $('#summary-root').innerHTML =
-      '<article class="pass" aria-label="Resumen de la invitación">' +
-      '<div class="pass__top"><img src="assets/roar-choice-awards-2026.png" alt="Roar Studio Choice Awards 2026" width="914" height="566"><span class="mono">Choice Awards 2026<br>' + esc(KIND_LABEL[inv.kind]) + '</span></div>' +
-      '<div class="pass__body">' +
-      '<p class="pass__name">' + esc(inv.displayName) + '</p>' +
-      '<dl class="pass__grid">' +
-      '<div><dt>Fecha</dt><dd>Sáb. 12 dic. 2026</dd></div>' +
-      '<div><dt>Hora</dt><dd>' + esc(EVENT.timeLabel) + '</dd></div>' +
-      '<div><dt>Lugar</dt><dd>' + esc(EVENT.venue.name) + '</dd></div>' +
-      '<div><dt>Accesos autorizados</dt><dd>' + inv.seats + '</dd></div>' +
-      '<div><dt>Confirmaron</dt><dd>' + c.confirmed + ' de ' + inv.seats + '</dd></div>' +
-      '<div><dt>No asistirán</dt><dd>' + c.declined + '</dd></div>' +
-      '</dl>' +
-      '<div><p class="label" style="margin-bottom:8px">Personas incluidas</p><ul class="pass__people">' +
-      inv.slots.map(function (s) {
-        return '<li><span>' + (s.name ? esc(s.name) : '<span class="tbd">Nombre pendiente</span>') + ' <span class="seat__role">· ' + esc(s.role) + '</span></span>' + statusPill(s.status) + '</li>';
-      }).join('') + '</ul></div>' +
-      '</div>' +
-      '<p class="pass__foot">Este resumen no es una entrada. La organización informará más adelante cómo será el ingreso.</p>' +
-      '</article>';
-  }
-
   function renderPersonalTexts(inv) {
     $('#hero-greeting').textContent = 'Una invitación para ' + inv.displayName;
-    $('#details-access').textContent = accessSentence(inv) + ' Los accesos corresponden únicamente a las personas incluidas en ella.';
   }
 
   function whatsappUrl(inv) {
@@ -811,7 +775,7 @@
     $('#contact-whatsapp').href = wa;
     $('#fab-whatsapp').href = wa;
     $('#contact-instagram').href = c.instagramUrl;
-    $('#faq-contact').textContent = 'Escríbele por WhatsApp a ' + c.name + ', ' + c.role.charAt(0).toLowerCase() + c.role.slice(1) + ', al ' + c.phoneLabel + '.';
+    if ($('#faq-contact')) $('#faq-contact').textContent = 'Escríbele por WhatsApp a ' + c.name + ', ' + c.role.charAt(0).toLowerCase() + c.role.slice(1) + ', al ' + c.phoneLabel + '.';
   }
 
   function setupCopyPhone() {
@@ -968,7 +932,6 @@
     renderPersonalTexts(inv);
     renderInvite(inv);
     renderDressContext(inv);
-    renderSummary(inv);
     renderContact(inv);
     $('#demo-current').textContent = inv.demoLabel;
     var radio = document.getElementById('demo-' + inv.id);

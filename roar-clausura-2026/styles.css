@@ -892,3 +892,80 @@ body.is-locked .fab-whatsapp { display: none; }
 @media (min-width: 600px) { .demo { max-width: calc(100vw - 200px); } }
 .hero__meta span { white-space: nowrap; }
 @media (max-width: 420px) { .hero__meta span:nth-child(2) { display: none; } }
+
+/* =====================================================================
+ * Versión compacta: menos altura por sección y carruseles en celular
+ * ===================================================================== */
+.section { padding-block: clamp(44px, 7vw, 88px); }
+.section__head { margin-bottom: clamp(18px, 3vw, 32px); }
+.hero { padding-block: clamp(28px, 6vw, 72px) clamp(24px, 4vw, 48px); gap: 18px; }
+.marquee { padding-block: 12px; }
+.brush--line { height: clamp(40px, 7vw, 96px); }
+
+.invite { gap: 22px; }
+.invite__when { font-size: .82rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-text); }
+.notice { margin-top: 18px; padding-left: 12px; font-size: .9rem; }
+.demo-note { margin-top: 10px; }
+.seat { padding: 14px 0; gap: 10px; }
+.response { padding: 16px; gap: 6px; }
+
+/* Dress code */
+.dress { margin-bottom: 22px; gap: 14px; }
+.dress__rules > div { padding: 12px 0; }
+.dress__rules dd { font-size: clamp(1.5rem, 5vw, 2.4rem); }
+.mood { gap: 14px; }
+.mood__disclaimer { font-size: .8rem; }
+.carousel, .mood__grid, .brands {
+  scroll-snap-type: x mandatory; scroll-padding-left: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.mood__grid::-webkit-scrollbar, .brands::-webkit-scrollbar { display: none; }
+@media (max-width: 759px) {
+  .mood__grid { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 4px; }
+  .mood__item { flex: 0 0 min(58%, 220px); scroll-snap-align: start; }
+  .brands { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 4px; }
+  .brands > li { flex: 0 0 min(78%, 300px); scroll-snap-align: start; }
+}
+@media (min-width: 900px) { .mood__grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; } }
+.mood__caption span { display: none; }
+.mood__caption strong { font-size: .88rem; }
+.mood__frame .mood__tag { display: none; }
+
+/* Marcas compactas */
+.brand__visual, .brand__visual[style] { aspect-ratio: 16 / 9; }
+@media (min-width: 760px) { .brand__visual { aspect-ratio: 4 / 3; } }
+.brand__letter { font-size: clamp(3.4rem, 10vw, 5.4rem); }
+.brand__info { padding: 14px 16px; gap: 4px; }
+.brand__name { font-size: 1.2rem; }
+.runway { margin-top: 18px; }
+.runway-empty { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--ivory-dim); }
+.runway-empty .label { display: inline; }
+.sponsors-wrap { margin-top: 24px; display: grid; gap: 12px; }
+
+/* Fecha y lugar */
+.place { gap: 22px; }
+.place__when { gap: 18px; }
+.place__daynum { font-size: clamp(4.6rem, 20vw, 7.5rem); }
+.place__month { line-height: 1.5; }
+.place__month strong { font-weight: 400; color: var(--gold-text); }
+.place__where { gap: 10px; padding: clamp(18px, 3vw, 32px); }
+.place__venue { font-size: clamp(1.9rem, 6vw, 2.8rem); }
+.countdown__grid > div { padding: 10px 6px; }
+.cd-num { font-size: clamp(1.7rem, 6vw, 2.3rem); }
+.before {
+  margin-top: 18px; padding: clamp(16px, 3vw, 24px) clamp(18px, 3vw, 28px);
+  background: var(--ivory); color: var(--ink); display: grid; gap: 6px;
+}
+.before .label { color: #6b6257; }
+.before__text { font-size: clamp(1.05rem, 2.6vw, 1.3rem); line-height: 1.4; max-width: 60ch; }
+
+/* Contacto y dudas */
+.contact { padding: clamp(18px, 3vw, 32px); margin-bottom: 20px; gap: 18px; }
+.contact__name { font-size: clamp(1.5rem, 5vw, 2.1rem); }
+.contact__phone { margin-top: 4px; }
+.faq summary { min-height: 52px; padding-block: 12px; font-size: 1rem; }
+.footer { padding-block: 36px 24px; }
+.footer__inner { gap: 10px; }
+/* Datos clave del hero en una sola fila compacta */
+.hero__facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 4px; padding-top: 14px; }
+.hero__facts p { font-size: clamp(.85rem, 2.6vw, 1.05rem); line-height: 1.35; }
+@media (min-width: 960px) { .hero__facts { grid-template-columns: 1fr; gap: 14px; } }
