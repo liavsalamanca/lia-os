@@ -549,6 +549,30 @@
     show(index);
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Disciplinas                                                         */
+  /* ------------------------------------------------------------------ */
+  var DISCIPLINE_ART = {
+    camera: '<rect x="18" y="40" width="84" height="56" rx="6"/><path d="M42 40l6-10h24l6 10"/><circle cx="60" cy="68" r="17"/><circle cx="60" cy="68" r="9"/><path d="M88 50h6"/>',
+    phone: '<rect x="40" y="16" width="40" height="80" rx="7"/><path d="M54 22h12"/><circle cx="60" cy="56" r="11"/><path d="M57 51l8 5-8 5z"/><path d="M14 30a46 46 0 0 0 0 52M24 38a34 34 0 0 0 0 36M106 30a46 46 0 0 1 0 52M96 38a34 34 0 0 1 0 36"/>',
+    model: '<circle cx="60" cy="22" r="9"/><path d="M60 31v8M44 44q16-8 32 0l-4 30H48z"/><path d="M44 44l-8 28M76 44l6 14-12 8"/><path d="M50 74l-4 34M70 74l2 34"/>',
+    runway: '<path d="M46 108L56 20h8l10 88"/><path d="M60 26v8M60 44v10M60 64v12M60 86v14"/><path d="M14 108h92"/><circle cx="24" cy="26" r="2"/><circle cx="96" cy="26" r="2"/><path d="M24 28l12 22M96 28L84 50"/>',
+  };
+  function renderDisciplines() {
+    var list = DATA.disciplines || [];
+    $('#disciplines').innerHTML = list.map(function (d) {
+      var visual = d.image
+        ? '<img src="' + esc(d.image) + '" alt="' + esc(d.name) + '" loading="lazy" decoding="async">'
+        : '<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (DISCIPLINE_ART[d.art] || '') + '</svg>';
+      return '<li class="discipline">' +
+        '<div class="discipline__visual">' + visual + '</div>' +
+        '<div class="discipline__body">' +
+        '<h3 class="discipline__name">' + esc(d.name) + '</h3>' +
+        '<p class="discipline__text">' + esc(d.text) + '</p>' +
+        '</div></li>';
+    }).join('');
+  }
+
   function renderDressContext(inv) {
     var el = $('#dress-context');
     var text = inv.kind === 'modelPlusOne'
@@ -930,7 +954,7 @@
   function init() {
     bindFields();
     renderMoodTabs(); renderMood();
-    renderBrands(); renderSponsors(); renderRunway(); renderContact();
+    renderDisciplines(); renderBrands(); renderSponsors(); renderRunway(); renderContact();
     setupPlace();
     updateCountdown();
     setInterval(updateCountdown, 30000);

@@ -109,6 +109,18 @@ window.ROAR_DATA = {
    */
   runway: [],
 
+  /*
+   * Disciplinas de Roar Studio (sección "Roar Studio · nuestro mundo").
+   * `image: null` muestra una ilustración; para usar una foto propia:
+   * image: 'assets/disciplinas/fotografia.jpg'.
+   */
+  disciplines: [
+    { id: 'fotografia', name: 'Fotografía', text: 'Luz, pose y expresión frente a la cámara.', art: 'camera', image: null },
+    { id: 'contenido', name: 'Creación de contenido', text: 'Historias para redes con naturalidad y estilo propio.', art: 'phone', image: null },
+    { id: 'modelaje', name: 'Modelaje', text: 'Presencia, actitud y disciplina en cada proyecto.', art: 'model', image: null },
+    { id: 'pasarela', name: 'Pasarela', text: 'Caminar con seguridad y llevar cada prenda con intención.', art: 'runway', image: null },
+  ],
+
   /* Patrocinadores y aliados. Vacío = la sección no se muestra. */
   sponsors: [],
 
