@@ -4,7 +4,7 @@ Estado real del desarrollo. La visión completa está en [MASTER_PLAN.md](../MAS
 
 Una casilla se marca solo cuando su verificación se ejecutó y pasó. Un módulo se considera terminado únicamente según la sección 12 del Master Plan.
 
-**Estado actual:** Fase 1 publicada en GitHub Pages. La sincronización de la Fase 3 se adelantó y está implementada, pendiente de conectarla a un proyecto Supabase real. Ningún módulo está terminado según la sección 12: las 15 áreas conservan la funcionalidad de v1 y su ampliación corresponde a las fases siguientes.
+**Estado actual:** Fase 1 publicada en GitHub Pages. La sincronización de la Fase 3 se adelantó y funciona con el proyecto Supabase real entre computador y celular. Faltan los adjuntos en Storage. Ningún módulo está terminado según la sección 12: las 15 áreas conservan la funcionalidad de v1 y su ampliación corresponde a las fases siguientes.
 
 ---
 
@@ -137,17 +137,17 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 - [ ] Proyectos con hitos y avance.
 - [ ] Calendario semanal, diario y time blocking.
 - [ ] Configuración: perfil, moneda, zona horaria y notificaciones.
-- [x] Autenticación con correo y contraseña, recuperación por código y cierre de sesión; el modo local sigue siendo el predeterminado.
+- [x] Autenticación con correo y contraseña, recuperación por enlace al correo y cierre de sesión; el modo local sigue siendo el predeterminado.
 
 ### Fase 3 — Datos y sincronización
 
-- [x] Migraciones SQL versionadas y RLS por usuario. *Verificación: `rls.test.ts` ejecuta el SQL real en PostgreSQL embebido. Falta repetirla en el proyecto real.*
-- [x] Motor de sincronización local-first con adaptador de Supabase. *Verificación: `sync.test.ts` y `cloud.spec.ts` con Supabase simulado. Falta probarlo en el proyecto real.*
+- [x] Migraciones SQL versionadas y RLS por usuario. *Verificación: `rls.test.ts` ejecuta el SQL real en PostgreSQL embebido. En el proyecto real, la lectura sin sesión devuelve 401.*
+- [x] Motor de sincronización local-first con adaptador de Supabase. *Verificación: `sync.test.ts` y `cloud.spec.ts` con Supabase simulado. En el proyecto real, una tarea pasó del computador al celular.*
 - [ ] Supabase Storage privado para adjuntos.
 - [x] Migración voluntaria e idempotente a la nube, con copia automática previa.
 - [x] Sincronización, resolución de conflictos (gana el cambio más reciente) y respaldos.
 - [x] Guía de configuración en [docs/SUPABASE.md](SUPABASE.md).
-- [ ] Conectar el proyecto real. *Requiere de ti: crear el proyecto Supabase y entregar URL y clave publishable.*
+- [x] Conectar el proyecto real. *Verificación: Liav conectó computador y celular el 2 de noviembre de 2026 y una tarea viajó entre ambos. El correo real de recuperación aún no se ha probado.*
 
 ### Fase 4 — Business Suite
 
