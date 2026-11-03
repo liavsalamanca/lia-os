@@ -5,6 +5,7 @@ import { Dialog, IconButton } from '../design';
 import { formatDate, todayISO } from '../domain/dates';
 import { download } from '../modules/download';
 import { moduleGroups } from '../modules/registry';
+import { ReminderWatcher } from '../modules/reminders';
 import { CommandPalette } from './CommandPalette';
 import { getStore, useData } from './store';
 import { useUI } from './ui';
@@ -157,6 +158,7 @@ export function Shell({ notice }: { notice: string | null }) {
         </Dialog>
       )}
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
+      <ReminderWatcher />
     </div>
   );
 }

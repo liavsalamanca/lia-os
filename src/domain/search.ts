@@ -16,10 +16,19 @@ export function recordTitle(record: Record<string, unknown>): string {
   return 'Registro';
 }
 
+const IGNORED = ['id', 'createdAt', 'updatedAt', 'blockedBy'];
+
+/** Texto de un valor; en listas, el de sus elementos o su título (subtareas). */
+const valueText = (value: unknown): string => {
+  if (Array.isArray(value)) return value.map(valueText).join(' ');
+  if (typeof value === 'object' && value !== null) return 'title' in value ? valueText(value.title) : '';
+  return value == null ? '' : String(value);
+};
+
 const searchableText = (record: object) =>
   Object.entries(record)
-    .filter(([key, value]) => !['id', 'createdAt', 'updatedAt'].includes(key) && value != null)
-    .map(([, value]) => String(value))
+    .filter(([key]) => !IGNORED.includes(key))
+    .map(([, value]) => valueText(value))
     .join(' ');
 
 export function searchAll(snapshot: Snapshot, query: string, limit = 20): SearchHit[] {

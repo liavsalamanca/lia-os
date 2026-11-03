@@ -132,8 +132,8 @@ tests/        e2e con Playwright y fixtures v1 sin datos reales
 ### Fase 2 — Core
 
 - [ ] Dashboard con widgets configurables y ordenables.
-- [ ] Tareas: subtareas, etiquetas, recurrencia, dependencias, recordatorios y vistas inteligentes.
-- [ ] Vistas Kanban (arrastrar y soltar), lista, calendario y prioridad; filtros avanzados.
+- [x] Tareas: subtareas, etiquetas, recurrencia, dependencias, recordatorios y vistas inteligentes. *Verificación: `tasks.test.ts` y `tasks.spec.ts`. Los recordatorios suenan solo con la app abierta: no hay servidor de notificaciones push.*
+- [ ] Vistas Kanban (arrastrar y soltar), lista, calendario y prioridad; filtros avanzados. *Hecho: filtros por prioridad y etiqueta.*
 - [ ] Proyectos con hitos y avance.
 - [ ] Calendario semanal, diario y time blocking.
 - [ ] Configuración: perfil, moneda, zona horaria y notificaciones.

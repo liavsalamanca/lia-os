@@ -18,11 +18,40 @@ const optionalAmount = z.unknown().optional().transform((v) => {
   return Number.isFinite(n) ? n : undefined;
 });
 
+/** Lista de textos; acepta también "a, b" escrito a mano. */
+const textList = z.unknown().optional().transform((v): string[] => {
+  const items = Array.isArray(v) ? v : typeof v === 'string' ? v.split(',') : [];
+  return [...new Set(items.filter((s): s is string => typeof s === 'string').map((s) => s.trim()).filter(Boolean))];
+});
+const subtaskList = z.unknown().optional().transform((v) =>
+  (Array.isArray(v) ? v : []).flatMap((s, i) => {
+    if (typeof s === 'string') return s.trim() ? [{ id: `s${i}`, title: s.trim(), done: false }] : [];
+    if (typeof s !== 'object' || s === null) return [];
+    const { id, title, done } = s as Record<string, unknown>;
+    if (typeof title !== 'string' || !title.trim()) return [];
+    return [{ id: typeof id === 'string' && id ? id : `s${i}`, title, done: done === true }];
+  }),
+);
+
 const base = { id: z.string().min(1), createdAt: text, updatedAt: text };
 const record = <T extends z.ZodRawShape>(shape: T) => z.looseObject({ ...base, ...shape });
 
 export const schemas = {
-  tasks: record({ title: text, area: text, priority: text, status: text, due: text, projectId: text, notes: text }),
+  tasks: record({
+    title: text,
+    area: text,
+    priority: text,
+    status: text,
+    due: text,
+    projectId: text,
+    notes: text,
+    tags: textList,
+    subtasks: subtaskList,
+    recurrence: text,
+    blockedBy: textList,
+    remindAt: text,
+    lastDoneAt: text,
+  }),
   projects: record({ name: text, area: text, status: text, progress: amount, deadline: text, notes: text }),
   events: record({ title: text, date: text, time: text, area: text, notes: text }),
   habits: record({ name: text, area: text, notes: text }),
@@ -53,6 +82,7 @@ export const schemas = {
 export type Collection = keyof typeof schemas;
 export type RecordOf<C extends Collection> = z.output<(typeof schemas)[C]>;
 export type Task = RecordOf<'tasks'>;
+export type Subtask = Task['subtasks'][number];
 export type Project = RecordOf<'projects'>;
 export type Habit = RecordOf<'habits'>;
 export type Transaction = RecordOf<'transactions'>;
