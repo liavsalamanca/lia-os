@@ -61,7 +61,6 @@
       <ul>
         <li><a href="#invitacion">Invitación</a></li>
         <li><a href="#dress-code">Dress code</a></li>
-        <li><a href="#marcas">Marcas</a></li>
         <li><a href="#fecha-lugar">Fecha y lugar</a></li>
         <li><a href="#dudas">Contacto</a></li>
       </ul>
@@ -93,15 +92,23 @@
   </section>
 
   <div class="brush brush--line" aria-hidden="true"></div>
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee__track">
-      <span>Roar Studio Choice Awards 2026</span><i>•</i><span>Elegancia</span><i>•</i><span>Talento</span><i>•</i><span>Diversidad</span><i>•</i><span>12 · 12 · 2026</span><i>•</i><span>Bucaramanga</span><i>•</i>
-      <span>Roar Studio Choice Awards 2026</span><i>•</i><span>Elegancia</span><i>•</i><span>Talento</span><i>•</i><span>Diversidad</span><i>•</i><span>12 · 12 · 2026</span><i>•</i><span>Bucaramanga</span><i>•</i>
+  <section class="values wrap" aria-label="Elegancia, talento y diversidad">
+    <div class="values__seal" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="values__ring">
+        <defs><path id="seal-circle" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1-156 0"/></defs>
+        <text><textPath href="#seal-circle" startOffset="0">ROAR STUDIO · CHOICE AWARDS 2026 · BUCARAMANGA · </textPath></text>
+      </svg>
+      <div class="values__date"><span class="values__dm">12<i>·</i>12</span><small>2026</small></div>
     </div>
-  </div>
+    <ol class="values__list">
+      <li><span class="values__idx">I</span><span class="values__word">Elegancia</span></li>
+      <li><span class="values__idx">II</span><span class="values__word">Talento</span></li>
+      <li><span class="values__idx">III</span><span class="values__word">Diversidad</span></li>
+    </ol>
+  </section>
 
   <!-- ============ TU INVITACIÓN (incluye el resumen) ============ -->
-  <section class="section wrap spot" id="invitacion" aria-labelledby="inv-title">
+  <section class="section wrap" id="invitacion" aria-labelledby="inv-title">
     <header class="section__head">
       <span class="section__num mono">01</span>
       <h2 class="section__title" id="inv-title"><span class="title-caps">Tu</span> <span class="script">invitación</span></h2>
@@ -121,40 +128,30 @@
       <h2 class="section__title" id="dc-title"><span class="title-caps">Elegancia</span> <span class="script">en cada detalle</span></h2>
     </header>
     <div class="dress">
+      <p class="dress__kicker"><span class="label">Dress code</span> <span class="dress__code-word">Elegante</span></p>
       <dl class="dress__rules">
-        <div><dt>Hombres</dt><dd data-field="event.dressCode.men">Traje</dd></div>
-        <div><dt>Mujeres</dt><dd data-field="event.dressCode.women">Vestido y tacones</dd></div>
+        <div class="dress__rule"><dt>Hombres</dt><dd data-field="event.dressCode.men">Traje</dd></div>
+        <div class="dress__rule"><dt>Mujeres</dt><dd data-field="event.dressCode.women">Vestido y tacones</dd></div>
       </dl>
       <p class="dress__context" id="dress-context" hidden></p>
     </div>
     <div class="mood">
       <div class="mood__tabs" role="tablist" aria-label="Categorías de referencias" id="mood-tabs"></div>
       <ul class="mood__grid" id="mood-grid"></ul>
-      <p class="mood__disclaimer">Ilustraciones de referencia. Colores y largos quedan a tu elección. <span id="share-pending">Compartir referencias: disponible cuando se publique la guía.</span></p>
+      <p class="mood__disclaimer">Ilustraciones de referencia mientras llegan las fotografías. Colores y largos quedan a tu elección. <span id="share-pending">Compartir referencias: disponible cuando se publique la guía.</span></p>
     </div>
   </section>
 
-  <!-- ============ MARCAS EN PASARELA + PROGRAMA ============ -->
-  <section class="section section--runway" id="marcas" aria-labelledby="brands-title">
-    <div class="wrap">
-      <header class="section__head">
-        <span class="section__num mono">03</span>
-        <h2 class="section__title" id="brands-title"><span class="title-caps">Marcas en</span> <span class="script">pasarela</span></h2>
-      </header>
-      <ul class="brands" id="brands-grid"></ul>
-      <div class="runway" id="runway-root"></div>
-      <!-- Patrocinadores y aliados: aparece solo con contenido confirmado -->
-      <div class="sponsors-wrap" id="aliados" hidden>
-        <p class="label">Patrocinadores y aliados</p>
-        <ul class="sponsors" id="sponsors-list"></ul>
-      </div>
-    </div>
+  <!-- ============ EN PASARELA (mención) ============ -->
+  <section class="mention wrap" id="marcas" aria-labelledby="mention-title">
+    <p class="label" id="mention-title">En pasarela</p>
+    <p class="mention__text" id="brands-mention">Marcas invitadas presentarán sus colecciones durante la noche. <span class="script">Pronto conocerás sus nombres.</span></p>
   </section>
 
   <!-- ============ FECHA Y LUGAR + ANTES DE LLEGAR ============ -->
   <section class="section wrap" id="fecha-lugar" aria-labelledby="place-title">
     <header class="section__head">
-      <span class="section__num mono">04</span>
+      <span class="section__num mono">03</span>
       <h2 class="section__title" id="place-title"><span class="title-caps">Fecha y</span> <span class="script">lugar</span></h2>
     </header>
     <div class="place">
@@ -202,7 +199,7 @@
   <!-- ============ DUDAS Y CONTACTO ============ -->
   <section class="section wrap" id="dudas" aria-labelledby="faq-title">
     <header class="section__head">
-      <span class="section__num mono">05</span>
+      <span class="section__num mono">04</span>
       <h2 class="section__title" id="faq-title"><span class="title-caps">Dudas y</span> <span class="script">contacto</span></h2>
     </header>
     <div class="contact" id="contact">

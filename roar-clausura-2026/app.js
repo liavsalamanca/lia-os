@@ -636,12 +636,14 @@
     grid.setAttribute('role', 'tabpanel');
     grid.setAttribute('aria-labelledby', 'tab-' + moodFilter);
     grid.innerHTML = visibleMood().map(function (m, i) {
-      return '<li class="mood__item"><button type="button" data-mood="' + esc(m.id) + '" aria-label="Ampliar referencia: ' + esc(m.title) + '">' +
-        '<span class="mood__frame">' + moodVisual(m) +
-        (m.image ? '' : '<span class="mood__tag mono">Ilustración provisional</span>') +
+      var cat = (DATA.moodboardCategories.filter(function (c) { return c.id === m.category; })[0] || {}).label || '';
+      return '<li class="mood__item mood__item--' + esc(m.category) + '"><button type="button" data-mood="' + esc(m.id) + '" aria-label="Ampliar referencia: ' + esc(m.title) + '">' +
+        '<span class="mood__frame">' +
+        '<span class="mood__backdrop" aria-hidden="true"></span>' + moodVisual(m) +
+        '<span class="mood__ref" aria-hidden="true">Ref. ' + String(i + 1).padStart(2, '0') + '</span>' +
         '<span class="mood__zoom" aria-hidden="true"><svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor"><path d="M6 1H1v5M10 15h5v-5M1 1l5 5M15 15l-5-5"/></svg></span>' +
-        '</span><span class="mood__caption"><strong>' + esc(m.title) + '</strong><span>' + esc(m.note) + '</span></span>' +
-        '</button></li>';
+        '<span class="mood__caption"><span class="mood__cat">' + esc(cat) + '</span><strong>' + esc(m.title) + '</strong></span>' +
+        '</span></button></li>';
     }).join('');
   }
 
@@ -695,6 +697,16 @@
     show(index);
   }
 
+  /* Mención de marcas: solo nombres cuando estén confirmados */
+  function renderBrandMention() {
+    var el = $('#brands-mention');
+    if (!el) return;
+    var names = DATA.brands.filter(function (b) { return !b.placeholder && b.name; }).map(function (b) { return b.name; });
+    if (!names.length) return; // se mantiene el texto genérico del HTML
+    var list = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' y ' + names[names.length - 1];
+    el.innerHTML = 'Presentan sus colecciones en pasarela: <strong>' + esc(list) + '</strong>.';
+  }
+
   function renderDressContext(inv) {
     var el = $('#dress-context');
     var text = inv.kind === 'modelPlusOne'
@@ -709,76 +721,9 @@
   /* ------------------------------------------------------------------ */
   /* Marcas, aliados y programa                                          */
   /* ------------------------------------------------------------------ */
-  function brandName(b) { return b.name || 'Marca por anunciar'; }
 
-  function renderBrands() {
-    $('#brands-grid').innerHTML = DATA.brands.map(function (b) {
-      var visual = b.image
-        ? '<img src="' + esc(b.image) + '" alt="" loading="lazy" decoding="async">'
-        : '<span class="brand__letter" aria-hidden="true">' + esc(b.slotLabel) + '</span>' +
-          '<span class="brand__logo-slot mono">' + (b.logo ? '' : 'Logo pendiente') + '</span>';
-      var meta = b.collection ? 'Colección ' + esc(b.collection) : 'Colección por confirmar';
-      return '<li class="brand"><button type="button" data-brand="' + esc(b.id) + '" aria-haspopup="dialog">' +
-        '<span class="brand__visual">' + visual + '</span>' +
-        '<span class="brand__info">' +
-        (b.placeholder ? '<span class="demo-tag" style="width:fit-content">Contenido provisional</span>' : '') +
-        '<span class="brand__name">' + esc(brandName(b)) + '</span>' +
-        '<span class="brand__meta">' + meta + '</span>' +
-        '<span class="brand__more">Ver detalles</span>' +
-        '</span></button></li>';
-    }).join('');
-  }
 
-  function tbd(text) { return '<span class="tbd">' + esc(text) + '</span>'; }
 
-  function openBrand(id) {
-    var b = DATA.brands.filter(function (x) { return x.id === id; })[0];
-    if (!b) return;
-    var run = DATA.runway.filter(function (r) { return r.brandId === b.id; })[0];
-    var order = run ? 'Pasarela ' + run.order + (run.time ? ' · ' + esc(run.time) : '') : tbd('Orden por confirmar');
-    var ig = b.instagram
-      ? '<a href="' + esc(b.instagram) + '" target="_blank" rel="noopener noreferrer">Ver en Instagram</a>'
-      : tbd('Por confirmar');
-    Modal.open({});
-    Modal.setContent(
-      (b.placeholder ? '<span class="demo-tag" style="width:fit-content">Contenido provisional</span>' : '<p class="eyebrow">Marca en pasarela</p>') +
-      '<div class="modal__visual modal__visual--brand">' +
-      (b.image ? '<img src="' + esc(b.image) + '" alt="" style="width:100%;height:100%;object-fit:cover">' : '<span class="brand__letter" aria-hidden="true">' + esc(b.slotLabel) + '</span>') +
-      '</div>' +
-      '<h3 class="modal__title" id="modal-title">' + esc(brandName(b)) + '</h3>' +
-      '<p class="modal__text">' + (b.description ? esc(b.description) : tbd('La descripción de la marca y su colección se publicará cuando la organización la confirme.')) + '</p>' +
-      '<dl class="modal__facts">' +
-      '<div><dt>Colección</dt><dd>' + (b.collection ? esc(b.collection) : tbd('Por confirmar')) + '</dd></div>' +
-      '<div><dt>Desfile</dt><dd>' + order + '</dd></div>' +
-      '<div><dt>Instagram</dt><dd>' + ig + '</dd></div>' +
-      '<div><dt>Logo</dt><dd>' + (b.logo ? '<img src="' + esc(b.logo) + '" alt="Logo de ' + esc(brandName(b)) + '" style="max-height:48px;width:auto">' : tbd('Pendiente')) + '</dd></div>' +
-      '</dl>'
-    );
-  }
-
-  function renderSponsors() {
-    var section = $('#aliados');
-    if (!DATA.sponsors || !DATA.sponsors.length) { section.hidden = true; return; }
-    section.hidden = false;
-    $('#sponsors-list').innerHTML = DATA.sponsors.map(function (s) {
-      return '<li>' + (s.logo ? '<img src="' + esc(s.logo) + '" alt="' + esc(s.name) + '" style="max-height:56px;width:auto">' : esc(s.name)) + '</li>';
-    }).join('');
-  }
-
-  function renderRunway() {
-    var root = $('#runway-root');
-    if (!DATA.runway.length) {
-      root.innerHTML = '<p class="runway-empty"><span class="label">Programa</span> Pronto compartiremos el orden de las pasarelas.</p>';
-      return;
-    }
-    var rows = DATA.runway.slice().sort(function (a, b) { return a.order - b.order; });
-    root.innerHTML = '<p class="label">Programa de pasarelas</p><ol class="runway-list">' + rows.map(function (r) {
-      var b = DATA.brands.filter(function (x) { return x.id === r.brandId; })[0] || {};
-      return '<li><span class="mono">' + String(r.order).padStart(2, '0') + '</span>' +
-        '<span class="runway-list__name">' + esc(brandName(b)) + '</span>' +
-        '<span class="runway-list__time">' + (r.time ? esc(r.time) : '') + '</span></li>';
-    }).join('') + '</ol>';
-  }
 
   /* ------------------------------------------------------------------ */
   /* Fecha, ubicación, calendario y cuenta regresiva                     */
@@ -1087,7 +1032,7 @@
   function init() {
     bindFields();
     renderMoodTabs(); renderMood();
-    renderBrands(); renderSponsors(); renderRunway(); setupCopyPhone();
+    renderBrandMention(); setupCopyPhone();
     setupPlace();
     updateCountdown();
     setInterval(updateCountdown, 30000);
@@ -1102,9 +1047,6 @@
     $('#mood-tabs').addEventListener('keydown', onMoodTabsKey);
     $('#mood-grid').addEventListener('click', function (e) {
       var b = e.target.closest('[data-mood]'); if (b) openMood(b.getAttribute('data-mood'));
-    });
-    $('#brands-grid').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-brand]'); if (b) openBrand(b.getAttribute('data-brand'));
     });
     $('#open-invitation').addEventListener('click', openInvitation);
     $('#replay-cover').addEventListener('click', function () { showCover(true); });
