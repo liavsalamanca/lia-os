@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Collection, Settings } from '../data/schema';
+import { RECURRENCES } from '../domain/tasks';
 import { safeUrl } from '../domain/url';
 
 export const AREAS = ['Personal', 'Taikinsa', 'Encargos USA', 'Mariè', 'Dans Lia Vie', 'Modelaje', 'Diseño de moda', 'Universidad', 'Finanzas', 'Bienestar', 'Creatividad'];
@@ -7,8 +8,11 @@ export const AREAS = ['Personal', 'Taikinsa', 'Encargos USA', 'Mariè', 'Dans Li
 export type FieldDef = {
   name: string;
   label: string;
-  type?: 'text' | 'textarea' | 'select' | 'date' | 'time' | 'number' | 'url' | 'project';
+  type?: 'text' | 'textarea' | 'select' | 'date' | 'time' | 'number' | 'url' | 'project' | 'tags' | 'subtasks' | 'dependencies';
   options?: string[];
+  /** Opción inicial que guarda un texto vacío. */
+  emptyOption?: string;
+  hint?: string;
   required?: boolean;
   wide?: boolean;
   /** Número que puede quedar vacío para heredar un valor de Configuración. */
@@ -22,6 +26,8 @@ export type CollectionDef = {
   feminine: boolean;
   route: string;
   fields: FieldDef[];
+  /** Regla entre campos: devuelve el campo y el mensaje si no se cumple. */
+  check?: (values: Record<string, unknown>) => { field: string; message: string } | null;
 };
 
 const area: FieldDef = { name: 'area', label: 'Área', type: 'select', options: AREAS, default: 'Personal' };
@@ -39,9 +45,15 @@ export const collections: Record<Collection, CollectionDef> = {
       { name: 'priority', label: 'Prioridad', type: 'select', options: ['Alta', 'Media', 'Baja'], default: 'Media' },
       { name: 'status', label: 'Estado', type: 'select', options: ['Pendiente', 'En progreso', 'Hecho'], default: 'Pendiente' },
       { name: 'due', label: 'Fecha límite', type: 'date' },
+      { name: 'remindAt', label: 'Recordatorio', type: 'time', hint: 'Avisa ese día a esta hora, con la app abierta.' },
+      { name: 'recurrence', label: 'Se repite', type: 'select', options: RECURRENCES, emptyOption: 'No se repite' },
+      { name: 'tags', label: 'Etiquetas', type: 'tags', hint: 'Sepáralas con comas.' },
       { name: 'projectId', label: 'Vincular a un proyecto', type: 'project', wide: true },
+      { name: 'subtasks', label: 'Subtareas', type: 'subtasks', wide: true },
+      { name: 'blockedBy', label: 'Antes debo terminar', type: 'dependencies', wide: true },
       { ...notes, label: 'Detalles / notas' },
     ],
+    check: (v) => (v.remindAt && !v.due ? { field: 'remindAt', message: 'Elige una fecha límite para el recordatorio.' } : null),
   },
   projects: {
     label: 'proyecto',
@@ -210,14 +222,27 @@ function fieldSchema(field: FieldDef): z.ZodType {
     if (field.optional) return z.preprocess(toNumber, number.optional());
     return z.preprocess((v) => toNumber(v) ?? 0, number);
   }
+  if (field.type === 'tags') {
+    return z.preprocess((v) => (typeof v === 'string' ? v.split(',') : v), z.array(z.string().trim())).transform((tags) => [...new Set(tags.filter(Boolean))]);
+  }
+  if (field.type === 'subtasks') {
+    const subtask = z.object({ id: z.string(), title: z.string().trim(), done: z.boolean() });
+    return z.array(subtask).transform((list) => list.filter((s) => s.title));
+  }
+  if (field.type === 'dependencies') return z.array(z.string());
   const text = z.string().trim();
   const base = field.required ? text.min(1, REQUIRED) : text;
   if (field.type === 'url') return base.refine((v) => !v || safeUrl(v) !== null, 'Escribe una URL completa que empiece por https://');
   return base;
 }
 
-export function formSchema(fields: FieldDef[]) {
-  return z.object(Object.fromEntries(fields.map((f) => [f.name, fieldSchema(f)])));
+export function formSchema(fields: FieldDef[], check?: CollectionDef['check']) {
+  const shape = z.object(Object.fromEntries(fields.map((f) => [f.name, fieldSchema(f)])));
+  if (!check) return shape;
+  return shape.superRefine((values, ctx) => {
+    const problem = check(values);
+    if (problem) ctx.addIssue({ code: 'custom', path: [problem.field], message: problem.message });
+  });
 }
 
 export function newRecordTitle(def: CollectionDef) {

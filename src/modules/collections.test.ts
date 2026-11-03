@@ -7,14 +7,28 @@ describe('validación de formularios', () => {
   const order = formSchema(collections.orders.fields);
   const validOrder = { client: 'Ana', item: 'Tenis', store: '', status: 'Pendiente', priceUSD: '10', shippingUSD: '', weightLb: '0.3', shippingRate: '', extraUSD: '', fx: '', marginPercent: '15', notes: '' };
 
+  const validTask = { title: 'x', area: '', priority: '', status: '', due: '', remindAt: '', recurrence: '', tags: '', projectId: '', subtasks: [], blockedBy: [], notes: '' };
+
   it('exige los campos obligatorios', () => {
-    const result = task.safeParse({ title: '   ', area: '', priority: '', status: '', due: '', projectId: '', notes: '' });
-    expect(result.success).toBe(false);
+    expect(task.safeParse({ ...validTask, title: '   ' }).success).toBe(false);
   });
 
   it('recorta espacios', () => {
-    const data = task.parse({ title: ' hola ', area: '', priority: '', status: '', due: '', projectId: '', notes: '' });
-    expect(data.title).toBe('hola');
+    expect(task.parse({ ...validTask, title: ' hola ' }).title).toBe('hola');
+  });
+
+  it('convierte etiquetas y descarta subtareas vacías', () => {
+    const data = task.parse({ ...validTask, tags: ' moda, ,moda, USA ', subtasks: [{ id: 'a', title: ' Guion ', done: false }, { id: 'b', title: '  ', done: false }] });
+    expect(data.tags).toEqual(['moda', 'USA']);
+    expect(data.subtasks).toEqual([{ id: 'a', title: 'Guion', done: false }]);
+  });
+
+  it('un recordatorio necesita fecha límite', () => {
+    const withRule = formSchema(collections.tasks.fields, collections.tasks.check);
+    const result = withRule.safeParse({ ...validTask, remindAt: '09:00' });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['remindAt']);
+    expect(withRule.safeParse({ ...validTask, remindAt: '09:00', due: '2026-11-04' }).success).toBe(true);
   });
 
   it('convierte números y deja vacíos los que heredan configuración', () => {

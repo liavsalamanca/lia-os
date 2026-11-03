@@ -6,6 +6,7 @@ import { emptySnapshot, type Collection, type RecordOf, type Settings, type Snap
 import { timeOf } from '../data/sync/plan';
 import { todayISO } from '../domain/dates';
 import { toggleHabitDate } from '../domain/habits';
+import { completionPatch, DONE } from '../domain/tasks';
 import { projectTemplates, habitTemplates } from '../domain/templates';
 
 const CHANNEL = 'lia-os-data';
@@ -94,8 +95,20 @@ export class Store {
     this.changed(next);
   }
 
-  async setTaskDone(id: string, done: boolean) {
-    await this.saveRecord('tasks', { status: done ? 'Hecho' : 'Pendiente' }, id, { instant: true });
+  /** Devuelve la próxima fecha si la tarea es recurrente y vuelve a quedar pendiente. */
+  async setTaskDone(id: string, done: boolean): Promise<string | null> {
+    const task = this.snapshot.tasks.find((t) => t.id === id);
+    if (!task) return null;
+    const patch = done ? completionPatch(task, this.today()) : { status: 'Pendiente' };
+    await this.saveRecord('tasks', patch, id, { instant: true });
+    return done && patch.status !== DONE ? (patch.due ?? null) : null;
+  }
+
+  async toggleSubtask(taskId: string, subtaskId: string) {
+    const task = this.snapshot.tasks.find((t) => t.id === taskId);
+    if (!task) return;
+    const subtasks = task.subtasks.map((s) => (s.id === subtaskId ? { ...s, done: !s.done } : s));
+    await this.saveRecord('tasks', { subtasks }, taskId, { instant: true });
   }
 
   async toggleHabit(id: string) {

@@ -1,17 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useWatch, type Control, type FieldErrors, type Resolver, type UseFormRegister } from 'react-hook-form';
+import { Controller, useForm, useWatch, type Control, type FieldErrors, type Resolver, type UseFormRegister } from 'react-hook-form';
 import { getStore, useData } from '../app/store';
 import { useUI } from '../app/ui';
-import type { Collection, Snapshot } from '../data/schema';
+import type { Collection, Snapshot, Subtask } from '../data/schema';
 import { Button, Dialog } from '../design';
 import { formatCOP } from '../domain/finance';
 import { calculateQuote, USD_THRESHOLD } from '../domain/quote';
 import { collections, formSchema, newRecordTitle, savedMessage, type FieldDef } from './collections';
+import { DependencyPicker, SubtaskEditor } from './taskFields';
 
 type Values = Record<string, unknown>;
 
 function initialValue(field: FieldDef, record: Values | undefined, snapshot: Snapshot) {
   const stored = record?.[field.name];
+  if (field.type === 'tags') return Array.isArray(stored) ? stored.join(', ') : '';
+  if (field.type === 'subtasks' || field.type === 'dependencies') return Array.isArray(stored) ? stored : [];
   if (stored !== undefined && stored !== null) return stored;
   if (record && field.type === 'number') return '';
   const fallback = field.default;
@@ -19,10 +22,34 @@ function initialValue(field: FieldDef, record: Values | undefined, snapshot: Sna
   return fallback ?? '';
 }
 
-function FieldControl({ field, register, errors, snapshot, value }: { field: FieldDef; register: UseFormRegister<Values>; errors: FieldErrors<Values>; snapshot: Snapshot; value: unknown }) {
+type ControlProps = { field: FieldDef; register: UseFormRegister<Values>; control: Control<Values>; errors: FieldErrors<Values>; snapshot: Snapshot; value: unknown; recordId?: string };
+
+function FieldControl({ field, register, control: formControl, errors, snapshot, value, recordId }: ControlProps) {
   const id = `field-${field.name}`;
   const error = errors[field.name]?.message as string | undefined;
-  const shared = { id, 'aria-invalid': !!error, 'aria-describedby': error ? `${id}-error` : undefined, ...register(field.name) };
+  const hintId = field.hint ? `${id}-hint` : undefined;
+  const describedBy = [error ? `${id}-error` : '', hintId ?? ''].filter(Boolean).join(' ') || undefined;
+  const shared = { id, 'aria-invalid': !!error, 'aria-describedby': describedBy, ...register(field.name) };
+  const wrap = field.wide ? 'sm:col-span-2' : '';
+
+  if (field.type === 'subtasks' || field.type === 'dependencies') {
+    return (
+      <div className={wrap}>
+        <Controller
+          name={field.name}
+          control={formControl}
+          render={({ field: f }) =>
+            field.type === 'subtasks' ? (
+              <SubtaskEditor label={field.label} value={f.value as Subtask[]} onChange={f.onChange} />
+            ) : (
+              <DependencyPicker label={field.label} value={f.value as string[]} onChange={f.onChange} tasks={snapshot.tasks} taskId={recordId} />
+            )
+          }
+        />
+      </div>
+    );
+  }
+
   let control;
   if (field.type === 'textarea') {
     control = <textarea rows={4} className="control resize-y" {...shared} />;
@@ -31,6 +58,7 @@ function FieldControl({ field, register, errors, snapshot, value }: { field: Fie
     const options = typeof value === 'string' && value && !field.options?.includes(value) ? [value, ...(field.options ?? [])] : field.options;
     control = (
       <select className="control" {...shared}>
+        {field.emptyOption && <option value="">{field.emptyOption}</option>}
         {options?.map((o) => (
           <option key={o}>{o}</option>
         ))}
@@ -50,15 +78,22 @@ function FieldControl({ field, register, errors, snapshot, value }: { field: Fie
   } else if (field.type === 'number') {
     control = <input type="number" min={0} step="any" inputMode="decimal" className="control" {...shared} />;
   } else {
-    control = <input type={field.type ?? 'text'} placeholder={field.type === 'url' ? 'https://' : undefined} className="control" {...shared} />;
+    const type = field.type === 'tags' ? 'text' : (field.type ?? 'text');
+    const placeholder = field.type === 'url' ? 'https://' : field.type === 'tags' ? 'moda, urgente' : undefined;
+    control = <input type={type} placeholder={placeholder} className="control" {...shared} />;
   }
   return (
-    <div className={field.wide ? 'sm:col-span-2' : ''}>
+    <div className={wrap}>
       <label htmlFor={id} className="mb-1 block text-[13px] font-medium text-muted">
         {field.label}
         {field.required && <span aria-hidden> *</span>}
       </label>
       {control}
+      {field.hint && (
+        <p id={hintId} className="mt-1 text-[12px] text-muted">
+          {field.hint}
+        </p>
+      )}
       {error && (
         <p id={`${id}-error`} className="mt-1 text-[13px] text-danger">
           {error}
@@ -95,7 +130,7 @@ export function RecordForm({ collection, id, overrides, onClose }: { collection:
   const record = id ? (snapshot[collection] as Values[]).find((r) => r.id === id) : undefined;
   const merged = overrides ? { ...record, ...overrides } : record;
   const { register, handleSubmit, control, watch, formState } = useForm<Values>({
-    resolver: zodResolver(formSchema(def.fields) as never) as unknown as Resolver<Values>,
+    resolver: zodResolver(formSchema(def.fields, def.check) as never) as unknown as Resolver<Values>,
     defaultValues: Object.fromEntries(def.fields.map((f) => [f.name, initialValue(f, merged, snapshot)])),
   });
 
@@ -109,7 +144,7 @@ export function RecordForm({ collection, id, overrides, onClose }: { collection:
       <form onSubmit={submit} noValidate>
         <div className="grid gap-4 p-5 sm:grid-cols-2">
           {def.fields.map((field) => (
-            <FieldControl key={field.name} field={field} register={register} errors={formState.errors} snapshot={snapshot} value={watch(field.name)} />
+            <FieldControl key={field.name} field={field} register={register} control={control} errors={formState.errors} snapshot={snapshot} value={watch(field.name)} recordId={record ? id : undefined} />
           ))}
         </div>
         {collection === 'orders' && <QuotePreview control={control} />}

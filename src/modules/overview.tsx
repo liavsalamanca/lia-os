@@ -7,6 +7,7 @@ import { formatDate, formatLongDate, todayISO } from '../domain/dates';
 import { formatCOP, monthSummary } from '../domain/finance';
 import { isDone } from '../domain/habits';
 import { projectProgress } from '../domain/projects';
+import { useCompleteTask } from './completeTask';
 import { byText } from './shared';
 
 const SPACES = [
@@ -20,6 +21,7 @@ export default function Overview() {
   const data = useData();
   const { openForm, attempt } = useUI();
   const navigate = useNavigate();
+  const complete = useCompleteTask();
   const today = todayISO(data.settings.timezone);
   const open = data.tasks.filter((t) => t.status !== 'Hecho');
   const next = [...open].sort(byText((t) => t.due)).slice(0, 5);
@@ -71,7 +73,7 @@ export default function Overview() {
             <ul>
               {next.map((t) => (
                 <Row key={t.id}>
-                  <input type="checkbox" aria-label={`Completar ${t.title}`} className="size-4 accent-wine" onChange={(e) => attempt(() => getStore().setTaskDone(t.id, e.target.checked))} />
+                  <input type="checkbox" aria-label={`Completar ${t.title}`} className="size-4 accent-wine" checked={false} onChange={(e) => complete(t, e.target.checked)} />
                   <RowBody title={t.title} sub={`${t.area} · ${formatDate(t.due)}${t.due && t.due < today ? ' · Vencida' : ''}`} />
                   <Chip>{t.priority}</Chip>
                 </Row>
