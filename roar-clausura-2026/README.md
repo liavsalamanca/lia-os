@@ -14,7 +14,7 @@ Página independiente en HTML, CSS y JavaScript sin dependencias ni compilación
 | `data.js` | **Todos los datos editables**: evento, ubicación, dress code, marcas, programa, aliados, moodboard e invitaciones de demostración. Un `null` se muestra como "por confirmar". |
 | `app.js` | Lógica: invitaciones, confirmaciones, moodboard, paneles de marcas, calendario, cuenta regresiva, navegación y panel de demostración. |
 | `styles.css` | Diseño (tokens de color y tipografía al inicio). |
-| `assets/` | Logos de Roar Studio. `roar-choice-awards-2026.png` es la identidad principal del evento (portada, apertura y resumen). La tipografía del sitio es Questrial, la más cercana a la de los logos. |
+| `assets/` | Logos de Roar Studio. `roar-choice-awards-2026.png` es la identidad principal del evento (portada y apertura). La tipografía del sitio es Questrial, la más cercana a la de los logos. |
 
 ## Panel "Solo demostración"
 
