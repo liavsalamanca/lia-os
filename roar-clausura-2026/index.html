@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Roar Studio · Clausura 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Invitación privada a la clausura 2026 de Roar Studio, agencia y academia de modelos. 12 de diciembre de 2026, 6:30 p. m., Las Palmas Park, Bucaramanga.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0a09">
+<meta property="og:title" content="Roar Studio · Clausura 2026">
+<meta property="og:description" content="Sábado 12 de diciembre de 2026 · 6:30 p. m. · Las Palmas Park, Bucaramanga.">
+<meta property="og:image" content="assets/roar-studio-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Jost:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ PORTADA (apertura de la invitación) ============ -->
+<div class="cover" id="cover" role="dialog" aria-modal="true" aria-labelledby="cover-title">
+  <div class="cover__inner">
+    <div class="printed" id="printed">
+      <div class="card">
+        <img class="card__logo" src="assets/roar-studio-logo.png" alt="Roar Studio by Héctor Carrillo" width="760" height="206">
+        <p class="eyebrow card__eyebrow" data-field="event.organizationDescription">Agencia y academia de modelos</p>
+        <h1 class="card__title" id="cover-title"><span>Clausura</span> <em>2026</em></h1>
+        <p class="card__date mono"><span data-field="event.weekdayLabel">Sábado</span> · <span data-field="event.dateLabel">12 de diciembre de 2026</span></p>
+        <p class="card__greeting" id="cover-greeting">Te esperamos.</p>
+      </div>
+      <div class="band" aria-hidden="true">
+        <span class="band__text mono">Invitación personal</span>
+        <span class="seal">R</span>
+        <span class="band__text mono">Clausura 2026</span>
+      </div>
+    </div>
+    <button class="btn btn--primary cover__cta" id="open-invitation" type="button">Abrir mi invitación</button>
+    <p class="cover__hint mono">Invitación personal · Lista previamente aprobada</p>
+  </div>
+</div>
+
+<!-- ============ CABECERA Y NAVEGACIÓN ============ -->
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="topbar__brand" href="#inicio" aria-label="Roar Studio, ir al inicio">
+      <img src="assets/roar-studio-logo.png" alt="" width="760" height="206">
+    </a>
+    <nav class="sectionnav" aria-label="Secciones">
+      <ul>
+        <li><a href="#invitacion">Tu invitación</a></li>
+        <li><a href="#celebracion">La noche</a></li>
+        <li><a href="#dress-code">Dress code</a></li>
+        <li><a href="#marcas">Marcas</a></li>
+        <li><a href="#programa">Programa</a></li>
+        <li><a href="#fecha-lugar">Fecha y lugar</a></li>
+        <li><a href="#detalles">Detalles</a></li>
+        <li><a href="#resumen">Resumen</a></li>
+        <li><a href="#dudas">Dudas</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+
+  <!-- ============ APERTURA PERSONALIZADA ============ -->
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero__meta mono">
+      <span>Roar Studio</span><span>Clausura</span><span>MMXXVI</span>
+    </div>
+    <p class="eyebrow" id="hero-greeting">Una invitación para ti</p>
+    <h2 class="hero__title" id="hero-title">
+      <span class="hero__line">Cerramos</span>
+      <span class="hero__line"><em>el año</em> en</span>
+      <span class="hero__line">pasarela</span>
+    </h2>
+    <div class="hero__facts">
+      <p><span class="mono label">Fecha</span><span><span data-field="event.weekdayLabel">Sábado</span> <span data-field="event.dateLabel">12 de diciembre de 2026</span></span></p>
+      <p><span class="mono label">Hora</span><span data-field="event.timeLabel">6:30 p. m.</span></p>
+      <p><span class="mono label">Lugar</span><span><span data-field="event.venue.name">Las Palmas Park</span>, Bucaramanga</span></p>
+    </div>
+  </section>
+
+  <!-- ============ TU INVITACIÓN ============ -->
+  <section class="section wrap" id="invitacion" aria-labelledby="inv-title">
+    <header class="section__head">
+      <span class="section__num mono">01</span>
+      <h2 class="section__title" id="inv-title">Tu invitación</h2>
+    </header>
+    <div class="invite" id="invite-root" aria-live="polite"><!-- app.js --></div>
+    <p class="notice">
+      Hemos preparado esta celebración con una lista de invitados y cupos asignados con anticipación.
+      Los accesos corresponden únicamente a las personas incluidas en tu invitación.
+    </p>
+    <p class="demo-note mono" role="note">
+      <span class="demo-tag">Prototipo</span>
+      Las respuestas de prueba se guardan solo en este navegador. No se envían a la organización.
+    </p>
+  </section>
+
+  <!-- ============ LA CELEBRACIÓN ============ -->
+  <section class="section wrap" id="celebracion" aria-labelledby="cel-title">
+    <header class="section__head">
+      <span class="section__num mono">02</span>
+      <h2 class="section__title" id="cel-title">La noche</h2>
+    </header>
+    <div class="prose">
+      <p class="lede">
+        Llegó el momento de cerrar el año de la agencia y la academia.
+        El 12 de diciembre nos reunimos para celebrar 2026 con quienes formaron parte de él.
+      </p>
+      <p>
+        Será una noche de moda, con desfiles de marcas invitadas que eligieron esta clausura para presentar
+        sus colecciones. Queremos compartirla contigo.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ DRESS CODE ============ -->
+  <section class="section wrap" id="dress-code" aria-labelledby="dc-title">
+    <header class="section__head">
+      <span class="section__num mono">03</span>
+      <h2 class="section__title" id="dc-title">Elegancia en cada detalle</h2>
+    </header>
+
+    <div class="dress">
+      <p class="dress__code mono">Dress code · <span data-field="event.dressCode.label">Elegante</span></p>
+      <dl class="dress__rules">
+        <div><dt>Hombres</dt><dd data-field="event.dressCode.men">Traje</dd></div>
+        <div><dt>Mujeres</dt><dd data-field="event.dressCode.women">Vestido y tacones</dd></div>
+      </dl>
+      <p class="dress__context" id="dress-context" hidden></p>
+    </div>
+
+    <div class="mood">
+      <div class="mood__tabs" role="tablist" aria-label="Categorías de referencias" id="mood-tabs"></div>
+      <ul class="mood__grid" id="mood-grid"></ul>
+      <p class="mood__disclaimer">
+        Ilustraciones de referencia, no fotografías oficiales de Roar Studio. Colores, largos y estilos quedan a tu elección dentro del código elegante.
+      </p>
+      <div class="mood__share">
+        <button class="btn btn--ghost" type="button" disabled aria-describedby="share-pending">Compartir referencias</button>
+        <p class="pending-note" id="share-pending">
+          Pendiente: la guía pública del dress code aún no está publicada. Cuando exista, podrás compartirla desde aquí sin enviar el enlace privado de tu invitación.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARCAS EN PASARELA ============ -->
+  <section class="section section--runway" id="marcas" aria-labelledby="brands-title">
+    <div class="wrap">
+      <header class="section__head">
+        <span class="section__num mono">04</span>
+        <h2 class="section__title" id="brands-title">Marcas en pasarela</h2>
+      </header>
+      <p class="section__intro">
+        Estas marcas eligieron la clausura de Roar Studio para presentar sus colecciones. Muy pronto conocerás sus nombres.
+      </p>
+      <ul class="brands" id="brands-grid"></ul>
+    </div>
+  </section>
+
+  <!-- Patrocinadores y aliados: se muestra solo si hay contenido confirmado -->
+  <section class="section wrap" id="aliados" aria-labelledby="sponsors-title" hidden>
+    <header class="section__head">
+      <span class="section__num mono">—</span>
+      <h2 class="section__title" id="sponsors-title">Patrocinadores y aliados</h2>
+    </header>
+    <ul class="sponsors" id="sponsors-list"></ul>
+  </section>
+
+  <!-- ============ PROGRAMA DE PASARELAS ============ -->
+  <section class="section wrap" id="programa" aria-labelledby="prog-title">
+    <header class="section__head">
+      <span class="section__num mono">05</span>
+      <h2 class="section__title" id="prog-title">Programa de pasarelas</h2>
+    </header>
+    <div id="runway-root"></div>
+  </section>
+
+  <!-- ============ FECHA Y UBICACIÓN ============ -->
+  <section class="section wrap" id="fecha-lugar" aria-labelledby="place-title">
+    <header class="section__head">
+      <span class="section__num mono">06</span>
+      <h2 class="section__title" id="place-title">Fecha y lugar</h2>
+    </header>
+
+    <div class="place">
+      <div class="place__when">
+        <p class="place__day"><span class="place__daynum">12</span><span class="place__month">diciembre<br>2026</span></p>
+        <dl class="facts">
+          <div><dt>Día</dt><dd><span data-field="event.weekdayLabel">Sábado</span> <span data-field="event.dateLabel">12 de diciembre de 2026</span></dd></div>
+          <div><dt>Hora</dt><dd data-field="event.timeLabel">6:30 p. m.</dd></div>
+        </dl>
+        <div class="countdown" id="countdown" aria-live="off">
+          <p class="mono label">Faltan</p>
+          <p class="countdown__value" id="countdown-value">—</p>
+          <p class="countdown__tz mono">Hora de Colombia</p>
+        </div>
+      </div>
+
+      <div class="place__where">
+        <p class="mono label">Lugar</p>
+        <p class="place__venue" data-field="event.venue.name">Las Palmas Park</p>
+        <address class="place__address">
+          <span data-field="event.venue.address">Calle 44 #28-56</span><br>
+          <span data-field="event.venue.neighborhood">Sotomayor</span>, <span data-field="event.venue.city">Bucaramanga, Santander</span>
+        </address>
+        <div class="place__actions">
+          <a class="btn btn--primary" id="maps-link" href="#" target="_blank" rel="noopener noreferrer">Cómo llegar</a>
+          <div class="calmenu">
+            <button class="btn btn--ghost" type="button" id="cal-toggle" aria-expanded="false" aria-controls="cal-options">Guardar en mi calendario</button>
+            <div class="calmenu__panel" id="cal-options" hidden>
+              <a class="calmenu__item" id="cal-google" href="#" target="_blank" rel="noopener noreferrer">Google Calendar</a>
+              <button class="calmenu__item" type="button" id="cal-ics">Apple, Outlook u otro (.ics)</button>
+              <p class="calmenu__note">Se guarda con el inicio a las 6:30 p. m. La hora de cierre aún no está definida.</p>
+            </div>
+          </div>
+        </div>
+        <p class="place__note">El botón abre Google Maps con la dirección completa del lugar.</p>
+        <div class="mapbox" id="mapbox" hidden>
+          <button class="btn btn--text" type="button" id="map-toggle" aria-expanded="false">Ver mapa aquí</button>
+          <div class="mapbox__frame" id="map-frame" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DETALLES PARA DISFRUTAR LA NOCHE ============ -->
+  <section class="section wrap" id="detalles" aria-labelledby="det-title">
+    <header class="section__head">
+      <span class="section__num mono">07</span>
+      <h2 class="section__title" id="det-title">Detalles para disfrutar la noche</h2>
+    </header>
+    <ul class="details">
+      <li class="details__item details__item--feature">
+        <p class="mono label">Antes de llegar</p>
+        <p class="details__text" data-field="event.food.text">Te recomendamos comer antes del evento, ya que durante la celebración no habrá servicio de comida.</p>
+      </li>
+      <li class="details__item">
+        <p class="mono label">Hora</p>
+        <p class="details__text">La celebración es a las <span data-field="event.timeLabel">6:30 p. m.</span> en <span data-field="event.venue.name">Las Palmas Park</span>.</p>
+      </li>
+      <li class="details__item">
+        <p class="mono label">Vestuario</p>
+        <p class="details__text">Elegante: traje para hombres; vestido y tacones para mujeres. <a href="#dress-code">Ver referencias</a></p>
+      </li>
+      <li class="details__item">
+        <p class="mono label">Accesos</p>
+        <p class="details__text" id="details-access">Tu invitación indica cuántas personas pueden ingresar.</p>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ RESUMEN ============ -->
+  <section class="section wrap" id="resumen" aria-labelledby="sum-title">
+    <header class="section__head">
+      <span class="section__num mono">08</span>
+      <h2 class="section__title" id="sum-title">Resumen de tu invitación</h2>
+    </header>
+    <div id="summary-root"></div>
+  </section>
+
+  <!-- ============ DUDAS ============ -->
+  <section class="section wrap" id="dudas" aria-labelledby="faq-title">
+    <header class="section__head">
+      <span class="section__num mono">09</span>
+      <h2 class="section__title" id="faq-title">Dudas</h2>
+    </header>
+    <div class="faq">
+      <details>
+        <summary>¿Dónde consulto los accesos incluidos?</summary>
+        <p>En tu invitación personalizada, en la sección <a href="#invitacion">Tu invitación</a>. Allí verás cuántos accesos tienes y a quién corresponden.</p>
+      </details>
+      <details>
+        <summary>¿Cuál es el dress code?</summary>
+        <p>Elegante: traje para hombres; vestido y tacones para mujeres.</p>
+      </details>
+      <details>
+        <summary>¿Dónde y a qué hora es?</summary>
+        <p>En Las Palmas Park, Calle 44 #28-56, Sotomayor, Bucaramanga, Santander. El sábado 12 de diciembre de 2026 a las 6:30 p. m.</p>
+      </details>
+      <details>
+        <summary>¿Habrá servicio de comida?</summary>
+        <p>No habrá servicio de comida durante el evento. Te recomendamos comer antes de asistir.</p>
+      </details>
+      <details>
+        <summary>¿Puedo llevar a alguien más?</summary>
+        <p>Los accesos corresponden a las personas incluidas en tu invitación. Si alguien no puede asistir, su cupo no se reasigna automáticamente.</p>
+      </details>
+      <details>
+        <summary>¿Cómo consulto una duda sobre mi invitación?</summary>
+        <p id="faq-contact">Pronto compartiremos el contacto de la organización.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <img src="assets/roar-studio-logo.png" alt="Roar Studio by Héctor Carrillo" width="760" height="206" class="footer__logo" loading="lazy">
+    <p class="mono">Agencia y academia de modelos · Clausura 2026</p>
+    <button class="btn btn--text" type="button" id="replay-cover">Ver la portada de nuevo</button>
+  </div>
+</footer>
+
+<!-- ============ PANEL DE DEMOSTRACIÓN (no existe en la versión final) ============ -->
+<aside class="demo" id="demo" aria-label="Controles de demostración">
+  <button class="demo__toggle" type="button" id="demo-toggle" aria-expanded="false" aria-controls="demo-panel">
+    <span class="demo-tag">Solo demostración</span>
+    <span class="demo__current" id="demo-current"></span>
+  </button>
+  <div class="demo__panel" id="demo-panel" hidden>
+    <fieldset>
+      <legend>Ver la invitación como</legend>
+      <div id="demo-options"></div>
+    </fieldset>
+    <p class="demo__text">Prototipo: las respuestas de prueba se guardan solo en este navegador. No se envían a la organización. Los nombres son ficticios.</p>
+    <div class="demo__actions">
+      <button class="btn btn--small" type="button" id="demo-reset">Restablecer demostración</button>
+      <button class="btn btn--small btn--text" type="button" id="demo-close">Cerrar</button>
+    </div>
+    <p class="demo__status" id="demo-status" role="status"></p>
+  </div>
+</aside>
+
+<!-- ============ DIÁLOGOS ============ -->
+<div class="modal" id="modal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+    <button class="modal__close" type="button" data-close aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+    </button>
+    <div class="modal__body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>window.ROAR_ENV = window.ROAR_ENV || { icsDownload: true, mapEmbed: true };</script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
