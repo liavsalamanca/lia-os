@@ -1,45 +1,38 @@
-# Roar Studio Choice Awards 2026 — invitación digital (prototipo)
+# Roar Studio Choice Awards 2026 — invitación digital
 
-Página independiente en HTML, CSS y JavaScript sin dependencias ni compilación. No forma parte de la aplicación LIA OS.
+Página independiente en HTML, CSS y JavaScript, sin dependencias ni compilación. Se publica junto a LIA OS en GitHub Pages, pero no forma parte de la aplicación.
 
-## Cómo abrirla
+**Dirección pública:** https://liavsalamanca.github.io/lia-os/roar-clausura-2026/
 
-- Abre `index.html` directamente en el navegador, o
-- sirve la carpeta: `npx serve roar-clausura-2026` (o `python3 -m http.server` dentro de la carpeta).
+## Enlace personalizado
+
+Agrega `?para=` con el nombre del invitado para que la portada y la invitación lo saluden:
+
+```
+https://liavsalamanca.github.io/lia-os/roar-clausura-2026/?para=Lia%20Salamanca
+```
+
+Los espacios se escriben como `%20`. El nombre es solo un saludo: no da acceso ni define cupos.
+
+## Confirmación de asistencia
+
+No hay servidor. El invitado escribe su nombre y toca **Confirmar asistencia** o **No podré asistir**; se abre WhatsApp con el mensaje listo para Héctor Carrillo (+57 316 536 8405). La confirmación queda registrada cuando el invitado envía ese mensaje. La página solo recuerda, en ese navegador, qué respuesta preparó.
 
 ## Archivos
 
 | Archivo | Contenido |
 |---|---|
-| `data.js` | **Todos los datos editables**: evento, ubicación, dress code, marcas, programa, aliados, moodboard e invitaciones de demostración. Un `null` se muestra como "por confirmar". |
-| `app.js` | Lógica: invitaciones, confirmaciones, moodboard, paneles de marcas, calendario, cuenta regresiva, navegación y panel de demostración. |
-| `styles.css` | Diseño (tokens de color y tipografía al inicio). |
-| `assets/` | Logos de Roar Studio. `roar-choice-awards-2026.png` es la identidad principal del evento (portada y apertura). La tipografía del sitio es Questrial, la más cercana a la de los logos. |
+| `data.js` | Datos editables: evento, ubicación, dress code, contacto y marcas. Un `null` se muestra como "por confirmar". |
+| `app.js` | Lógica: portada y telón, confirmación por WhatsApp, calendario, cuenta regresiva, navegación, luz del hero y textura de terciopelo. |
+| `styles.css` | Diseño. |
+| `assets/` | Logos, referencia del dress code Black & White, imagen para vista previa en WhatsApp (`og-image.jpg`) y favicon. |
 
-## Panel "Solo demostración"
+## Publicación
 
-Botón fijo en la esquina inferior izquierda. Permite ver la página como:
+El flujo `.github/workflows/deploy.yml` copia esta carpeta dentro de `dist/` en cada push a `main`. `vite.config.ts` excluye la ruta del worker de LIA OS para que no la intercepte.
 
-1. Modelo con invitación individual.
-2. Modelo con acompañante autorizado (con el nombre del acompañante pendiente).
-3. Representantes de una marca invitada (ejemplo ficticio con 2 accesos).
+Para ver la página en local, abre `index.html` en el navegador o sirve la carpeta con `npx serve roar-clausura-2026`.
 
-Las respuestas se guardan solo en `localStorage` de ese navegador. "Restablecer demostración" las borra.
+## Marcas en pasarela
 
-## Completar datos pendientes (en `data.js`)
-
-- `brands[]`: nombre, logo, colección, imagen, descripción, Instagram; quitar `placeholder: true`.
-- `runway[]`: orden (y hora, si se confirma) de cada pasarela.
-- `sponsors[]`: la sección "Patrocinadores y aliados" aparece sola al tener contenido.
-- `moodboard[].image`: fotografías de referencia propias.
-- `event.rsvpDeadlineLabel`, `event.dressCode.publicGuideUrl`, `event.accessControl`.
-
-El contacto (Héctor Carrillo, WhatsApp e Instagram) está en `event.contact`.
-
-## Para pasar a producción
-
-- Reemplazar `InvitationService` (en `app.js`) por llamadas a un servidor: cada enlace privado lleva un identificador no predecible y el servidor devuelve **solo** esa invitación.
-- El servidor valida cupos (`seats`), qué lugares admiten nombre y cada respuesta. La interfaz no decide nada.
-- Quitar `demoInvitations` de `data.js` y el bloque `#demo` de `index.html`.
-- Guardar las respuestas en una base de datos compartida y crear un panel administrativo protegido.
-- Definir el control de ingreso antes de mostrar cualquier credencial o código.
+Cuando se confirmen, completa `brands[]` en `data.js` con el nombre y quita `placeholder: true`. La mención de la página mostrará los nombres sola.

@@ -10,10 +10,16 @@
 <meta name="theme-color" content="#0b0a09">
 <meta property="og:title" content="Roar Studio Choice Awards 2026">
 <meta property="og:description" content="Sábado 12 de diciembre de 2026 · 6:30 p. m. · Las Palmas Park, Bucaramanga.">
-<meta property="og:image" content="assets/roar-choice-awards-2026.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://liavsalamanca.github.io/lia-os/roar-clausura-2026/">
+<meta property="og:image" content="https://liavsalamanca.github.io/lia-os/roar-clausura-2026/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Birthstone&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Raleway:wght@200;300&family=Pinyon+Script&family=Great+Vibes&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -117,30 +123,22 @@
     </header>
     <div class="invite" id="invite-root" aria-live="polite"><!-- app.js --></div>
     <p class="notice">Los accesos corresponden solo a las personas incluidas en tu invitación.</p>
-    <p class="demo-note mono" role="note">
-      <span class="demo-tag">Prototipo</span>
-      Las respuestas de prueba se guardan solo en este navegador. No se envían a la organización.
-    </p>
   </section>
 
   <!-- ============ DRESS CODE ============ -->
   <section class="section wrap" id="dress-code" aria-labelledby="dc-title">
     <header class="section__head">
       <span class="section__num mono">02</span>
-      <h2 class="section__title" id="dc-title"><span class="title-caps">Elegancia</span> <span class="script">en cada detalle</span></h2>
+      <h2 class="dc-title" id="dc-title"><span class="dc-title__caps">Dress code:</span> <span class="dc-title__script">Black <span class="amp">&amp;</span> White</span></h2>
     </header>
-    <div class="dress">
-      <p class="dress__kicker"><span class="label">Dress code</span> <span class="dress__code-word">Elegante</span></p>
-      <dl class="dress__rules">
-        <div class="dress__rule"><dt>Hombres</dt><dd data-field="event.dressCode.men">Traje</dd></div>
-        <div class="dress__rule"><dt>Mujeres</dt><dd data-field="event.dressCode.women">Vestido y tacones</dd></div>
-      </dl>
-      <p class="dress__context" id="dress-context" hidden></p>
-    </div>
-    <div class="mood">
-      <div class="mood__tabs" role="tablist" aria-label="Categorías de referencias" id="mood-tabs"></div>
-      <ul class="mood__grid" id="mood-grid"></ul>
-      <p class="mood__disclaimer">Ilustraciones de referencia mientras llegan las fotografías. Colores y largos quedan a tu elección. <span id="share-pending">Compartir referencias: disponible cuando se publique la guía.</span></p>
+    <p class="dc-lead" data-field="event.dressCode.description">Viste de negro, de blanco o combina ambos, con un estilo elegante.</p>
+    <button class="dc-board" type="button" id="dress-photo" aria-label="Ampliar referencias del dress code Black &amp; White">
+      <img src="assets/dress-code-black-white.jpg" alt="Referencias de looks en negro y blanco: vestidos, faldas, trajes y conjuntos" width="620" height="630" loading="lazy" decoding="async">
+      <span class="dc-board__zoom" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor"><path d="M6 1H1v5M10 15h5v-5M1 1l5 5M15 15l-5-5"/></svg> Ampliar</span>
+    </button>
+    <div class="dc-swatches" aria-label="Colores: negro y blanco">
+      <span class="dc-swatch dc-swatch--black"><span class="sr-only">Negro</span></span>
+      <span class="dc-swatch dc-swatch--white"><span class="sr-only">Blanco</span></span>
     </div>
   </section>
 
@@ -252,25 +250,6 @@
   <span class="fab-whatsapp__text">Dudas</span>
 </a>
 
-<!-- ============ PANEL DE DEMOSTRACIÓN (no existe en la versión final) ============ -->
-<aside class="demo" id="demo" aria-label="Controles de demostración">
-  <button class="demo__toggle" type="button" id="demo-toggle" aria-expanded="false" aria-controls="demo-panel">
-    <span class="demo-tag">Solo demostración</span>
-    <span class="demo__current" id="demo-current"></span>
-  </button>
-  <div class="demo__panel" id="demo-panel" hidden>
-    <fieldset>
-      <legend>Ver la invitación como</legend>
-      <div id="demo-options"></div>
-    </fieldset>
-    <p class="demo__text">Prototipo: las respuestas de prueba se guardan solo en este navegador. No se envían a la organización. Los nombres son ficticios.</p>
-    <div class="demo__actions">
-      <button class="btn btn--small" type="button" id="demo-reset">Restablecer demostración</button>
-      <button class="btn btn--small btn--text" type="button" id="demo-close">Cerrar</button>
-    </div>
-    <p class="demo__status" id="demo-status" role="status"></p>
-  </div>
-</aside>
 
 <!-- ============ DIÁLOGOS ============ -->
 <div class="modal" id="modal" hidden>

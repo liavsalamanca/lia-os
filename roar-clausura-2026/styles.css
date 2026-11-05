@@ -1559,3 +1559,43 @@ body.is-locked .fab-whatsapp { display: none; }
   @keyframes swayL { from { transform: skewX(0deg); } to { transform: skewX(.8deg); } }
   @keyframes swayR { from { transform: skewX(0deg); } to { transform: skewX(-.8deg); } }
 }
+
+/* =====================================================================
+ * VERSIÓN FINAL
+ * ===================================================================== */
+body { padding-bottom: 24px; }
+:root { --script: 'Pinyon Script', 'Snell Roundhand', 'Segoe Script', cursive; --caps-thin: 'Raleway', 'Questrial', system-ui, sans-serif; }
+.section__title .script, .script { font-size: 1.35em; line-height: 1.05; letter-spacing: 0; }
+.mention__text .script { font-size: 1.15em; }
+.contact__role { font-size: clamp(1.4rem, 4.4vw, 1.8rem); }
+
+/* Dress code: misma composición tipográfica de la referencia */
+.dc-title { display: grid; justify-items: center; gap: 2px; margin: 0; text-align: center; font-weight: 300; }
+.dc-title__caps { font-family: var(--caps-thin); font-weight: 200; text-transform: uppercase; letter-spacing: .06em; font-size: clamp(2.2rem, 9vw, 4.6rem); line-height: 1; color: var(--ivory); }
+.dc-title__script { font-family: var(--script); font-size: clamp(2.6rem, 10.5vw, 5.2rem); line-height: 1.15; color: var(--gold-text); padding-inline: .1em; }
+.dc-title--modal { justify-items: start; }
+.dc-title--modal .dc-title__script { font-size: clamp(2.2rem, 7vw, 3.2rem); }
+.dc-lead { text-align: center; max-width: 40ch; margin: 0 auto clamp(20px, 4vw, 32px); font-size: clamp(1.05rem, 2.6vw, 1.3rem); color: var(--ivory-dim); }
+.dc-board {
+  display: block; position: relative; margin: 0 auto; padding: clamp(10px, 2vw, 18px); width: min(100%, 560px);
+  background: #fbfaf7; border: 0; cursor: zoom-in;
+  box-shadow: 0 0 0 1px rgba(232,201,131,.35), 0 30px 60px -24px rgba(0,0,0,.9);
+  transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+}
+.dc-board:hover { transform: translateY(-4px); box-shadow: 0 0 0 1px rgba(232,201,131,.6), 0 40px 70px -24px rgba(0,0,0,.95); }
+.dc-board img { width: 100%; height: auto; display: block; }
+.dc-board__zoom { position: absolute; right: 18px; bottom: 18px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+  background: rgba(11,10,9,.82); color: var(--ivory); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; border-radius: 999px; }
+.dc-swatches { display: flex; justify-content: center; gap: 14px; margin-top: clamp(20px, 4vw, 32px); }
+.dc-swatch { width: clamp(44px, 9vw, 64px); aspect-ratio: 1; border-radius: 50%; }
+.dc-swatch--black { background: #000; box-shadow: 0 0 0 1px rgba(242,236,226,.55); }
+.dc-swatch--white { background: #fff; box-shadow: 0 0 0 1px rgba(242,236,226,.55); }
+.dc-modal-img { width: 100%; height: auto; display: block; background: #fff; }
+
+/* Confirmación por WhatsApp */
+.rsvp { display: grid; gap: 14px; width: 100%; max-width: 520px; margin-inline: auto; text-align: left; }
+.rsvp .namefield label { text-align: center; }
+.rsvp .namefield__hint { text-align: center; }
+.rsvp .field-error { text-align: center; min-height: 1.2em; }
+.btn.is-pending { opacity: .6; }
+.amp { font-family: "Great Vibes", var(--script); font-size: 1.05em; padding: 0 .04em; }

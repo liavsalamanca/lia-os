@@ -6,7 +6,7 @@
  * "por confirmar". Para completar un dato basta con reemplazar el `null`.
  *
  * PRODUCCIÓN: este archivo solo debe contener información pública
- * (evento, marcas, programa, moodboard). Las invitaciones NO viajan al
+ * (evento, marcas, programa). Las invitaciones NO viajan al
  * navegador en bloque: cada enlace privado pide al servidor únicamente la
  * invitación de su identificador (ver `InvitationService` en app.js).
  */
@@ -38,9 +38,9 @@ window.ROAR_DATA = {
     },
 
     dressCode: {
-      label: 'Elegante',
-      men: 'Traje',
-      women: 'Vestido y tacones',
+      label: 'Black & White',
+      description: 'Viste de negro, de blanco o combina ambos, con un estilo elegante.',
+      colors: ['#000000', '#ffffff'],
       // Enlace a una guía pública independiente (sin datos de la invitación).
       publicGuideUrl: null,
     },
@@ -120,72 +120,5 @@ window.ROAR_DATA = {
   /* Patrocinadores y aliados. Vacío = la sección no se muestra. */
   sponsors: [],
 
-  /*
-   * Moodboard del dress code. `image: null` muestra una ilustración
-   * provisional. Para usar fotografías propias: image: 'assets/mood/traje-1.jpg'.
-   */
-  moodboard: [
-    { id: 'traje-1', category: 'trajes', title: 'Traje de dos piezas', note: 'Una silueta limpia y bien ajustada.', art: 'suit', image: null },
-    { id: 'traje-2', category: 'trajes', title: 'Traje con corbata o sin ella', note: 'El traje marca el código; los detalles son tuyos.', art: 'suitTie', image: null },
-    { id: 'vestido-1', category: 'vestidos', title: 'Vestido de líneas fluidas', note: 'Movimiento y comodidad para toda la noche.', art: 'dressFlow', image: null },
-    { id: 'vestido-2', category: 'vestidos', title: 'Vestido de corte estructurado', note: 'El largo y el color los eliges tú.', art: 'dressColumn', image: null },
-    { id: 'tacon-1', category: 'accesorios', title: 'Tacones', note: 'El estilo y la altura que te resulten cómodos.', art: 'heel', image: null },
-    { id: 'accesorio-1', category: 'accesorios', title: 'Accesorios', note: 'Piezas que acompañen el look sin competir con él.', art: 'accessories', image: null },
-  ],
 
-  moodboardCategories: [
-    { id: 'todo', label: 'Todo' },
-    { id: 'trajes', label: 'Trajes' },
-    { id: 'vestidos', label: 'Vestidos' },
-    { id: 'accesorios', label: 'Tacones y accesorios' },
-  ],
-
-  /*
-   * SOLO DEMOSTRACIÓN. Tres invitaciones ficticias para revisar el diseño.
-   * En producción, cada invitación vive en el servidor y se consulta con un
-   * identificador privado no predecible (ej. /i/8f3c…); nunca se envían
-   * todas al navegador.
-   *
-   * `seats` es el número de accesos autorizados por la organización.
-   * `people` nunca puede superar `seats`. Un lugar sin nombre (name: null)
-   * puede completarse, pero escribir un nombre no crea accesos nuevos.
-   */
-  demoInvitations: [
-    {
-      id: 'demo-individual',
-      demoLabel: 'Modelo · invitación individual',
-      kind: 'model',
-      greetingName: 'Lia',
-      displayName: 'Lia Prueba Salamanca',
-      seats: 1,
-      people: [{ id: 'p1', name: 'Lia Prueba Salamanca', role: 'Modelo', nameEditable: false }],
-    },
-    {
-      id: 'demo-acompanante',
-      demoLabel: 'Modelo con acompañante autorizado',
-      kind: 'modelPlusOne',
-      greetingName: 'Samuel',
-      displayName: 'Samuel Ortega',
-      seats: 2,
-      people: [
-        { id: 'p1', name: 'Samuel Ortega', role: 'Modelo', nameEditable: false },
-        // Nombre pendiente: se puede completar dentro del cupo ya asignado.
-        { id: 'p2', name: null, role: 'Acompañante', nameEditable: true },
-      ],
-    },
-    {
-      id: 'demo-marca',
-      demoLabel: 'Representantes de marca invitada',
-      kind: 'brand',
-      brandName: 'Atelier Ejemplo',
-      greetingName: 'Atelier Ejemplo',
-      displayName: 'Atelier Ejemplo',
-      principal: 'Daniela Pardo',
-      seats: 2,
-      people: [
-        { id: 'p1', name: 'Daniela Pardo', role: 'Representante principal', nameEditable: false },
-        { id: 'p2', name: 'Andrés Mejía', role: 'Representante', nameEditable: false },
-      ],
-    },
-  ],
 };

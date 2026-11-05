@@ -32,6 +32,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: 'index.html',
+        // La invitación de Roar Studio vive en su propia carpeta: el worker de LIA OS no debe interceptarla.
+        navigateFallbackDenylist: [/\/roar-clausura-2026(\/|$)/],
         cleanupOutdatedCaches: true,
         // Sin esto el worker nuevo queda en espera detrás del de la versión 1.
         skipWaiting: true,
