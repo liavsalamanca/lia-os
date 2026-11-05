@@ -2,14 +2,14 @@
 
 Página independiente en HTML, CSS y JavaScript, sin dependencias ni compilación. Se publica junto a LIA OS en GitHub Pages, pero no forma parte de la aplicación.
 
-**Dirección pública:** https://liavsalamanca.github.io/lia-os/roar-clausura-2026/
+**Dirección pública:** https://liavsalamanca.github.io/ROAR-choice-awards-2026/
 
 ## Enlace personalizado
 
 Agrega `?para=` con el nombre del invitado para que la portada y la invitación lo saluden:
 
 ```
-https://liavsalamanca.github.io/lia-os/roar-clausura-2026/?para=Lia%20Salamanca
+https://liavsalamanca.github.io/ROAR-choice-awards-2026/?para=Lia%20Salamanca
 ```
 
 Los espacios se escriben como `%20`. El nombre es solo un saludo: no da acceso ni define cupos.
