@@ -19,6 +19,68 @@
   document.documentElement.classList.add('js');
 
   /* ------------------------------------------------------------------ */
+  /* Textura de terciopelo generada en el navegador                      */
+  /* Pliegues irregulares con luz difusa, brillo rasante (propio del     */
+  /* terciopelo), sombra en los valles y grano del pelo de la tela.      */
+  /* Se repite en horizontal sin costuras. Si falla, queda el degradado. */
+  /* ------------------------------------------------------------------ */
+  function velvetTexture(w, h, folds) {
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    var img = ctx.createImageData(w, h);
+    var d = img.data;
+    var TAU = Math.PI * 2;
+    var L = [-0.38, 0, 0.92]; // luz desde arriba a la izquierda, al frente
+    var seed = 7;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    // Fases fijas por armónico para que cada pliegue sea distinto
+    var p1 = rnd() * TAU, p2 = rnd() * TAU, p3 = rnd() * TAU, p4 = rnd() * TAU;
+    function height(x, t) {
+      var X = x / w;
+      // Los pliegues se abren un poco hacia abajo (caída por gravedad)
+      var u = X * folds + t * 0.35 * Math.sin(TAU * X * 2 + p4) + 0.18 * Math.sin(TAU * X * 3 + p3);
+      return Math.sin(TAU * u + p1) * 1.0 +
+             Math.sin(TAU * u * 2 + p2) * 0.28 +
+             Math.sin(TAU * (X * folds * 3) + p3 + t * 2.2) * 0.08;
+    }
+    for (var y = 0; y < h; y++) {
+      var t = y / (h - 1);
+      // Caída de luz: más oscuro arriba (bajo la cenefa) y al pie
+      var vert = 0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, 0.08 + t * 0.98));
+      for (var x = 0; x < w; x++) {
+        var hc = height(x, t);
+        var dh = (height(x + 1, t) - height(x - 1, t)) * 0.5 * (w / folds) * 0.9;
+        var nx = -dh, nz = 1, len = Math.sqrt(nx * nx + nz * nz);
+        nx /= len; nz /= len;
+        var diffuse = Math.max(0, nx * L[0] + nz * L[2]);
+        var sheen = Math.pow(1 - nz, 1.4) * 0.9;                 // brillo rasante del terciopelo
+        var occl = 0.35 + 0.65 * ((hc + 1.36) / 2.72);            // valles más oscuros
+        var I = (0.12 + 0.88 * diffuse) * occl * vert + sheen * 0.42 * vert;
+        I = Math.max(0, Math.min(1.15, I));
+        var grain = (rnd() - 0.5) * 0.07;
+        var k = Math.max(0, I + grain);
+        // Rampa de color: sombra casi negra → carmín → brillo rosado
+        var r = 16 + 190 * Math.pow(k, 1.1) + 40 * Math.max(0, k - 0.75) * 4;
+        var g = 2 + 16 * Math.pow(k, 2.2) + 30 * Math.max(0, k - 0.8) * 3;
+        var b = 5 + 26 * Math.pow(k, 1.8) + 30 * Math.max(0, k - 0.8) * 3;
+        var i = (y * w + x) * 4;
+        d[i] = Math.min(255, r); d[i + 1] = Math.min(255, g); d[i + 2] = Math.min(255, b); d[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    try { return canvas.toDataURL('image/jpeg', 0.86); } catch (e) { return null; }
+  }
+  try {
+    var velvet = velvetTexture(520, 900, 6);
+    if (velvet) {
+      document.documentElement.style.setProperty('--velvet-tex', 'url("' + velvet + '")');
+      document.documentElement.classList.add('has-velvet');
+    }
+  } catch (e) { /* se queda el terciopelo en degradado */ }
+
+  /* ------------------------------------------------------------------ */
   /* Utilidades                                                          */
   /* ------------------------------------------------------------------ */
   function $(sel, root) { return (root || document).querySelector(sel); }

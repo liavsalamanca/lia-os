@@ -577,7 +577,7 @@ em, .card__greeting, .seal, .invite__lead, .seat__name--missing, .response__stam
  * mayúsculas espaciadas y caligrafía dorada.
  * ===================================================================== */
 :root {
-  --script: 'Corinthia', 'Snell Roundhand', 'Segoe Script', cursive;
+  --script: 'Birthstone', 'Snell Roundhand', 'Segoe Script', cursive;
   --gold-1: #6b4714;
   --gold-2: #b98a3e;
   --gold-3: #e8c983;
@@ -1506,3 +1506,56 @@ body.is-locked .fab-whatsapp { display: none; }
 .place__when, .countdown { width: 100%; }
 .countdown__grid { max-width: 420px; }
 @media (max-width: 479px) { .invite__panel .actions .btn { flex-basis: 100%; } }
+
+/* Lettering Birthstone: trazo moderno de pincel, legible a menor tamaño */
+.section__title .script, .script { font-size: 1.5em; line-height: .95; letter-spacing: .01em; }
+.mention__text .script { font-size: 1.3em; }
+.dress__code-word { font-size: clamp(1.9rem, 5vw, 2.5rem); }
+.contact__role { font-size: clamp(1.6rem, 5vw, 2.1rem); }
+.mood__cat { font-size: 1.25rem; }
+
+/* =====================================================================
+ * Terciopelo realista (textura generada) sobre todas las piezas de telón
+ * ===================================================================== */
+.has-velvet .cover {
+  background-image:
+    radial-gradient(60% 50% at 50% 42%, rgba(255,190,150,.22), transparent 70%),
+    radial-gradient(120% 80% at 50% 50%, transparent 50%, rgba(0,0,0,.55) 100%),
+    var(--velvet-tex);
+  background-size: 100% 100%, 100% 100%, auto 100%;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-position: center, center, center top;
+}
+.has-velvet .curtain {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.35), transparent 14%, transparent 80%, rgba(0,0,0,.45)), var(--velvet-tex);
+  background-size: 100% 100%, auto 100%;
+  background-repeat: no-repeat, repeat-x;
+  background-blend-mode: normal;
+}
+.has-velvet .curtain--right { background-position: 0 0, right top; }
+.has-velvet .drape {
+  background-image: linear-gradient(90deg, rgba(0,0,0,.0) 40%, rgba(0,0,0,.5)), var(--velvet-tex);
+  background-size: 100% 100%, auto 100%;
+  background-repeat: no-repeat, repeat-x;
+}
+.has-velvet .drape--r { background-image: linear-gradient(270deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.5)), var(--velvet-tex); background-position: 0 0, right top; }
+.has-velvet .stage-valance, .has-velvet .stage-valance::before, .has-velvet .valance__swags, .has-velvet .valance::before, .has-velvet .stage-edge {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.25), transparent 40%, rgba(0,0,0,.4)), var(--velvet-tex);
+  background-size: 100% 100%, auto 360%;
+  background-repeat: no-repeat, repeat-x;
+  background-position: 0 0, center 40%;
+}
+.has-velvet .curtain__hem { background-image: linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.55)), var(--velvet-tex); background-size: 100% 100%, auto 2400%; background-position: 0 0, center 95%; }
+
+/* Volumen: sombra de contacto entre tela y escenario, luz cálida sobre la tela */
+.drape { filter: drop-shadow(6px 0 12px rgba(0,0,0,.65)); }
+.drape--r { filter: drop-shadow(-6px 0 12px rgba(0,0,0,.65)); }
+.curtain__sheen { background: radial-gradient(60% 40% at 50% 26%, rgba(255,170,150,.18), transparent 70%), linear-gradient(90deg, transparent 0 46%, rgba(255,200,180,.06) 50%, transparent 54%); }
+
+/* La tela respira: leve vaivén de las cortinas recogidas */
+@media (prefers-reduced-motion: no-preference) {
+  .drape--l { transform-origin: 0 0; animation: swayL 7s ease-in-out infinite alternate; }
+  .drape--r { transform-origin: 100% 0; animation: swayR 8s ease-in-out infinite alternate; }
+  @keyframes swayL { from { transform: skewX(0deg); } to { transform: skewX(.8deg); } }
+  @keyframes swayR { from { transform: skewX(0deg); } to { transform: skewX(-.8deg); } }
+}
