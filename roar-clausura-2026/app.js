@@ -80,6 +80,100 @@
   } catch (e) { /* se queda el terciopelo en degradado */ }
 
   /* ------------------------------------------------------------------ */
+  /* Cenefa de teatro: festones drapeados con pliegues en arco, cascadas */
+  /* verticales entre festones, barra fruncida arriba y fleco dorado.    */
+  /* Se dibuja un festón por baldosa y se repite en horizontal.          */
+  /* ------------------------------------------------------------------ */
+  function valanceTexture(W, H) {
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    var img = ctx.createImageData(W, H);
+    var d = img.data;
+    var PI = Math.PI;
+    var HEAD = Math.round(H * 0.17);          // barra superior fruncida
+    var SAG = H * 0.52;                        // caída del festón
+    var FR = Math.round(H * 0.09);             // largo del fleco
+    var JW = W * 0.075;                        // medio ancho de la cascada
+    var seed = 11;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    function velvet(k) {                       // rampa de color del terciopelo
+      k = Math.max(0, Math.min(1.2, k));
+      return [16 + 190 * Math.pow(k, 1.1) + 160 * Math.max(0, k - .75),
+              2 + 16 * Math.pow(k, 2.2) + 90 * Math.max(0, k - .8),
+              5 + 26 * Math.pow(k, 1.8) + 90 * Math.max(0, k - .8)];
+    }
+    function gold(k) { k = Math.max(0, Math.min(1, k)); return [120 + 130 * k, 82 + 120 * k, 30 + 90 * k]; }
+    function put(i, c, a) { d[i] = Math.min(255, c[0]); d[i + 1] = Math.min(255, c[1]); d[i + 2] = Math.min(255, c[2]); d[i + 3] = a; }
+    function bottom(x) { var u = x / W; return HEAD + SAG * Math.pow(Math.sin(PI * u), 0.85); }
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var i = (y * W + x) * 4;
+        var grain = (rnd() - .5) * .06;
+        // Distancia a la unión entre festones (bordes de la baldosa)
+        var dj = Math.min(x, W - x);
+        var jabotBottom = H - FR - 4 - dj * 0.9;
+        // 1) Cascada vertical en la unión
+        if (dj < JW && y >= HEAD - 2 && y < jabotBottom) {
+          var v = dj / JW;                                  // 0 centro → 1 borde
+          var f = Math.sin(v * PI * 3.2);
+          var df = Math.cos(v * PI * 3.2);
+          var k = (0.32 + 0.5 * (0.5 + 0.5 * df)) * (0.75 + 0.25 * f) * (1 - 0.25 * (y - HEAD) / (H - HEAD));
+          put(i, velvet(k + grain), 255);
+          continue;
+        }
+        // Fleco de la cascada
+        if (dj < JW && y >= jabotBottom && y < jabotBottom + FR * 0.8) {
+          var strand = (x % 3) === 0 ? 0.9 : 0.55;
+          put(i, gold(strand - (y - jabotBottom) / (FR * 2) + grain), (x % 3) === 2 ? 0 : 235);
+          continue;
+        }
+        // 2) Barra superior con frunce vertical
+        if (y < HEAD) {
+          var pu = x / W * 26;
+          var ph = Math.cos(pu * 2 * PI);
+          var k2 = (0.35 + 0.4 * (0.5 + 0.5 * ph)) * (0.7 + 0.3 * Math.sin(PI * y / HEAD));
+          put(i, velvet(k2 + grain), 255);
+          continue;
+        }
+        // 3) Festón con pliegues en arco que siguen la caída
+        var yb = bottom(x);
+        if (y <= yb) {
+          var s = (y - HEAD) / Math.max(1, yb - HEAD);      // 0 arriba → 1 borde
+          var folds = 5.5;
+          var fs = Math.sin(s * PI * folds + 0.6);
+          var dfs = Math.cos(s * PI * folds + 0.6);
+          var lightDown = 0.5 + 0.5 * dfs;                  // caras que miran hacia arriba reciben luz
+          var center = Math.sin(PI * x / W);                // más luz en el centro del festón
+          var k3 = (0.2 + 0.75 * lightDown) * (0.55 + 0.45 * center) * (0.8 + 0.2 * fs) + Math.pow(Math.abs(dfs), 6) * 0.25 * center;
+          k3 *= 0.85 + 0.15 * (1 - s);
+          put(i, velvet(k3 + grain), 255);
+          continue;
+        }
+        // 4) Fleco dorado bajo el festón
+        if (y <= yb + FR) {
+          var t = (y - yb) / FR;
+          var on = (x % 3) !== 2;
+          var sh = (x % 3) === 0 ? 0.95 : 0.6;
+          put(i, gold(sh * (1 - t * 0.5) + grain), on ? Math.round(255 * (1 - t * 0.35)) : 0);
+          continue;
+        }
+        d[i + 3] = 0;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    try { return canvas.toDataURL('image/png'); } catch (e) { return null; }
+  }
+  try {
+    var valance = valanceTexture(520, 230);
+    if (valance) {
+      document.documentElement.style.setProperty('--valance-tex', 'url("' + valance + '")');
+      document.documentElement.classList.add('has-valance');
+    }
+  } catch (e) { /* se queda la cenefa en degradado */ }
+
+  /* ------------------------------------------------------------------ */
   /* Utilidades                                                          */
   /* ------------------------------------------------------------------ */
   function $(sel, root) { return (root || document).querySelector(sel); }
