@@ -305,18 +305,123 @@
       if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
     };
     if (reducedMotion()) { cover.classList.add('is-opening'); setTimeout(done, 220); return; }
-    // 1) La faja y la tarjeta se retiran  2) aparece el telón cerrado  3) el telón se abre
+    // 1) La faja y la tarjeta se retiran  2) queda el telón cerrado  3) el telón se abre
     var curtains = $('#curtains');
     curtains.hidden = false;
     curtains.classList.remove('is-open', 'is-done');
     cover.classList.add('is-opening');
     setTimeout(function () {
       done();
-      setTimeout(function () { curtains.classList.add('is-open'); }, 250);
-      setTimeout(function () { curtains.classList.add('is-done'); }, 2500);
-      setTimeout(function () { curtains.hidden = true; curtains.classList.remove('is-open', 'is-done'); }, 3300);
+      Curtain.open(curtains, function () {
+        curtains.classList.add('is-done');
+        setTimeout(function () { curtains.hidden = true; curtains.classList.remove('is-done'); Curtain.reset(curtains); }, 900);
+      });
     }, 1250);
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Telón con movimiento físico                                         */
+  /* Cada paño es una serie de franjas: el borde central arranca primero */
+  /* y arrastra la tela, que se recoge contra el costado; la parte baja  */
+  /* se queda atrás por inercia y luego se mece hasta quedar quieta.     */
+  /* ------------------------------------------------------------------ */
+  var Curtain = (function () {
+    var STRIPS = 14;
+    function ease(p) { return p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; }
+    function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+    function build(root) {
+      var vw = window.innerWidth;
+      var panelW = Math.ceil(vw / 2) + 2;
+      var hero = $('.hero');
+      var top = hero ? Math.max(0, Math.round(hero.getBoundingClientRect().top)) : 0;
+      var valanceEl = $('.stage-valance');
+      var valH = valanceEl ? valanceEl.getBoundingClientRect().height : 0;
+      root.style.setProperty('--stage-top', top + 'px');
+      root.style.setProperty('--valance-h', valH + 'px');
+      // Ancho final del recogido: igual que las cortinas laterales del hero
+      var drape = $('.drape--l');
+      var gather = drape ? drape.getBoundingClientRect().width : Math.max(18, Math.min(150, vw * 0.09));
+      var panels = [];
+      ['left', 'right'].forEach(function (side) {
+        var panel = root.querySelector('.curtain--' + side);
+        panel.innerHTML = '';
+        panel.style.width = panelW + 'px';
+        var sw = panelW / STRIPS;
+        var strips = [];
+        for (var i = 0; i < STRIPS; i++) {
+          // i = 0 es la franja del costado; i = STRIPS-1 es el borde central
+          var el = document.createElement('span');
+          el.className = 'curtain-strip' + (i === STRIPS - 1 ? ' curtain-strip--edge' : '');
+          var left = side === 'left' ? i * sw : panelW - (i + 1) * sw;
+          el.style.left = left + 'px';
+          el.style.width = (sw + 1.5) + 'px';
+          el.style.backgroundPosition = '0 0, ' + (-left) + 'px 0';
+          el.style.transformOrigin = (side === 'left' ? '0' : '100%') + ' 0';
+          panel.appendChild(el);
+          // Destino: todas las franjas se apilan dentro del ancho del recogido
+          var finalLeft = side === 'left' ? i * (gather / STRIPS) : panelW - (i + 1) * (gather / STRIPS);
+          strips.push({ el: el, dx: finalLeft - left, sf: Math.max(0.12, (gather / STRIPS) / sw * 1.9), i: i });
+        }
+        panels.push({ side: side, strips: strips, theta: 0, omega: 0 });
+      });
+      return panels;
+    }
+
+    function open(root, onDone) {
+      var panels = build(root);
+      var stage = root.querySelector('.curtains__stage');
+      var DUR = 2300, LAG = 520, SETTLE = 1400;
+      var t0 = null, last = null;
+      var prevP = {};
+      function frame(now) {
+        if (t0 === null) { t0 = now; last = now; }
+        var t = now - t0, dt = Math.min(48, now - last) / 1000; last = now;
+        var lead = 0;
+        panels.forEach(function (pn) {
+          var dir = pn.side === 'left' ? 1 : -1;
+          var vMax = 0;
+          pn.strips.forEach(function (st) {
+            // El borde central sale primero; las franjas del costado esperan a que la tela llegue
+            var delay = (STRIPS - 1 - st.i) / (STRIPS - 1) * LAG;
+            var raw = clamp01((t - 180 - delay) / DUR);
+            var p = ease(raw);
+            var key = pn.side + st.i;
+            var v = dt > 0 ? (p - (prevP[key] || 0)) / dt : 0;
+            prevP[key] = p;
+            if (st.i === STRIPS - 1) { vMax = v; lead = Math.max(lead, p); }
+            st.p = p;
+            // Anticipación: la tela se tensa un instante antes de correr
+            var breathe = t < 260 ? Math.sin(t / 260 * Math.PI) * 0.006 : 0;
+            st.base = 'translateX(' + (st.dx * p).toFixed(2) + 'px) scaleX(' + (1 - (1 - st.sf) * p + breathe).toFixed(4) + ')';
+          });
+          // Péndulo amortiguado: la parte baja se queda atrás según la velocidad y luego oscila
+          var target = vMax * 7 * dir;           // grados
+          var k = 38, c = 7.5;
+          var acc = k * (target - pn.theta) - c * pn.omega;
+          pn.omega += acc * dt;
+          pn.theta += pn.omega * dt;
+          pn.strips.forEach(function (st) {
+            var f = 0.45 + 0.55 * st.i / (STRIPS - 1);  // el borde libre se mece más
+            st.el.style.transform = st.base + ' skewX(' + (pn.theta * f).toFixed(3) + 'deg)';
+          });
+        });
+        if (stage) stage.style.opacity = String(Math.min(1, lead * 1.3));
+        var finished = t > 180 + LAG + DUR + SETTLE;
+        if (!finished) requestAnimationFrame(frame);
+        else onDone && onDone();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function reset(root) {
+      $all('.curtain', root).forEach(function (p) { p.innerHTML = ''; p.style.width = ''; });
+      var stage = root.querySelector('.curtains__stage');
+      if (stage) stage.style.opacity = '';
+    }
+    return { open: open, reset: reset };
+  })();
+
 
   /* ------------------------------------------------------------------ */
   /* Luz de seguimiento (hero y Tu invitación)                           */
