@@ -13,7 +13,7 @@ export default function Study() {
   return (
     <>
       <PageHeader
-        eyebrow="Fashion · Academia"
+        eyebrow="Moda · Academia"
         title="Investigación"
         subtitle="Bibliografía, conceptos y hallazgos organizados."
         action={

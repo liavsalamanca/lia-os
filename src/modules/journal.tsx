@@ -17,7 +17,7 @@ export default function Journal() {
   return (
     <>
       <PageHeader
-        eyebrow="Slow living"
+        eyebrow="Vida pausada"
         title="Mi diario"
         subtitle="Un espacio de reflexión sin ruido."
         action={

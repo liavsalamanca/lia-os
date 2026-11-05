@@ -51,10 +51,17 @@ class Apple {
     this.store = store;
     this.repo = repo;
     let lastUrl = this.url;
+    let lastZone = store.getSnapshot().settings.timezone;
     store.subscribe(() => {
-      if (this.url === lastUrl) return;
-      lastUrl = this.url;
-      void this.refresh({ force: true });
+      const zone = store.getSnapshot().settings.timezone;
+      if (this.url !== lastUrl) {
+        lastUrl = this.url;
+        void this.refresh({ force: true });
+      } else if (zone !== lastZone) {
+        // Las horas se calculan para la zona configurada: se recalculan desde la copia guardada.
+        void this.showCache();
+      }
+      lastZone = zone;
     });
     cloud.subscribe(() => void this.refresh());
     document.addEventListener('visibilitychange', () => {

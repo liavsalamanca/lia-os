@@ -45,7 +45,7 @@ export default function Calendar() {
   return (
     <>
       <PageHeader
-        eyebrow="Plan your days"
+        eyebrow="Planea tus días"
         title="Calendario"
         subtitle="Eventos, fechas de tareas, castings y publicaciones."
         action={

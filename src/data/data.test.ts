@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { MAX_BACKUP_BYTES, parseBackup, serializeBackup } from './backup';
 import { IndexedDbRepository } from './idb';
 import { LEGACY_KEY, migrateLegacy, readLegacy, reimportLegacy } from './legacy';
-import { normalizeSnapshot, stableId } from './normalize';
+import { isValidTimezone, normalizeSnapshot, stableId } from './normalize';
 import { emptySnapshot } from './schema';
 
 const v1 = {
@@ -173,5 +173,13 @@ describe('respaldos', () => {
 
   it('rechaza archivos demasiado grandes', () => {
     expect(() => parseBackup(' '.repeat(MAX_BACKUP_BYTES + 1))).toThrow('demasiado grande');
+  });
+});
+
+describe('zona horaria', () => {
+  it('una zona inválida, venga de un respaldo o de la nube, vuelve a la de Bogotá', () => {
+    expect(normalizeSnapshot({ settings: { timezone: 'Marte/Olympus' } }).snapshot.settings.timezone).toBe('America/Bogota');
+    expect(normalizeSnapshot({ settings: { timezone: 'Europe/Madrid' } }).snapshot.settings.timezone).toBe('Europe/Madrid');
+    expect(isValidTimezone('')).toBe(false);
   });
 });

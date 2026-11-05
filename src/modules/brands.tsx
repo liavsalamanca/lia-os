@@ -30,7 +30,7 @@ export default function Brands() {
   return (
     <>
       <PageHeader
-        eyebrow="Jewelry · Entrepreneurship"
+        eyebrow="Joyería · Emprendimiento"
         title="Mis marcas"
         subtitle="El inventario y los números de tus dos marcas."
         action={

@@ -11,7 +11,7 @@ export default function Ideas() {
   return (
     <>
       <PageHeader
-        eyebrow="The creative mind"
+        eyebrow="Mente creativa"
         title="Idea Vault"
         subtitle="Un lugar para todo lo que tu imaginación produce."
         action={

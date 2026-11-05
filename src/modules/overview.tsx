@@ -14,7 +14,7 @@ const SPACES = [
   ['/content', 'Taikinsa Studio', 'Ideas y publicaciones'],
   ['/orders', 'Encargos USA', 'Costos y pedidos'],
   ['/creative', 'Idea Vault', 'Inspírate y crea'],
-  ['/finance', 'Money Map', 'Dinero bajo control'],
+  ['/finance', 'Finanzas', 'Dinero bajo control'],
 ] as const;
 
 export default function Overview() {
@@ -73,7 +73,7 @@ export default function Overview() {
             <ul>
               {next.map((t) => (
                 <Row key={t.id}>
-                  <input type="checkbox" aria-label={`Completar ${t.title}`} className="size-4 accent-wine" checked={false} onChange={(e) => complete(t, e.target.checked)} />
+                  <input type="checkbox" aria-label={`Completar ${t.title}`} className="check" checked={false} onChange={(e) => complete(t, e.target.checked)} />
                   <RowBody title={t.title} sub={`${t.area} · ${formatDate(t.due)}${t.due && t.due < today ? ' · Vencida' : ''}`} />
                   <Chip>{t.priority}</Chip>
                 </Row>
@@ -121,7 +121,7 @@ export default function Overview() {
             <ul>
               {data.habits.slice(0, 6).map((h) => (
                 <Row key={h.id}>
-                  <input type="checkbox" aria-label={`Marcar ${h.name}`} className="size-4 accent-wine" checked={isDone(data.habitLogs, h.id, today)} onChange={() => attempt(() => getStore().toggleHabit(h.id))} />
+                  <input type="checkbox" aria-label={`Marcar ${h.name}`} className="check" checked={isDone(data.habitLogs, h.id, today)} onChange={() => attempt(() => getStore().toggleHabit(h.id))} />
                   <RowBody title={h.name} sub={h.area || 'Personal'} />
                 </Row>
               ))}

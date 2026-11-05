@@ -29,7 +29,7 @@ export function SubtaskEditor({ label, value, onChange }: { label: string; value
       <ul className="grid gap-1.5">
         {value.map((s) => (
           <li key={s.id} className="flex items-center gap-2">
-            <input type="checkbox" className="size-4 accent-wine" aria-label={`Subtarea hecha: ${s.title}`} checked={s.done} onChange={(e) => update(s.id, { done: e.target.checked })} />
+            <input type="checkbox" className="check" aria-label={`Subtarea hecha: ${s.title}`} checked={s.done} onChange={(e) => update(s.id, { done: e.target.checked })} />
             <input className="control" aria-label="Texto de la subtarea" value={s.title} onChange={(e) => update(s.id, { title: e.target.value })} />
             <IconButton icon={X} label={`Quitar subtarea ${s.title}`} onClick={() => onChange(value.filter((x) => x.id !== s.id))} />
           </li>
@@ -57,7 +57,7 @@ export function DependencyPicker({ label, value, onChange, tasks, taskId }: { la
           {options.map((t) => (
             <li key={t.id}>
               <label className="flex items-center gap-2 py-1.5 text-sm">
-                <input type="checkbox" className="size-4 accent-wine" checked={selected.has(t.id)} onChange={(e) => toggle(t.id, e.target.checked)} />
+                <input type="checkbox" className="check" checked={selected.has(t.id)} onChange={(e) => toggle(t.id, e.target.checked)} />
                 <span className={isTaskDone(t) ? 'line-through opacity-60' : ''}>{t.title}</span>
               </label>
             </li>

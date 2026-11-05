@@ -20,7 +20,7 @@ export default function Model() {
   return (
     <>
       <PageHeader
-        eyebrow="Career · Portfolio"
+        eyebrow="Carrera · Portafolio"
         title="Modelaje"
         subtitle="Castings, sesiones y contactos profesionales."
         action={

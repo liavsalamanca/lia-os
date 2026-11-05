@@ -19,7 +19,7 @@ export default function Habits() {
   return (
     <>
       <PageHeader
-        eyebrow="Daily rituals"
+        eyebrow="Rituales diarios"
         title="Mis hábitos"
         subtitle="La constancia cuenta más que la perfección."
         action={

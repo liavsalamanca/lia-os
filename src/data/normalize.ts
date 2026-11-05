@@ -13,6 +13,17 @@ export function stableId(collection: string, value: unknown): string {
   return `legacy-${(hash >>> 0).toString(36)}-${input.length.toString(36)}`;
 }
 
+/** Una zona que el navegador no reconoce haría fallar todas las fechas. */
+export function isValidTimezone(value: unknown): value is string {
+  if (typeof value !== 'string' || !value) return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function normalizeSettings(raw: unknown): Settings {
   const s = isObject(raw) ? raw : {};
   const positive = (v: unknown, fallback: number) => (Number.isFinite(Number(v)) && Number(v) >= 0 && v !== '' && v != null ? Number(v) : fallback);
@@ -23,7 +34,7 @@ function normalizeSettings(raw: unknown): Settings {
     focusMinutes: positive(s.focusMinutes, defaultSettings.focusMinutes),
     shippingRate: positive(s.shippingRate, defaultSettings.shippingRate),
     fx: positive(s.fx, defaultSettings.fx) || defaultSettings.fx,
-    timezone: typeof s.timezone === 'string' && s.timezone ? s.timezone : defaultSettings.timezone,
+    timezone: isValidTimezone(s.timezone) ? s.timezone : defaultSettings.timezone,
     appleCalendarUrl: typeof s.appleCalendarUrl === 'string' ? s.appleCalendarUrl : '',
   };
 }

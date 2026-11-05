@@ -1,5 +1,5 @@
 import { ChevronDown, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getStore, useData } from '../app/store';
 import { useUI } from '../app/ui';
 import type { Task } from '../data/schema';
@@ -23,14 +23,35 @@ const all = (label: string, values: string[]) => [{ value: '', label }, ...value
 const searchText = (t: Task) => `${t.title} ${t.notes} ${t.tags.join(' ')} ${t.subtasks.map((s) => s.title).join(' ')}`;
 
 function ViewTabs({ view, onChange, count }: { view: SmartView; onChange: (v: SmartView) => void; count: (v: SmartView) => number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  // Un difuminado a la derecha indica que hay más vistas al desplazar, solo mientras las haya.
+  const measure = () => {
+    const el = ref.current;
+    if (el) setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+  useEffect(() => {
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
   return (
-    <div role="group" aria-label="Vistas de tareas" className="-mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-line px-4">
+    <div
+      ref={ref}
+      onScroll={measure}
+      role="group"
+      aria-label="Vistas de tareas"
+      className={`-mx-4 mb-5 flex gap-1 overflow-x-auto border-b border-line px-4 ${more ? '[mask-image:linear-gradient(to_right,black_80%,transparent)]' : ''}`}
+    >
       {SMART_VIEWS.map((v) => (
         <button
           key={v}
           type="button"
           aria-pressed={view === v}
-          onClick={() => onChange(v)}
+          onClick={(e) => {
+            onChange(v);
+            e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          }}
           className={`-mb-px shrink-0 border-b-2 px-3 py-2 text-sm whitespace-nowrap transition-colors ${view === v ? 'border-wine text-wine' : 'border-transparent text-muted hover:text-ink'}`}
         >
           {v} <span className="text-[12px] opacity-70">{count(v)}</span>
@@ -61,7 +82,7 @@ function TaskRow({ task, tasks, today, projectName }: { task: Task; tasks: Task[
 
   return (
     <Row muted={isDone}>
-      <input type="checkbox" aria-label={`Completar ${task.title}`} className="size-4 accent-wine" checked={isDone} onChange={(e) => complete(task, e.target.checked)} />
+      <input type="checkbox" aria-label={`Completar ${task.title}`} className="check" checked={isDone} onChange={(e) => complete(task, e.target.checked)} />
       <RowBody strike={isDone} title={task.title} sub={sub} />
       {task.tags.map((tag) => (
         <span key={tag} className="text-[12px] text-wine">
@@ -88,7 +109,7 @@ function TaskRow({ task, tasks, today, projectName }: { task: Task; tasks: Task[
           {task.subtasks.map((s) => (
             <li key={s.id}>
               <label className="flex items-center gap-2 py-1 text-sm">
-                <input type="checkbox" className="size-4 accent-wine" checked={s.done} onChange={() => attempt(() => getStore().toggleSubtask(task.id, s.id))} />
+                <input type="checkbox" className="check" checked={s.done} onChange={() => attempt(() => getStore().toggleSubtask(task.id, s.id))} />
                 <span className={s.done ? 'text-muted line-through' : ''}>{s.title}</span>
               </label>
             </li>
@@ -119,7 +140,7 @@ export default function Tasks() {
   return (
     <>
       <PageHeader
-        eyebrow="Productivity"
+        eyebrow="Productividad"
         title="Mis tareas"
         subtitle="Que tus ideas dejen de ser pendientes eternos."
         action={

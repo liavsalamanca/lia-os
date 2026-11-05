@@ -4,7 +4,7 @@ import { focusTimer } from './focusTimer';
 
 const MODES = [
   { minutes: 25, label: '25 min · Focus' },
-  { minutes: 50, label: '50 min · Deep work' },
+  { minutes: 50, label: '50 min · Trabajo profundo' },
   { minutes: 5, label: '5 min · Pausa' },
 ];
 
@@ -14,7 +14,7 @@ export default function Focus() {
   const { mode, remaining, running } = useSyncExternalStore(focusTimer.subscribe, focusTimer.getState);
   return (
     <>
-      <PageHeader eyebrow="Deep work" title="Focus mode" subtitle="Una sola cosa a la vez. El resto puede esperar." />
+      <PageHeader eyebrow="Trabajo profundo" title="Concentración" subtitle="Una sola cosa a la vez. El resto puede esperar." />
       <div className="mx-auto max-w-xl py-6 text-center">
         <div className="flex flex-wrap justify-center gap-2" role="group" aria-label="Duración de la sesión">
           {MODES.map((m) => (
