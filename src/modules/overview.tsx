@@ -1,8 +1,10 @@
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useApple } from '../app/apple';
 import { getStore, useData } from '../app/store';
 import { useUI } from '../app/ui';
 import { Button, Chip, EmptyState, Metrics, Progress, Row, RowBody, Section, TextLink } from '../design';
+import { upcoming } from '../domain/agenda';
 import { formatDate, formatLongDate, todayISO } from '../domain/dates';
 import { formatCOP, monthSummary } from '../domain/finance';
 import { isDone } from '../domain/habits';
@@ -26,12 +28,8 @@ export default function Overview() {
   const open = data.tasks.filter((t) => t.status !== 'Hecho');
   const next = [...open].sort(byText((t) => t.due)).slice(0, 5);
   const habitsDone = data.habits.filter((h) => isDone(data.habitLogs, h.id, today)).length;
-  const upcoming = [
-    ...data.events.filter((e) => e.date >= today).map((e) => ({ id: e.id, date: e.date, title: e.title, area: e.area })),
-    ...data.content.filter((c) => c.publishDate >= today).map((c) => ({ id: c.id, date: c.publishDate, title: c.title, area: 'Taikinsa' })),
-  ]
-    .sort(byText((e) => e.date))
-    .slice(0, 4);
+  const external = useApple().events;
+  const next4 = upcoming(data, external, today, 4);
   const { income } = monthSummary(data.transactions, today.slice(0, 7));
 
   return (
@@ -85,11 +83,11 @@ export default function Overview() {
         </Section>
 
         <Section title="Próximamente" action={<TextLink onClick={() => navigate('/calendar')}>Ver calendario</TextLink>}>
-          {upcoming.length ? (
+          {next4.length ? (
             <ul>
-              {upcoming.map((e) => (
-                <Row key={e.id}>
-                  <RowBody title={e.title} sub={`${formatDate(e.date)} · ${e.area || 'General'}`} />
+              {next4.map((e) => (
+                <Row key={e.key}>
+                  <RowBody title={e.title} sub={[e.date === today ? 'Hoy' : formatDate(e.date), e.time, e.detail].filter(Boolean).join(' · ')} />
                 </Row>
               ))}
             </ul>

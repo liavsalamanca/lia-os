@@ -81,10 +81,10 @@ test.describe('registros de cada módulo', () => {
       await main.getByRole('button', { name: c.button, exact: true }).click();
       for (const [label, value] of Object.entries(c.fill)) await field(page, label).fill(value);
       await page.getByRole('button', { name: c.save }).click();
-      await expect(main.getByText(c.shown).first()).toBeVisible();
+      await expect(main.getByText(c.shown).filter({ visible: true }).first()).toBeVisible();
 
       await page.reload();
-      await expect(main.getByText(c.shown).first()).toBeVisible();
+      await expect(main.getByText(c.shown).filter({ visible: true }).first()).toBeVisible();
 
       await main.getByRole('button', { name: /^Editar/ }).first().click();
       await dialog(page).getByRole('button', { name: c.save }).click();
@@ -163,4 +163,43 @@ test('focus: el temporizador corre y sigue al cambiar de página', async ({ page
   await page.goto('#/tasks');
   await page.goto('#/focus');
   await expect(page.getByRole('button', { name: 'Pausar sesión' })).toBeVisible();
+});
+
+test('calendario: tocar un día muestra todo lo que tiene', async ({ page }) => {
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota' }).format(new Date());
+  await page.goto('#/calendar');
+  await page.getByRole('main').getByRole('button', { name: 'Nuevo evento', exact: true }).click();
+  await field(page, 'Nombre del evento').fill('Sesión de fotos');
+  await field(page, 'Fecha').fill(today);
+  await field(page, 'Hora').fill('15:30');
+  await page.getByRole('button', { name: 'Guardar evento' }).click();
+  await expect(dialog(page)).toHaveCount(0);
+
+  await page.goto('#/tasks');
+  await page.getByRole('main').getByRole('button', { name: 'Nueva tarea' }).click();
+  await field(page, '¿Qué necesitas hacer?').fill('Enviar fotos');
+  await field(page, 'Fecha límite').fill(today);
+  await page.getByRole('button', { name: 'Guardar tarea' }).click();
+  await expect(dialog(page)).toHaveCount(0);
+
+  await page.goto('#/calendar');
+  await page.locator('[aria-current="date"]').click();
+  const agenda = dialog(page).getByRole('list', { name: 'Agenda del día' });
+  await expect(agenda.getByRole('listitem')).toHaveCount(2);
+  await expect(agenda.getByRole('listitem').first()).toContainText('Enviar fotos');
+  await expect(agenda.getByRole('listitem').last()).toContainText('15:30');
+
+  // Completar la tarea desde el día la quita de la agenda.
+  await agenda.getByRole('checkbox', { name: 'Completar Enviar fotos' }).click();
+  await expect(agenda.getByRole('listitem')).toHaveCount(1);
+
+  // Editar abre el formulario del registro.
+  await agenda.getByRole('button', { name: 'Editar Sesión de fotos' }).click();
+  await expect(field(page, 'Nombre del evento')).toHaveValue('Sesión de fotos');
+  await dialog(page).getByRole('button', { name: 'Cancelar' }).click();
+
+  // Crear desde el día propone esa fecha.
+  await page.locator('[aria-current="date"]').click();
+  await dialog(page).getByRole('button', { name: 'Nuevo evento este día' }).click();
+  await expect(field(page, 'Fecha')).toHaveValue(today);
 });

@@ -290,6 +290,13 @@ test('calendarios externos en ambos sentidos', async ({ browser }) => {
   await page.goto('#/calendar');
   await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
   await expect(page.getByText('Google Calendar (se edita allí)')).toBeVisible();
+  await page.locator('[aria-current="date"]').click();
+  await expect(page.getByRole('dialog').getByRole('listitem').filter({ hasText: 'Clase desde Apple' })).toContainText('10:00');
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Editar Clase desde Apple' })).toHaveCount(0);
+  await page.getByRole('dialog').getByRole('button', { name: 'Cerrar', exact: true }).click();
+  await page.goto('#/overview');
+  await expect(page.getByRole('main').getByText('Clase desde Apple')).toBeVisible();
+  await page.goto('#/calendar');
 
   // Si el calendario falla, se avisa y se sigue mostrando la última copia, también tras recargar.
   await page.context().route('http://supabase.test/functions/v1/calendar-import', (route) => route.fulfill({ status: 502, headers: CORS, body: 'El calendario no respondió. Inténtalo más tarde.' }));
