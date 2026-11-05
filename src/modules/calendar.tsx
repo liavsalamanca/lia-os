@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { calendarSource } from '../../supabase/functions/_shared/icloud.ts';
 import { apple, useApple } from '../app/apple';
 import { useData } from '../app/store';
 import { useUI } from '../app/ui';
@@ -33,6 +34,7 @@ export default function Calendar() {
   const data = useData();
   const { openForm } = useUI();
   const appleState = useApple();
+  const source = calendarSource(data.settings.appleCalendarUrl);
   useEffect(() => void apple.refresh(), []);
   const today = todayISO(data.settings.timezone);
   const [offset, setOffset] = useState(0);
@@ -91,7 +93,7 @@ export default function Calendar() {
       <p className="mt-2 flex flex-wrap gap-x-4 text-[13px] text-muted">
         <span className="border-l-2 border-wine pl-1.5">Eventos, castings y publicaciones</span>
         <span className="border-l-2 border-rose pl-1.5">Tareas</span>
-        {appleState.status !== 'off' && <span className="border-l-2 border-ink/50 pl-1.5">Apple Calendar (se edita en Apple)</span>}
+        {appleState.status !== 'off' && <span className="border-l-2 border-ink/50 pl-1.5">{source} (se edita allí)</span>}
         <span>Toca una fecha para crear un evento.</span>
       </p>
 
@@ -99,14 +101,14 @@ export default function Calendar() {
         <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted" role="status">
           <span>
             {appleState.status === 'loading'
-              ? 'Leyendo Apple Calendar…'
+              ? `Leyendo ${source}…`
               : appleState.fetchedAt
-                ? `Apple Calendar leído a las ${new Date(appleState.fetchedAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', timeZone: data.settings.timezone })}`
-                : 'Apple Calendar aún no se ha leído.'}
+                ? `${source} leído a las ${new Date(appleState.fetchedAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', timeZone: data.settings.timezone })}`
+                : `${source} aún no se ha leído.`}
           </span>
           {appleState.error && <span className="text-danger">{appleState.error}</span>}
           <Button size="sm" onClick={() => apple.refresh({ force: true })} disabled={appleState.status === 'loading'}>
-            <RefreshCw size={14} aria-hidden /> Actualizar Apple Calendar
+            <RefreshCw size={14} aria-hidden /> Actualizar {source}
           </Button>
         </div>
       )}

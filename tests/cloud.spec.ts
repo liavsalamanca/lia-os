@@ -89,7 +89,7 @@ function fakeSupabase() {
     }
     if (url.pathname === '/functions/v1/calendar-import') {
       const { url: calendar } = request.postDataJSON() as { url: string };
-      if (!calendar.includes('icloud.com')) return route.fulfill({ status: 400, headers: CORS, body: 'La dirección no es un calendario público de iCloud.' });
+      if (!calendar.includes('icloud.com') && !calendar.includes('calendar.google.com')) return route.fulfill({ status: 400, headers: CORS, body: 'La dirección no es un calendario de iCloud ni de Google Calendar.' });
       return route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/calendar; charset=utf-8' }, body: appleIcs() });
     }
     return json(404, {});
@@ -259,7 +259,7 @@ test.describe('recuperar la contraseña', () => {
     await expect(page.getByText('venció o ya se usó')).toBeVisible();
   });
 });
-test('Apple Calendar en ambos sentidos', async ({ browser }) => {
+test('calendarios externos en ambos sentidos', async ({ browser }) => {
   const cloud = fakeSupabase();
   const page = await device(await browser.newContext(), cloud);
   await signIn(page);
@@ -278,23 +278,23 @@ test('Apple Calendar en ambos sentidos', async ({ browser }) => {
   await expect(page.getByText(/^Enlace activo desde/)).toBeVisible();
   await expect(page.getByLabel('Enlace privado del calendario')).toHaveCount(0);
 
-  // Apple → LIA OS: solo se aceptan enlaces de iCloud.
-  const input = page.getByLabel('Enlace público de Apple Calendar');
+  // Google o Apple → LIA OS: solo se aceptan sus direcciones.
+  const input = page.getByLabel('Dirección del calendario');
   await input.fill('https://evil.example/cal.ics');
   await page.getByRole('button', { name: 'Conectar', exact: true }).click();
-  await expect(page.getByText(/Pega el enlace que da el iPhone/)).toBeVisible();
-  await input.fill('webcal://p42-caldav.icloud.com/published/2/prueba');
+  await expect(page.getByText(/Pega la dirección secreta en formato iCal/)).toBeVisible();
+  await input.fill('https://calendar.google.com/calendar/ical/prueba%40gmail.com/private-abc123/basic.ics');
   await page.getByRole('button', { name: 'Conectar', exact: true }).click();
-  await expect(page.getByText('Conectado · 1 eventos en los próximos meses')).toBeVisible();
+  await expect(page.getByText('Google Calendar conectado · 1 eventos en los próximos meses')).toBeVisible();
 
   await page.goto('#/calendar');
   await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
-  await expect(page.getByText('Apple Calendar (se edita en Apple)')).toBeVisible();
+  await expect(page.getByText('Google Calendar (se edita allí)')).toBeVisible();
 
-  // Si iCloud falla, se avisa y se sigue mostrando la última copia, también tras recargar.
-  await page.context().route('http://supabase.test/functions/v1/calendar-import', (route) => route.fulfill({ status: 502, headers: CORS, body: 'iCloud no respondió. Inténtalo más tarde.' }));
-  await page.getByRole('button', { name: 'Actualizar Apple Calendar' }).click();
-  await expect(page.getByText('iCloud no respondió. Inténtalo más tarde.')).toBeVisible();
+  // Si el calendario falla, se avisa y se sigue mostrando la última copia, también tras recargar.
+  await page.context().route('http://supabase.test/functions/v1/calendar-import', (route) => route.fulfill({ status: 502, headers: CORS, body: 'El calendario no respondió. Inténtalo más tarde.' }));
+  await page.getByRole('button', { name: 'Actualizar Google Calendar' }).click();
+  await expect(page.getByText('El calendario no respondió. Inténtalo más tarde.')).toBeVisible();
   await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();
   await page.reload();
   await expect(page.getByText('10:00 Clase desde Apple')).toBeVisible();

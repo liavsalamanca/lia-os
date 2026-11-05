@@ -1,7 +1,8 @@
 /**
- * Lectura de un calendario público de iCloud desde el servidor: el navegador no
- * puede pedirlo directamente (CORS). Solo se aceptan direcciones de iCloud, para
- * que la función no sirva de puente hacia cualquier otro sitio.
+ * Lectura de un calendario externo desde el servidor: el navegador no puede
+ * pedirlo directamente (CORS). Solo se aceptan calendarios públicos de iCloud y
+ * direcciones iCal de Google Calendar, para que la función no sirva de puente
+ * hacia cualquier otro sitio.
  */
 
 export const MAX_BYTES = 5 * 1024 * 1024;
@@ -17,39 +18,48 @@ export class CalendarError extends Error {
   }
 }
 
-/** Devuelve la URL https si es un calendario de iCloud; si no, null. */
-export function icloudUrl(raw: string): URL | null {
+export type CalendarSource = 'Apple Calendar' | 'Google Calendar';
+
+const isIcloud = (url: URL) => url.hostname === 'icloud.com' || url.hostname.endsWith('.icloud.com');
+// Google sirve la dirección iCal (pública o secreta) bajo esta ruta.
+const isGoogle = (url: URL) => url.hostname === 'calendar.google.com' && url.pathname.startsWith('/calendar/ical/');
+
+/** Devuelve la URL https si es un calendario de iCloud o Google; si no, null. */
+export function externalCalendarUrl(raw: string): URL | null {
   let url: URL;
   try {
     url = new URL(raw.trim().replace(/^webcals?:\/\//i, 'https://'));
   } catch {
     return null;
   }
-  const host = url.hostname.toLowerCase();
   if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
-  if (host !== 'icloud.com' && !host.endsWith('.icloud.com')) return null;
-  return url;
+  return isIcloud(url) || isGoogle(url) ? url : null;
 }
 
-export async function fetchIcloudCalendar(raw: string, fetcher: typeof fetch = fetch): Promise<string> {
-  let url = icloudUrl(raw);
-  if (!url) throw new CalendarError('La dirección no es un calendario público de iCloud.', 400);
+export function calendarSource(raw: string): CalendarSource {
+  const url = externalCalendarUrl(raw);
+  return url && isGoogle(url) ? 'Google Calendar' : 'Apple Calendar';
+}
+
+export async function fetchExternalCalendar(raw: string, fetcher: typeof fetch = fetch): Promise<string> {
+  let url = externalCalendarUrl(raw);
+  if (!url) throw new CalendarError('La dirección no es un calendario de iCloud ni de Google Calendar.', 400);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     const response: Response = await fetcher(url.toString(), { redirect: 'manual', signal: AbortSignal.timeout(TIMEOUT_MS), headers: { accept: 'text/calendar' } });
     if (response.status >= 300 && response.status < 400) {
       const next: string | null = response.headers.get('location');
-      url = next ? icloudUrl(new URL(next, url).toString()) : null;
-      if (!url) throw new CalendarError('iCloud redirigió a una dirección no permitida.', 502);
+      url = next ? externalCalendarUrl(new URL(next, url).toString()) : null;
+      if (!url) throw new CalendarError('El calendario redirigió a una dirección no permitida.', 502);
       continue;
     }
-    if (!response.ok) throw new CalendarError(response.status === 404 ? 'iCloud no encontró ese calendario. Revisa que siga siendo público.' : 'iCloud no respondió. Inténtalo más tarde.', 502);
+    if (!response.ok) throw new CalendarError(response.status === 404 ? 'No se encontró ese calendario. Revisa que el enlace siga activo.' : 'El calendario no respondió. Inténtalo más tarde.', 502);
     const declared = Number(response.headers.get('content-length'));
     if (declared > MAX_BYTES) throw new CalendarError('El calendario es demasiado grande.', 413);
     const text = await readLimited(response);
     if (!text.includes('BEGIN:VCALENDAR')) throw new CalendarError('La dirección no devolvió un calendario.', 502);
     return text;
   }
-  throw new CalendarError('iCloud redirigió demasiadas veces.', 502);
+  throw new CalendarError('El calendario redirigió demasiadas veces.', 502);
 }
 
 async function readLimited(response: Response): Promise<string> {

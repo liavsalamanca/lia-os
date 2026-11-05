@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { handleFeed, handleImport, type FeedDeps } from './handlers.ts';
-import { icloudUrl, MAX_BYTES } from './icloud.ts';
+import { calendarSource, externalCalendarUrl, MAX_BYTES } from './icloud.ts';
 import { buildCalendar, escapeText, foldLine, zonedToUtc, type FeedRow } from './ics.ts';
 import { newToken, sha256Hex, TOKEN_PATTERN } from './token.ts';
 
@@ -164,7 +164,7 @@ describe('función calendar-import', () => {
     expect((await post({ url: 'https://p42-caldav.icloud.com/grande' })).status).toBe(413);
     expect((await post({ url: 'https://p42-caldav.icloud.com/html' })).status).toBe(502);
     const missing = await post({ url: 'https://p42-caldav.icloud.com/noexiste' });
-    expect(await missing.text()).toContain('no encontró');
+    expect(await missing.text()).toContain('No se encontró ese calendario');
   });
 
   it('valida la petición', async () => {
@@ -173,7 +173,29 @@ describe('función calendar-import', () => {
     expect(options.status).toBe(204);
   });
 
-  it('icloudUrl normaliza webcal', () => {
-    expect(icloudUrl('webcal://p01-caldav.icloud.com/a')?.toString()).toBe('https://p01-caldav.icloud.com/a');
+  it('normaliza webcal', () => {
+    expect(externalCalendarUrl('webcal://p01-caldav.icloud.com/a')?.toString()).toBe('https://p01-caldav.icloud.com/a');
+  });
+
+  it('acepta la dirección iCal de Google, pública o secreta', async () => {
+    const secret = 'https://calendar.google.com/calendar/ical/lia%40gmail.com/private-0a1b2c/basic.ics';
+    expect(externalCalendarUrl(secret)?.toString()).toBe(secret);
+    expect(externalCalendarUrl('https://calendar.google.com/calendar/ical/es.co%23holiday%40group.v.calendar.google.com/public/basic.ics')).not.toBeNull();
+    expect((await post({ url: secret })).status).toBe(200);
+    expect(calls.at(-1)).toBe(secret);
+  });
+
+  it('rechaza otras rutas y sitios que imitan a Google', async () => {
+    const before = calls.length;
+    for (const url of ['https://calendar.google.com/calendar/u/0/r', 'https://calendar.google.com.evil.example/calendar/ical/x/basic.ics', 'https://www.google.com/calendar/ical/x/basic.ics', 'https://evilcalendar.google.com/calendar/ical/x']) {
+      expect(externalCalendarUrl(url), url).toBeNull();
+      expect((await post({ url })).status, url).toBe(400);
+    }
+    expect(calls.length).toBe(before);
+  });
+
+  it('distingue la fuente para mostrar su nombre', () => {
+    expect(calendarSource('https://calendar.google.com/calendar/ical/x/private-y/basic.ics')).toBe('Google Calendar');
+    expect(calendarSource('webcal://p01-caldav.icloud.com/a')).toBe('Apple Calendar');
   });
 });

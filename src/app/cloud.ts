@@ -219,13 +219,13 @@ class Cloud {
     if (error) throw new Error('No se pudo desactivar el enlace.');
   }
 
-  /** Texto .ics del calendario público de iCloud, leído por la función del servidor. */
+  /** Texto .ics del calendario de iCloud o Google, leído por la función del servidor. */
   async fetchAppleCalendar(url: string): Promise<string> {
     const { data, error } = await this.client!.functions.invoke<string>('calendar-import', { body: { url } });
     if (error) {
       const context = (error as { context?: Response }).context;
       const message = context ? await context.text().catch(() => '') : '';
-      throw new Error(message || 'No se pudo leer Apple Calendar. Inténtalo más tarde.');
+      throw new Error(message || 'No se pudo leer el calendario. Inténtalo más tarde.');
     }
     return typeof data === 'string' ? data : '';
   }

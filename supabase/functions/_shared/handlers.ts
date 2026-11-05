@@ -1,4 +1,4 @@
-import { CalendarError, fetchIcloudCalendar } from './icloud.ts';
+import { CalendarError, fetchExternalCalendar } from './icloud.ts';
 import { buildCalendar, type FeedRow } from './ics.ts';
 import { sha256Hex, TOKEN_PATTERN } from './token.ts';
 
@@ -60,7 +60,7 @@ const CORS = {
   'access-control-allow-methods': 'POST, OPTIONS',
 };
 
-/** POST { url } con sesión iniciada: el texto del calendario público de iCloud. */
+/** POST { url } con sesión iniciada: el texto del calendario de iCloud o Google. */
 export async function handleImport(request: Request, deps: ImportDeps): Promise<Response> {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (request.method !== 'POST') return text(405, 'Método no permitido', { ...CORS, allow: 'POST' });
@@ -76,10 +76,10 @@ export async function handleImport(request: Request, deps: ImportDeps): Promise<
   }
   if (typeof url !== 'string') return text(400, 'Falta la dirección del calendario.', CORS);
   try {
-    const calendar = await fetchIcloudCalendar(url, deps.fetcher);
+    const calendar = await fetchExternalCalendar(url, deps.fetcher);
     return new Response(calendar, { headers: { ...CORS, 'content-type': 'text/calendar; charset=utf-8', 'cache-control': 'no-store' } });
   } catch (error) {
     if (error instanceof CalendarError) return text(error.status, error.message, CORS);
-    return text(502, 'No se pudo leer el calendario de iCloud. Inténtalo más tarde.', CORS);
+    return text(502, 'No se pudo leer el calendario. Inténtalo más tarde.', CORS);
   }
 }
