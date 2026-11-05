@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { icloudUrl } from '../../supabase/functions/_shared/icloud.ts';
+import { calendarSource, externalCalendarUrl } from '../../supabase/functions/_shared/icloud.ts';
 import { useApple } from '../app/apple';
 import { cloud, useCloud } from '../app/cloud';
 import { getStore, useData } from '../app/store';
@@ -93,8 +93,10 @@ function FeedLink() {
   );
 }
 
-/** Apple → LIA OS: calendario público de iCloud, solo lectura. */
-function AppleSource() {
+const steps = 'mt-2 list-decimal pl-5 text-[13px] text-muted';
+
+/** Apple o Google → LIA OS: solo lectura. */
+function ExternalSource() {
   const { settings } = useData();
   const { attempt, confirm, toast } = useUI();
   const state = useApple();
@@ -102,26 +104,27 @@ function AppleSource() {
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
-    const url = icloudUrl(draft);
+    const url = externalCalendarUrl(draft);
     if (!url) {
-      toast('Pega el enlace que da el iPhone al compartir un calendario público. Empieza por webcal:// y contiene icloud.com.');
+      toast('Pega la dirección secreta en formato iCal de Google Calendar, o el enlace de un calendario público de iCloud.');
       return;
     }
-    if (await attempt(() => getStore().updateSettings({ appleCalendarUrl: url.toString() }), 'Apple Calendar conectado')) setDraft('');
+    if (await attempt(() => getStore().updateSettings({ appleCalendarUrl: url.toString() }), `${calendarSource(url.toString())} conectado`)) setDraft('');
   };
 
   const remove = async () => {
-    if (await confirm('Los eventos de Apple dejarán de verse en LIA OS. En Apple no cambia nada.', 'Quitar')) await attempt(() => getStore().updateSettings({ appleCalendarUrl: '' }), 'Apple Calendar quitado');
+    const source = calendarSource(settings.appleCalendarUrl);
+    if (await confirm(`Los eventos de ${source} dejarán de verse en LIA OS. En ${source} no cambia nada.`, 'Quitar')) await attempt(() => getStore().updateSettings({ appleCalendarUrl: '' }), `${source} quitado`);
   };
 
   return (
     <div className="py-4">
-      <p className="font-medium">Ver Apple Calendar en LIA OS</p>
-      <p className={sub}>Tus eventos de Apple aparecen en el Calendario de LIA OS. Se ven aquí, pero se editan en Apple.</p>
+      <p className="font-medium">Ver Google o Apple Calendar en LIA OS</p>
+      <p className={sub}>Tus eventos aparecen en el Calendario de LIA OS. Se ven aquí, pero se editan en su app.</p>
       {settings.appleCalendarUrl ? (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-[13px]" role="status">
-            {state.status === 'loading' ? 'Leyendo…' : state.status === 'error' ? state.error : `Conectado · ${state.events.length} eventos en los próximos meses`}
+            {state.status === 'loading' ? 'Leyendo…' : state.status === 'error' ? state.error : `${calendarSource(settings.appleCalendarUrl)} conectado · ${state.events.length} eventos en los próximos meses`}
           </span>
           <Button size="sm" variant="danger" onClick={remove}>
             Quitar
@@ -129,18 +132,24 @@ function AppleSource() {
         </div>
       ) : (
         <>
-          <ol className="mt-2 list-decimal pl-5 text-[13px] text-muted">
-            <li>En el iPhone abre Calendario y pulsa «Calendarios».</li>
-            <li>Pulsa ⓘ junto al calendario que quieres ver aquí.</li>
+          <p className="mt-3 text-[13px] font-medium">Google Calendar (desde un computador)</p>
+          <ol className={steps}>
+            <li>Abre calendar.google.com, pulsa ⚙ y luego «Configuración».</li>
+            <li>A la izquierda, en «Configuración de mis calendarios», elige tu calendario.</li>
+            <li>En «Integrar el calendario», copia la «Dirección secreta en formato iCal».</li>
+          </ol>
+          <p className="mt-3 text-[13px] font-medium">Apple Calendar (en el iPhone)</p>
+          <ol className={steps}>
+            <li>Abre Calendario, pulsa «Calendarios» y luego ⓘ junto al calendario.</li>
             <li>Activa «Calendario público», pulsa «Compartir enlace» y cópialo.</li>
           </ol>
           <form onSubmit={save} className="mt-3 flex gap-2">
-            <input aria-label="Enlace público de Apple Calendar" placeholder="webcal://p…-caldav.icloud.com/published/…" value={draft} onChange={(e) => setDraft(e.target.value)} className="control" />
+            <input aria-label="Dirección del calendario" placeholder="https://calendar.google.com/calendar/ical/…" value={draft} onChange={(e) => setDraft(e.target.value)} className="control" />
             <Button type="submit" size="sm">
               Conectar
             </Button>
           </form>
-          <Note>Ese enlace es público: cualquiera que lo tenga puede ver ese calendario. Puedes desactivarlo en el iPhone cuando quieras.</Note>
+          <Note>Quien tenga la dirección puede ver ese calendario. La de Google es secreta: no la compartas, y si se filtra pulsa «Restablecer» en Google. La de Apple es pública: desactívala en el iPhone cuando quieras.</Note>
         </>
       )}
     </div>
@@ -151,14 +160,14 @@ export function AppleSection() {
   const { configured, email } = useCloud();
   if (!configured) return null;
   return (
-    <Section title="Apple Calendar" className="mt-8">
+    <Section title="Apple y Google Calendar" className="mt-8">
       {email ? (
         <>
           <FeedLink />
-          <AppleSource />
+          <ExternalSource />
         </>
       ) : (
-        <Note>Inicia sesión en Sincronización para conectar Apple Calendar.</Note>
+        <Note>Inicia sesión en Sincronización para conectar tus calendarios.</Note>
       )}
     </Section>
   );

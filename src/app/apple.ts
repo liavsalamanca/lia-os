@@ -114,7 +114,7 @@ class Apple {
       if (this.url === url) this.set({ events, status: 'ready', fetchedAt, error: null });
     } catch (error) {
       // Se siguen mostrando los últimos eventos leídos.
-      this.set({ status: 'error', error: error instanceof Error ? error.message : 'No se pudo leer Apple Calendar.' });
+      this.set({ status: 'error', error: error instanceof Error ? error.message : 'No se pudo leer el calendario.' });
     }
   }
 }
