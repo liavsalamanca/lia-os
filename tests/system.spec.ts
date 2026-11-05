@@ -182,3 +182,11 @@ test.describe('respaldos', () => {
     await expect(page.getByText('No hay tareas con esos filtros')).toBeVisible();
   });
 });
+
+test('cambiar la zona horaria se guarda y se aplica', async ({ page }) => {
+  await page.goto('#/settings');
+  await page.getByLabel('Zona horaria').selectOption('Europe/Madrid');
+  await expect(page.getByText('Zona horaria actualizada')).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel('Zona horaria')).toHaveValue('Europe/Madrid');
+});

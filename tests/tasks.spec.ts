@@ -128,8 +128,11 @@ test('un recordatorio exige fecha límite', async ({ page }) => {
 });
 
 test('el recordatorio avisa a su hora con la app abierta', async ({ page }) => {
+  // Recargar justo tras la navegación del beforeEach a veces se interrumpe en WebKit:
+  // se sale de la app, se instala el reloj y se vuelve a cargar desde cero.
+  await page.goto('about:blank');
   await page.clock.install({ time: new Date('2026-11-04T13:58:00Z') }); // 08:58 en Bogotá
-  await page.reload();
+  await page.goto('#/tasks');
   await newTask(page, 'Llamar a la agencia', async () => {
     await field(page, 'Fecha límite').fill('2026-11-04');
     await field(page, 'Recordatorio').fill('09:00');

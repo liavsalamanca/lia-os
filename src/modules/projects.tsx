@@ -19,7 +19,7 @@ export default function Projects() {
   return (
     <>
       <PageHeader
-        eyebrow="Goals & execution"
+        eyebrow="Metas y ejecución"
         title="Proyectos"
         subtitle="De una idea bonita a un resultado concreto."
         action={

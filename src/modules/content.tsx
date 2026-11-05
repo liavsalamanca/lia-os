@@ -28,7 +28,7 @@ export default function ContentStudio() {
   return (
     <>
       <PageHeader
-        eyebrow="Social media · Content"
+        eyebrow="Redes · Contenido"
         title="Taikinsa Studio"
         subtitle="Las ideas, la producción y el calendario del restaurante."
         action={

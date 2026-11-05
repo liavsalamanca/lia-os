@@ -3,6 +3,7 @@ import { cloud, useCloud } from '../app/cloud';
 import { getStore, useData } from '../app/store';
 import { useUI } from '../app/ui';
 import { readLegacy } from '../data/legacy';
+import { isValidTimezone } from '../data/normalize';
 import type { BackupEntry } from '../data/repository';
 import { Button, Note, PageHeader, Section } from '../design';
 import { todayISO } from '../domain/dates';
@@ -37,6 +38,27 @@ function InlineField({ label, value, type = 'text', onSave, step }: { label: str
         Guardar
       </Button>
     </form>
+  );
+}
+
+const COMMON_ZONES = ['America/Bogota', 'America/New_York', 'America/Mexico_City', 'America/Lima', 'America/Santiago', 'America/Argentina/Buenos_Aires', 'America/Los_Angeles', 'Europe/Madrid', 'Europe/Paris', 'Europe/London'];
+
+function zoneList(current: string): string[] {
+  // Intl.supportedValuesOf no existe en navegadores antiguos: entonces bastan las comunes.
+  const all = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : COMMON_ZONES;
+  return [...new Set([current, ...COMMON_ZONES, ...all])];
+}
+
+function TimezoneSelect({ value, onChange }: { value: string; onChange: (timezone: string) => Promise<unknown> }) {
+  const zones = zoneList(value);
+  return (
+    <select aria-label="Zona horaria" value={value} onChange={(e) => isValidTimezone(e.target.value) && void onChange(e.target.value)} className="control w-full max-w-72">
+      {zones.map((z) => (
+        <option key={z} value={z}>
+          {z.replace(/_/g, ' ')}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -124,7 +146,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Customize your life" title="Configuración" subtitle="Tu sistema, a tu estilo." />
+      <PageHeader eyebrow="Personaliza tu vida" title="Configuración" subtitle="Tu sistema, a tu estilo." />
       <div className="grid gap-10 lg:grid-cols-2">
         <Section title="Personalización">
           <Setting title="Tu nombre" hint="Así te saluda LIA OS.">
@@ -149,6 +171,9 @@ export default function SettingsPage() {
                 return attempt(() => store.updateSettings({ portfolio }), 'Enlace actualizado');
               }}
             />
+          </Setting>
+          <Setting title="Zona horaria" hint="Define qué es «hoy», la hora de los recordatorios y la de los calendarios.">
+            <TimezoneSelect value={settings.timezone} onChange={(timezone) => attempt(() => store.updateSettings({ timezone }), 'Zona horaria actualizada')} />
           </Setting>
           <Setting title="Tasa USD → COP" hint="Predeterminada para pedidos nuevos; actualízala manualmente.">
             <InlineField label="Tasa USD a COP" type="number" step="any" value={settings.fx} onSave={(v) => positive(v, 'fx', 1, 'La tasa debe ser mayor que 0.')} />

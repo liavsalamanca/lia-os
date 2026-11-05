@@ -15,7 +15,7 @@ export default function Finance() {
   return (
     <>
       <PageHeader
-        eyebrow="Money map"
+        eyebrow="Mapa del dinero"
         title="Finanzas"
         subtitle="Haz que tus metas tengan números reales."
         action={

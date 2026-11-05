@@ -1,6 +1,7 @@
 # MASTER PLAN — LIA OS
 
 > Documento principal de referencia del producto. Es la visión completa: todas las funcionalidades y módulos descritos aquí se conservan, aunque se implementen de forma progresiva.
+> Los datos personales de identificación se retiraron de este documento porque el repositorio es público.
 > El estado real del desarrollo, por fases y con tareas verificables, está en [docs/ROADMAP.md](docs/ROADMAP.md). Que algo aparezca aquí no significa que ya exista.
 
 ---
@@ -47,7 +48,7 @@ No quiero que elimines funcionalidades para simplificar el desarrollo.
 
 ## 2. MI PERFIL Y MIS NECESIDADES
 
-Soy una mujer colombiana de 23 años, estudiante de diseño de moda, modelo, creadora de contenido, social media manager y emprendedora.
+Soy estudiante de diseño de moda, modelo, creadora de contenido, social media manager y emprendedora.
 
 Tengo múltiples actividades y necesito un único sistema que me ayude a organizar mi vida.
 
@@ -66,7 +67,7 @@ Mis principales áreas son:
 
 ### Vida profesional
 
-* Social Media Manager de Taikinsa, un restaurante en Bucaramanga.
+* Social Media Manager de Taikinsa, un restaurante.
 * Gestión de contenido para redes sociales.
 * Fotografía, video y edición.
 * Proyectos freelance.
@@ -352,7 +353,7 @@ Los cálculos deben tener pruebas automatizadas.
 
 Crear una aplicación profesional de social media management.
 
-Marca: Restaurante Taikinsa, ubicado en el primer piso del Hotel Dann Carlton Bucaramanga.
+Marca: Restaurante Taikinsa.
 
 Incluir:
 
@@ -472,7 +473,7 @@ Espacio académico para:
 * Fashion films.
 * Seguimiento del trabajo de grado.
 
-El proyecto académico principal estudia la influencia de Instagram en la identidad estética de jóvenes de 18 a 25 años de Bucaramanga.
+El proyecto académico principal estudia la influencia de Instagram en la identidad estética de jóvenes de 18 a 25 años de mi ciudad.
 
 Incluir gestores de referencias y progreso de investigación.
 

@@ -9,12 +9,12 @@ export const moduleGroups: ModuleGroup[] = [
   {
     title: 'Mi espacio',
     modules: [
-      { path: '/overview', label: 'Overview', icon: Home, page: lazy(() => import('./overview')) },
+      { path: '/overview', label: 'Inicio', icon: Home, page: lazy(() => import('./overview')) },
       { path: '/tasks', label: 'Mis tareas', icon: CheckSquare, page: lazy(() => import('./tasks')) },
       { path: '/calendar', label: 'Calendario', icon: CalendarDays, page: lazy(() => import('./calendar')) },
       { path: '/projects', label: 'Proyectos', icon: FolderKanban, page: lazy(() => import('./projects')) },
       { path: '/habits', label: 'Hábitos', icon: Heart, page: lazy(() => import('./habits')) },
-      { path: '/focus', label: 'Focus mode', icon: Crosshair, page: lazy(() => import('./focus')) },
+      { path: '/focus', label: 'Concentración', icon: Crosshair, page: lazy(() => import('./focus')) },
     ],
   },
   {

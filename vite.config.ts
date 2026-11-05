@@ -1,13 +1,44 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 
 const base = process.env.VITE_BASE ?? '/lia-os/';
 
+/**
+ * Política de seguridad del contenido. GitHub Pages no permite cabeceras propias,
+ * así que va en una etiqueta meta. Solo en la versión publicada: el servidor de
+ * desarrollo inyecta scripts en línea.
+ */
+function contentSecurityPolicy(): Plugin {
+  const supabase = process.env.VITE_SUPABASE_URL ? new URL(process.env.VITE_SUPABASE_URL).origin : '';
+  const realtime = supabase.replace(/^http/, 'ws');
+  const policy = [
+    "default-src 'self'",
+    "script-src 'self'",
+    // Los atributos style (barras de progreso) los exige; los scripts siguen bloqueados.
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    `connect-src 'self' ${supabase} ${realtime}`.trim(),
+    "worker-src 'self'",
+    "manifest-src 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "object-src 'none'",
+  ].join('; ');
+  return {
+    name: 'lia-os-csp',
+    apply: 'build',
+    transformIndexHtml: () => [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: policy }, injectTo: 'head-prepend' }],
+  };
+}
+
 export default defineConfig({
   base,
   plugins: [
+    contentSecurityPolicy(),
     react(),
     tailwindcss(),
     VitePWA({
