@@ -23,9 +23,9 @@ No hay servidor. El invitado escribe su nombre y toca **Confirmar asistencia** o
 | Archivo | Contenido |
 |---|---|
 | `data.js` | Datos editables: evento, ubicación, dress code, contacto y marcas. Un `null` se muestra como "por confirmar". |
-| `app.js` | Lógica: portada y telón, confirmación por WhatsApp, calendario, cuenta regresiva, navegación, luz del hero y textura de terciopelo. |
+| `app.js` | Lógica: portada y telón, confirmación por WhatsApp, calendario, cuenta regresiva, navegación y luz del hero. |
 | `styles.css` | Diseño. |
-| `assets/` | Logos, referencia del dress code Black & White, imagen para vista previa en WhatsApp (`og-image.jpg`) y favicon. |
+| `assets/` | Logos y referencia del dress code en WebP, texturas del telón (`velvet.webp`, `valance.webp`), imagen para vista previa en WhatsApp (`og-image.jpg`) y favicon. |
 
 ## Publicación
 
@@ -36,3 +36,10 @@ Para ver la página en local, abre `index.html` en el navegador o sirve la carpe
 ## Marcas en pasarela
 
 Cuando se confirmen, completa `brands[]` en `data.js` con el nombre y quita `placeholder: true`. La mención de la página mostrará los nombres sola.
+
+## Rendimiento
+
+- Las texturas del terciopelo y la cenefa son imágenes WebP pequeñas (antes se dibujaban en cada visita).
+- Las fuentes cargan sin bloquear el primer dibujo; Raleway y Great Vibes solo con las letras que se usan.
+- El logo principal se precarga; el resto de imágenes se cargan de forma diferida.
+- La luz del hero solo se anima mientras está en pantalla.

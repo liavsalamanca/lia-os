@@ -18,162 +18,6 @@
   document.documentElement.classList.add('js');
 
   /* ------------------------------------------------------------------ */
-  /* Textura de terciopelo generada en el navegador                      */
-  /* Pliegues irregulares con luz difusa, brillo rasante (propio del     */
-  /* terciopelo), sombra en los valles y grano del pelo de la tela.      */
-  /* Se repite en horizontal sin costuras. Si falla, queda el degradado. */
-  /* ------------------------------------------------------------------ */
-  function velvetTexture(w, h, folds) {
-    var canvas = document.createElement('canvas');
-    canvas.width = w; canvas.height = h;
-    var ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    var img = ctx.createImageData(w, h);
-    var d = img.data;
-    var TAU = Math.PI * 2;
-    var L = [-0.38, 0, 0.92]; // luz desde arriba a la izquierda, al frente
-    var seed = 7;
-    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    // Fases fijas por armónico para que cada pliegue sea distinto
-    var p1 = rnd() * TAU, p2 = rnd() * TAU, p3 = rnd() * TAU, p4 = rnd() * TAU;
-    function height(x, t) {
-      var X = x / w;
-      // Los pliegues se abren un poco hacia abajo (caída por gravedad)
-      var u = X * folds + t * 0.35 * Math.sin(TAU * X * 2 + p4) + 0.18 * Math.sin(TAU * X * 3 + p3);
-      return Math.sin(TAU * u + p1) * 1.0 +
-             Math.sin(TAU * u * 2 + p2) * 0.28 +
-             Math.sin(TAU * (X * folds * 3) + p3 + t * 2.2) * 0.08;
-    }
-    for (var y = 0; y < h; y++) {
-      var t = y / (h - 1);
-      // Caída de luz: más oscuro arriba (bajo la cenefa) y al pie
-      var vert = 0.55 + 0.45 * Math.sin(Math.PI * Math.min(1, 0.08 + t * 0.98));
-      for (var x = 0; x < w; x++) {
-        var hc = height(x, t);
-        var dh = (height(x + 1, t) - height(x - 1, t)) * 0.5 * (w / folds) * 0.9;
-        var nx = -dh, nz = 1, len = Math.sqrt(nx * nx + nz * nz);
-        nx /= len; nz /= len;
-        var diffuse = Math.max(0, nx * L[0] + nz * L[2]);
-        var sheen = Math.pow(1 - nz, 1.4) * 0.9;                 // brillo rasante del terciopelo
-        var occl = 0.35 + 0.65 * ((hc + 1.36) / 2.72);            // valles más oscuros
-        var I = (0.12 + 0.88 * diffuse) * occl * vert + sheen * 0.42 * vert;
-        I = Math.max(0, Math.min(1.15, I));
-        var grain = (rnd() - 0.5) * 0.07;
-        var k = Math.max(0, I + grain);
-        // Rampa de color: sombra casi negra → carmín → brillo rosado
-        var r = 16 + 190 * Math.pow(k, 1.1) + 40 * Math.max(0, k - 0.75) * 4;
-        var g = 2 + 16 * Math.pow(k, 2.2) + 30 * Math.max(0, k - 0.8) * 3;
-        var b = 5 + 26 * Math.pow(k, 1.8) + 30 * Math.max(0, k - 0.8) * 3;
-        var i = (y * w + x) * 4;
-        d[i] = Math.min(255, r); d[i + 1] = Math.min(255, g); d[i + 2] = Math.min(255, b); d[i + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    try { return canvas.toDataURL('image/jpeg', 0.86); } catch (e) { return null; }
-  }
-  try {
-    var velvet = velvetTexture(520, 900, 6);
-    if (velvet) {
-      document.documentElement.style.setProperty('--velvet-tex', 'url("' + velvet + '")');
-      document.documentElement.classList.add('has-velvet');
-    }
-  } catch (e) { /* se queda el terciopelo en degradado */ }
-
-  /* ------------------------------------------------------------------ */
-  /* Cenefa de teatro: festones drapeados con pliegues en arco, cascadas */
-  /* verticales entre festones, barra fruncida arriba y fleco dorado.    */
-  /* Se dibuja un festón por baldosa y se repite en horizontal.          */
-  /* ------------------------------------------------------------------ */
-  function valanceTexture(W, H) {
-    var canvas = document.createElement('canvas');
-    canvas.width = W; canvas.height = H;
-    var ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    var img = ctx.createImageData(W, H);
-    var d = img.data;
-    var PI = Math.PI;
-    var HEAD = Math.round(H * 0.17);          // barra superior fruncida
-    var SAG = H * 0.52;                        // caída del festón
-    var FR = Math.round(H * 0.09);             // largo del fleco
-    var JW = W * 0.075;                        // medio ancho de la cascada
-    var seed = 11;
-    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    function velvet(k) {                       // rampa de color del terciopelo
-      k = Math.max(0, Math.min(1.2, k));
-      return [16 + 190 * Math.pow(k, 1.1) + 160 * Math.max(0, k - .75),
-              2 + 16 * Math.pow(k, 2.2) + 90 * Math.max(0, k - .8),
-              5 + 26 * Math.pow(k, 1.8) + 90 * Math.max(0, k - .8)];
-    }
-    function gold(k) { k = Math.max(0, Math.min(1, k)); return [120 + 130 * k, 82 + 120 * k, 30 + 90 * k]; }
-    function put(i, c, a) { d[i] = Math.min(255, c[0]); d[i + 1] = Math.min(255, c[1]); d[i + 2] = Math.min(255, c[2]); d[i + 3] = a; }
-    function bottom(x) { var u = x / W; return HEAD + SAG * Math.pow(Math.sin(PI * u), 0.85); }
-    for (var y = 0; y < H; y++) {
-      for (var x = 0; x < W; x++) {
-        var i = (y * W + x) * 4;
-        var grain = (rnd() - .5) * .06;
-        // Distancia a la unión entre festones (bordes de la baldosa)
-        var dj = Math.min(x, W - x);
-        var jabotBottom = H - FR - 4 - dj * 0.9;
-        // 1) Cascada vertical en la unión
-        if (dj < JW && y >= HEAD - 2 && y < jabotBottom) {
-          var v = dj / JW;                                  // 0 centro → 1 borde
-          var f = Math.sin(v * PI * 3.2);
-          var df = Math.cos(v * PI * 3.2);
-          var k = (0.32 + 0.5 * (0.5 + 0.5 * df)) * (0.75 + 0.25 * f) * (1 - 0.25 * (y - HEAD) / (H - HEAD));
-          put(i, velvet(k + grain), 255);
-          continue;
-        }
-        // Fleco de la cascada
-        if (dj < JW && y >= jabotBottom && y < jabotBottom + FR * 0.8) {
-          var strand = (x % 3) === 0 ? 0.9 : 0.55;
-          put(i, gold(strand - (y - jabotBottom) / (FR * 2) + grain), (x % 3) === 2 ? 0 : 235);
-          continue;
-        }
-        // 2) Barra superior con frunce vertical
-        if (y < HEAD) {
-          var pu = x / W * 26;
-          var ph = Math.cos(pu * 2 * PI);
-          var k2 = (0.35 + 0.4 * (0.5 + 0.5 * ph)) * (0.7 + 0.3 * Math.sin(PI * y / HEAD));
-          put(i, velvet(k2 + grain), 255);
-          continue;
-        }
-        // 3) Festón con pliegues en arco que siguen la caída
-        var yb = bottom(x);
-        if (y <= yb) {
-          var s = (y - HEAD) / Math.max(1, yb - HEAD);      // 0 arriba → 1 borde
-          var folds = 5.5;
-          var fs = Math.sin(s * PI * folds + 0.6);
-          var dfs = Math.cos(s * PI * folds + 0.6);
-          var lightDown = 0.5 + 0.5 * dfs;                  // caras que miran hacia arriba reciben luz
-          var center = Math.sin(PI * x / W);                // más luz en el centro del festón
-          var k3 = (0.2 + 0.75 * lightDown) * (0.55 + 0.45 * center) * (0.8 + 0.2 * fs) + Math.pow(Math.abs(dfs), 6) * 0.25 * center;
-          k3 *= 0.85 + 0.15 * (1 - s);
-          put(i, velvet(k3 + grain), 255);
-          continue;
-        }
-        // 4) Fleco dorado bajo el festón
-        if (y <= yb + FR) {
-          var t = (y - yb) / FR;
-          var on = (x % 3) !== 2;
-          var sh = (x % 3) === 0 ? 0.95 : 0.6;
-          put(i, gold(sh * (1 - t * 0.5) + grain), on ? Math.round(255 * (1 - t * 0.35)) : 0);
-          continue;
-        }
-        d[i + 3] = 0;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-    try { return canvas.toDataURL('image/png'); } catch (e) { return null; }
-  }
-  try {
-    var valance = valanceTexture(520, 230);
-    if (valance) {
-      document.documentElement.style.setProperty('--valance-tex', 'url("' + valance + '")');
-      document.documentElement.classList.add('has-valance');
-    }
-  } catch (e) { /* se queda la cenefa en degradado */ }
-
-  /* ------------------------------------------------------------------ */
   /* Utilidades                                                          */
   /* ------------------------------------------------------------------ */
   function $(sel, root) { return (root || document).querySelector(sel); }
@@ -335,7 +179,8 @@
     function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
     function build(root) {
-      var vw = document.documentElement.clientWidth;
+      // Ancho real del telón (la capa fija), sin depender de la barra de desplazamiento
+      var vw = root.getBoundingClientRect().width || document.documentElement.clientWidth;
       var panelW = Math.ceil(vw / 2) + 2;
       var valanceEl = $('.stage-valance');
       var vr = valanceEl ? valanceEl.getBoundingClientRect() : { top: 0, left: 0, width: vw, height: 0 };
@@ -461,11 +306,15 @@
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (en) { if (en.isIntersecting) visible.add(en.target); else visible.delete(en.target); });
+        kick();
       });
       zones.forEach(function (z) { io.observe(z); });
     } else zones.forEach(function (z) { visible.add(z); });
 
+    var running = false;
+    function kick() { if (!running && visible.size) { running = true; requestAnimationFrame(frame); } }
     function frame(t) {
+      if (!visible.size || document.hidden) { running = false; return; }
       zones.forEach(function (z, i) {
         if (!visible.has(z)) return;
         var rect = z.getBoundingClientRect();
@@ -490,7 +339,8 @@
       });
       requestAnimationFrame(frame);
     }
-    requestAnimationFrame(frame);
+    document.addEventListener('visibilitychange', kick);
+    kick();
   }
 
   function renderCover() {
@@ -591,7 +441,7 @@
     Modal.setContent(
       '<p class="eyebrow">Dress code</p>' +
       '<h3 class="modal__title dc-title dc-title--modal" id="modal-title"><span class="dc-title__script">Black <span class="amp">&amp;</span> White</span></h3>' +
-      '<img class="dc-modal-img" src="assets/dress-code-referencia.jpg" alt="Referencias de looks en negro y blanco" width="736" height="1104">' +
+      '<img class="dc-modal-img" src="assets/dress-code-referencia.webp" alt="Referencias de looks en negro y blanco" width="736" height="1104">' +
       '<p class="modal__text">' + esc(EVENT.dressCode.description) + '</p>'
     );
   }
@@ -864,7 +714,9 @@
   /* Inicio                                                              */
   /* ------------------------------------------------------------------ */
   function setViewportWidth() {
-    document.documentElement.style.setProperty('--vw', document.documentElement.clientWidth + 'px');
+    // Ancho útil de la página (sin el espacio reservado para la barra de desplazamiento)
+    var w = document.body ? document.body.getBoundingClientRect().width : 0;
+    document.documentElement.style.setProperty('--vw', (w || document.documentElement.clientWidth) + 'px');
   }
 
   function init() {

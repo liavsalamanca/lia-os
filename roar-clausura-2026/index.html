@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="has-velvet has-valance">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -19,8 +19,14 @@
 <link rel="icon" href="assets/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Raleway:wght@200;300&family=Pinyon+Script&family=Great+Vibes&display=swap">
+<link rel="preload" href="assets/roar-choice-awards-2026.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="preload" href="assets/velvet.webp" as="image" type="image/webp">
 <link rel="stylesheet" href="styles.css">
+<!-- Fuentes sin bloquear el primer dibujo; Raleway y Great Vibes solo con las letras que se usan -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Pinyon+Script&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@200&text=DRESSCOD%3A%20&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&text=%26&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&family=Pinyon+Script&family=Raleway:wght@200&family=Great+Vibes&display=swap"></noscript>
 </head>
 <body>
 
@@ -30,7 +36,7 @@
     <div class="printed" id="printed">
       <div class="card">
         <h1 class="card__title" id="cover-title">
-          <img class="card__logo" src="assets/roar-choice-awards-2026.png" alt="Roar Studio Choice Awards 2026" width="914" height="566">
+          <img class="card__logo" src="assets/roar-choice-awards-2026.webp" alt="Roar Studio Choice Awards 2026" width="914" height="566" fetchpriority="high" decoding="async">
         </h1>
         <p class="eyebrow card__eyebrow">Clausura del año · <span data-field="event.organizationDescription">Agencia y academia de modelos</span></p>
         <p class="card__date mono"><span data-field="event.weekdayLabel">Sábado</span> · <span data-field="event.dateLabel">12 de diciembre de 2026</span></p>
@@ -61,7 +67,7 @@
   <div class="progress" aria-hidden="true"></div>
   <div class="topbar__inner">
     <a class="topbar__brand" href="#inicio" aria-label="Roar Studio, ir al inicio">
-      <img src="assets/roar-studio-logo.png" alt="" width="760" height="206">
+      <img src="assets/roar-studio-logo.webp" alt="" width="480" height="130" decoding="async">
     </a>
     <nav class="sectionnav" aria-label="Secciones">
       <ul>
@@ -91,7 +97,7 @@
       <a class="chip-countdown" href="#fecha-lugar"><span class="chip-countdown__dot" aria-hidden="true"></span><span id="chip-countdown">Faltan pocos días</span></a>
     </div>
     <h2 class="hero__title" id="hero-title">
-      <img class="hero__logo" src="assets/roar-choice-awards-2026.png" alt="Roar Studio Choice Awards 2026" width="914" height="566">
+      <img class="hero__logo" src="assets/roar-choice-awards-2026.webp" alt="Roar Studio Choice Awards 2026" width="914" height="566" decoding="async">
     </h2>
     <p class="tagline-values" aria-label="Elegancia, talento y diversidad">Elegancia <span aria-hidden="true">•</span> Talento <span aria-hidden="true">•</span> Diversidad</p>
     <p class="hero__tagline">Cerramos el año de la agencia y la academia con una noche de moda y pasarelas de marcas invitadas.</p>
@@ -133,7 +139,7 @@
     </header>
     <p class="dc-lead" data-field="event.dressCode.description">Viste de negro, de blanco o combina ambos, con un estilo elegante.</p>
     <button class="dc-board" type="button" id="dress-photo" aria-label="Ampliar referencias del dress code Black &amp; White">
-      <img src="assets/dress-code-black-white.jpg" alt="Referencias de looks en negro y blanco: vestidos, faldas, trajes y conjuntos" width="620" height="630" loading="lazy" decoding="async">
+      <img src="assets/dress-code-black-white.webp" alt="Referencias de looks en negro y blanco: vestidos, faldas, trajes y conjuntos" width="620" height="630" loading="lazy" decoding="async">
       <span class="dc-board__zoom" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor"><path d="M6 1H1v5M10 15h5v-5M1 1l5 5M15 15l-5-5"/></svg> Ampliar</span>
     </button>
     <div class="dc-swatches" aria-label="Colores: negro y blanco">
@@ -238,7 +244,7 @@
 <footer class="footer">
   <div class="stage-edge" aria-hidden="true"><span class="valance__fringe"></span></div>
   <div class="wrap footer__inner">
-    <img src="assets/roar-studio-logo.png" alt="Roar Studio by Héctor Carrillo" width="760" height="206" class="footer__logo" loading="lazy">
+    <img src="assets/roar-studio-logo.webp" alt="Roar Studio by Héctor Carrillo" width="480" height="130" class="footer__logo" loading="lazy" decoding="async">
     <p class="mono">Agencia y academia de modelos · Clausura del año 2026</p>
     <p class="footer__links"><a class="footer__ig" href="https://www.instagram.com/roarstudiohc/" target="_blank" rel="noopener noreferrer">Instagram · @roarstudiohc</a><a class="footer__ig" href="https://wa.me/573165368405" target="_blank" rel="noopener noreferrer">WhatsApp · +57 316 536 8405</a></p>
     <button class="btn btn--text" type="button" id="replay-cover">Ver la portada de nuevo</button>
@@ -263,7 +269,7 @@
 </div>
 
 <script>window.ROAR_ENV = window.ROAR_ENV || { icsDownload: true, mapEmbed: true };</script>
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>
