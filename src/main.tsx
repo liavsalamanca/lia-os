@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { apple } from './app/apple';
 import { cloud } from './app/cloud';
 import { consumeRecoveryLink } from './app/recovery';
 import { Shell } from './app/Shell';
@@ -47,7 +48,10 @@ async function start() {
     const store = new Store(repo, snapshot);
     setStore(store);
     // La nube nunca retrasa ni impide abrir la app.
-    void cloud.start(store, repo, recovery).catch(() => undefined);
+    void cloud
+      .start(store, repo, recovery)
+      .then(() => apple.start(store, repo))
+      .catch(() => undefined);
     root.render(
       <StrictMode>
         <App notice={noticeFor(migration)} />

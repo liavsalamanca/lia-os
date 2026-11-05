@@ -1,18 +1,27 @@
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Plus, RefreshCw } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { apple, useApple } from '../app/apple';
 import { useData } from '../app/store';
 import { useUI } from '../app/ui';
 import type { Snapshot } from '../data/schema';
+import type { ExternalEvent } from '../domain/appleCalendar';
 import { Button, EmptyState, IconButton, PageHeader, Row, RowBody, Section } from '../design';
 import { formatDate, formatMonth, monthGrid, todayISO } from '../domain/dates';
 import { byTextDesc, RowActions } from './shared';
 
 const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
-type Entry = { key: string; title: string; kind: 'event' | 'task' };
+type Entry = { key: string; title: string; kind: 'event' | 'task' | 'apple' };
 
-function entriesFor(data: Snapshot, date: string): Entry[] {
+const KIND_STYLE: Record<Entry['kind'], string> = {
+  event: 'border-wine text-wine',
+  task: 'border-rose text-rose',
+  apple: 'border-ink/50 text-ink',
+};
+
+function entriesFor(data: Snapshot, appleEvents: ExternalEvent[], date: string): Entry[] {
   return [
+    ...appleEvents.filter((e) => e.date === date).map((e) => ({ key: e.key, title: e.time ? `${e.time} ${e.title}` : e.title, kind: 'apple' as const })),
     ...data.events.filter((e) => e.date === date).map((e) => ({ key: e.id, title: e.title, kind: 'event' as const })),
     ...data.tasks.filter((t) => t.due === date && t.status !== 'Hecho').map((t) => ({ key: t.id, title: t.title, kind: 'task' as const })),
     ...data.content.filter((c) => c.publishDate === date).map((c) => ({ key: c.id, title: c.title, kind: 'event' as const })),
@@ -23,6 +32,8 @@ function entriesFor(data: Snapshot, date: string): Entry[] {
 export default function Calendar() {
   const data = useData();
   const { openForm } = useUI();
+  const appleState = useApple();
+  useEffect(() => void apple.refresh(), []);
   const today = todayISO(data.settings.timezone);
   const [offset, setOffset] = useState(0);
   const monthIndex = Number(today.slice(5, 7)) - 1 + offset;
@@ -58,7 +69,7 @@ export default function Calendar() {
           </div>
         ))}
         {monthGrid(year, month).map(({ date, inMonth }) => {
-          const entries = entriesFor(data, date);
+          const entries = entriesFor(data, appleState.events, date);
           return (
             <button
               key={date}
@@ -68,7 +79,7 @@ export default function Calendar() {
             >
               <span className={`text-xs ${date === today ? 'rounded-full bg-wine px-1.5 py-0.5 font-bold text-wine-ink' : ''}`}>{Number(date.slice(8))}</span>
               {entries.slice(0, 3).map((e) => (
-                <span key={e.key} className={`mt-1 block truncate border-l-2 pl-1 text-[11px] ${e.kind === 'task' ? 'border-rose text-rose' : 'border-wine text-wine'}`}>
+                <span key={e.key} className={`mt-1 block truncate border-l-2 pl-1 text-[11px] ${KIND_STYLE[e.kind]}`}>
                   {e.title}
                 </span>
               ))}
@@ -80,8 +91,25 @@ export default function Calendar() {
       <p className="mt-2 flex flex-wrap gap-x-4 text-[13px] text-muted">
         <span className="border-l-2 border-wine pl-1.5">Eventos, castings y publicaciones</span>
         <span className="border-l-2 border-rose pl-1.5">Tareas</span>
+        {appleState.status !== 'off' && <span className="border-l-2 border-ink/50 pl-1.5">Apple Calendar (se edita en Apple)</span>}
         <span>Toca una fecha para crear un evento.</span>
       </p>
+
+      {appleState.status !== 'off' && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-muted" role="status">
+          <span>
+            {appleState.status === 'loading'
+              ? 'Leyendo Apple Calendar…'
+              : appleState.fetchedAt
+                ? `Apple Calendar leído a las ${new Date(appleState.fetchedAt).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', timeZone: data.settings.timezone })}`
+                : 'Apple Calendar aún no se ha leído.'}
+          </span>
+          {appleState.error && <span className="text-danger">{appleState.error}</span>}
+          <Button size="sm" onClick={() => apple.refresh({ force: true })} disabled={appleState.status === 'loading'}>
+            <RefreshCw size={14} aria-hidden /> Actualizar Apple Calendar
+          </Button>
+        </div>
+      )}
 
       <Section title="Eventos registrados" className="mt-10">
         {data.events.length ? (

@@ -1,0 +1,10 @@
+# Solo para publicar las funciones con la CLI de Supabase. La app no lo lee.
+project_id = "lia-os"
+
+# Apple Calendar no envía sesión: el acceso lo da el enlace privado.
+[functions.calendar-feed]
+verify_jwt = false
+
+# Comprueba la sesión dentro de la función, compatible con las claves nuevas de Supabase.
+[functions.calendar-import]
+verify_jwt = false

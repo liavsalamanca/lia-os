@@ -197,6 +197,39 @@ class Cloud {
     this.set({ recovery: null });
   }
 
+  /** Fecha del enlace de calendario activo, o null si no hay. */
+  async calendarFeedCreatedAt(): Promise<string | null> {
+    const { data, error } = await this.client!.from('calendar_feeds').select('created_at').maybeSingle();
+    if (error) throw new Error('No se pudo consultar el enlace del calendario.');
+    return (data?.created_at as string | undefined) ?? null;
+  }
+
+  /** Crea o reemplaza el enlace privado. En la nube solo queda su hash; el enlace se muestra una vez. */
+  async createCalendarFeed(): Promise<string> {
+    const { newToken, sha256Hex } = await import('../../supabase/functions/_shared/token.ts');
+    const token = newToken();
+    const row = { user_id: this.userId, token_hash: await sha256Hex(token), created_at: new Date().toISOString() };
+    const { error } = await this.client!.from('calendar_feeds').upsert(row, { onConflict: 'user_id' });
+    if (error) throw new Error('No se pudo crear el enlace. Revisa que la tabla del calendario exista en Supabase.');
+    return `${URL}/functions/v1/calendar-feed?token=${token}`;
+  }
+
+  async deleteCalendarFeed() {
+    const { error } = await this.client!.from('calendar_feeds').delete().eq('user_id', this.userId!);
+    if (error) throw new Error('No se pudo desactivar el enlace.');
+  }
+
+  /** Texto .ics del calendario público de iCloud, leído por la función del servidor. */
+  async fetchAppleCalendar(url: string): Promise<string> {
+    const { data, error } = await this.client!.functions.invoke<string>('calendar-import', { body: { url } });
+    if (error) {
+      const context = (error as { context?: Response }).context;
+      const message = context ? await context.text().catch(() => '') : '';
+      throw new Error(message || 'No se pudo leer Apple Calendar. Inténtalo más tarde.');
+    }
+    return typeof data === 'string' ? data : '';
+  }
+
   /** Desvincula un dispositivo con datos de otra cuenta, sin tocar sus datos. */
   async forgetLink() {
     await this.repo.setMeta(OWNER_KEY, undefined);
