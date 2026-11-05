@@ -300,15 +300,19 @@
     Store.write('opened', true);
     var done = function () {
       hideCover();
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       var target = $('#hero-title');
       if (target) { target.setAttribute('tabindex', '-1'); target.focus({ preventScroll: true }); }
     };
     if (reducedMotion()) { cover.classList.add('is-opening'); setTimeout(done, 220); return; }
     // 1) La faja y la tarjeta se retiran  2) queda el telón cerrado  3) el telón se abre
     var curtains = $('#curtains');
-    curtains.hidden = false;
+    // Volver arriba sin animación antes de medir el escenario (evita el fallo al abrir desde el pie)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     curtains.classList.remove('is-open', 'is-done');
+    curtains.style.opacity = '';
+    curtains.hidden = false;
+    Curtain.prepare(curtains);          // el telón cerrado ya está detrás de la tarjeta
     cover.classList.add('is-opening');
     setTimeout(function () {
       done();
@@ -331,14 +335,19 @@
     function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
     function build(root) {
-      var vw = window.innerWidth;
+      var vw = document.documentElement.clientWidth;
       var panelW = Math.ceil(vw / 2) + 2;
-      var hero = $('.hero');
-      var top = hero ? Math.max(0, Math.round(hero.getBoundingClientRect().top)) : 0;
       var valanceEl = $('.stage-valance');
-      var valH = valanceEl ? valanceEl.getBoundingClientRect().height : 0;
+      var vr = valanceEl ? valanceEl.getBoundingClientRect() : { top: 0, left: 0, width: vw, height: 0 };
+      var top = Math.max(0, Math.round(vr.top));
       root.style.setProperty('--stage-top', top + 'px');
-      root.style.setProperty('--valance-h', valH + 'px');
+      root.style.setProperty('--valance-h', vr.height + 'px');
+      var ov = root.querySelector('.valance');
+      if (ov) {
+        ov.style.left = vr.left + 'px';
+        ov.style.width = vr.width + 'px';
+        ov.style.right = 'auto';
+      }
       // Ancho final del recogido: igual que las cortinas laterales del hero
       var drape = $('.drape--l');
       var gather = drape ? drape.getBoundingClientRect().width : Math.max(18, Math.min(150, vw * 0.09));
@@ -361,12 +370,14 @@
           panel.appendChild(el);
           // Destino: todas las franjas se apilan dentro del ancho del recogido
           var finalLeft = side === 'left' ? i * (gather / STRIPS) : panelW - (i + 1) * (gather / STRIPS);
-          strips.push({ el: el, dx: finalLeft - left, sf: Math.max(0.12, (gather / STRIPS) / sw * 1.9), i: i });
+          strips.push({ el: el, dx: finalLeft - left, sf: Math.max(0.06, (gather / STRIPS) / sw * 1.15), i: i });
         }
         panels.push({ side: side, strips: strips, theta: 0, omega: 0 });
       });
       return panels;
     }
+
+    function prepare(root) { build(root); }
 
     function open(root, onDone) {
       var panels = build(root);
@@ -416,10 +427,11 @@
 
     function reset(root) {
       $all('.curtain', root).forEach(function (p) { p.innerHTML = ''; p.style.width = ''; });
+      root.style.opacity = '';
       var stage = root.querySelector('.curtains__stage');
       if (stage) stage.style.opacity = '';
     }
-    return { open: open, reset: reset };
+    return { prepare: prepare, open: open, reset: reset };
   })();
 
 
@@ -851,7 +863,13 @@
   /* ------------------------------------------------------------------ */
   /* Inicio                                                              */
   /* ------------------------------------------------------------------ */
+  function setViewportWidth() {
+    document.documentElement.style.setProperty('--vw', document.documentElement.clientWidth + 'px');
+  }
+
   function init() {
+    setViewportWidth();
+    window.addEventListener('resize', setViewportWidth);
     bindFields();
     renderCover();
     renderPersonalTexts();

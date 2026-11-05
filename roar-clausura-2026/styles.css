@@ -1647,3 +1647,10 @@ body { padding-bottom: 24px; }
     radial-gradient(38% 60% at 50% 0%, rgba(255,226,180,.20), transparent 70%),
     radial-gradient(60% 50% at 50% 40%, rgba(255,214,150,.12), transparent 70%); }
 .curtains.is-done { transition: opacity .9s ease; opacity: 0; }
+
+/* Medidas estables: la barra de desplazamiento no mueve el escenario */
+html { scrollbar-gutter: stable; }
+.hero > .stage-drapes { left: calc(50% - var(--vw, 100vw) / 2); right: calc(50% - var(--vw, 100vw) / 2); }
+.spot::before, .spot::after { left: calc(50% - var(--vw, 100vw) / 2); right: calc(50% - var(--vw, 100vw) / 2); }
+.has-valance .curtains .valance { background-position: 0 0; }
+.has-valance .curtains .valance { filter: drop-shadow(0 10px 14px rgba(0,0,0,.7)); }
